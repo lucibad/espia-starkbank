@@ -107,9 +107,28 @@ A-03; das 24 de regra, 16 são o A-02 (regra específica no lugar da genérica) 
 ```bash
 python3 run.py gerar       # lê a planilha, aplica as regras, audita, monta o painel (~2 s)
 python3 run.py painel      # abre o painel no navegador
+python3 run.py coletor     # recebe as capturas do espia-borda e regenera o painel a cada uma
 python3 testes.py          # 37 verificações
 python3 testes_paridade.py # confere o motor Python contra o motor do navegador
 ```
+
+### Legado e presente, um painel só
+
+A planilha é a **carga legada** — o que a empresa já tinha registrado. As capturas do
+coletor de borda (`espia-borda`, a extensão de navegador) são o **presente**. As duas
+entram na mesma tabela `eventos`, passam pelo mesmo motor de regras e aparecem no mesmo
+painel, distinguidas pela coluna `origem` (`Captura ao vivo (espia-borda)`).
+
+```bash
+ESPIA_BIND=0.0.0.0 python3 run.py coletor   # aberto à rede: recebe das estações (Parallels, LAN)
+```
+
+O `gerar` **não apaga mais** o `dados/espia.db`: recria só as tabelas derivadas, e a tabela
+`capturas` sobrevive. A identidade de quem usou a IA é resolvida **no coletor**, nunca pela
+página: local pelo usuário do SO; remota pelo que o agente de estação ou o host nativo do
+Windows informou (`agente-local` / `nativo`); um nome só declarado fica marcado como tal.
+Concordância e auditoria continuam medidas **só sobre o legado** — captura não tem risco
+declarado para divergir, e os indicadores declarados são da planilha.
 
 ### O painel
 
@@ -203,6 +222,8 @@ espia/
   validacao.py           Os 15 casos do gabarito.
   auditoria.py           Indicadores recalculados + os seis achados.
   pipeline_oficial.py    Orquestração, SQLite, exportação, montagem do painel.
+  captura.py             Capturas do espia-borda unificadas com o legado (tabela `capturas`).
+  coletor.py             Servidor de ingestão do espia-borda (`run.py coletor`).
   consultas.py           Linhagem, exposição, alertas, evidência.
   xlsx_min.py            Leitor de XLSX embutido — o projeto roda sem pip install.
   yaml_min.py            Leitor de YAML embutido, pelo mesmo motivo.
@@ -274,3 +295,7 @@ Diga estes na apresentação, antes que perguntem.
   comportamento da base e registramos a divergência no achado A-04.
 - **Os marcos regulatórios não aparecem nesta versão.** A base oficial não tem coluna de
   enquadramento legal, e preferimos não inferir o que a planilha não afirma.
+- **O fingerprint da borda ainda não casa com o acervo.** A extensão calcula MinHash/SimHash
+  na máquina do usuário com FNV-1a (o navegador não tem blake2b síncrono); o acervo em Python
+  usa blake2b. Assinaturas só são comparáveis com o mesmo hash — unificar essa função é o
+  passo que falta para a captura responder *"de qual documento veio"*, e não só *"é sensível"*.
