@@ -63,7 +63,11 @@ def garantir_esquema(con: sqlite3.Connection) -> None:
 
 
 def _slug(s: str) -> str:
-    s = re.sub(r"[^a-z0-9]+", "-", (s or "").lower()).strip("-")
+    # tira acentos antes de reduzir a [a-z0-9]: "não identificado" → "nao-identificado"
+    import unicodedata
+    s = unicodedata.normalize("NFKD", s or "")
+    s = "".join(c for c in s if not unicodedata.combining(c))
+    s = re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
     return s[:40] or "x"
 
 
