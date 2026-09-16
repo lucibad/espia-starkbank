@@ -183,10 +183,11 @@ tr.sel td { background: var(--accent-soft); }
 
 /* ---------------- controles ---------------- */
 .filtros { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
-select, input[type="search"] {
+select, input[type="search"], input[type="date"] {
   font: inherit; font-size: 13px; color: var(--ink); background: var(--surface);
   border: 1px solid var(--line); border-radius: var(--r-md); padding: 6px 10px; max-width: 100%;
 }
+input[type="date"] { font-family: var(--f-mono); font-size: 12.5px; padding: 5px 8px; }
 select:hover, input:hover { border-color: var(--line-strong); }
 input[type="search"] { min-width: 280px; }
 .filtros label { font-size: 11.5px; color: var(--ink-3); display: flex; align-items: center; gap: 6px; }
@@ -437,19 +438,88 @@ python3 run.py painel</div>
 
   // ---------------- estado ----------------
   const FILTROS_VAZIOS = {
-    fRisco: "", fArea: "", fUsuario: "", fFerr: "", fClasse: "", fStatus: "", fSoDiverg: ""
+    fRisco: "", fArea: "", fUsuario: "", fFerr: "", fClasse: "", fStatus: "", fSoDiverg: "",
+    fDe: "", fAte: ""
   };
   const estado = {
     vista: "panorama", ...FILTROS_VAZIOS,
     eventoAberto: null, modoRastreio: "informacao", alvoRastreio: null, busca: ""
   };
 
+  // ---------------- recorte compartilhado: área · usuário · período ----------------
+  // O que se filtra no Panorama vale em Alertas, e vice-versa: é o mesmo `estado`.
+  function periodoNormalizado() {
+    let de = estado.fDe || "", ate = estado.fAte || "";
+    if (de && ate && de > ate) [de, ate] = [ate, de];
+    return { de, ate };
+  }
+  function recorte() {
+    const { de, ate } = periodoNormalizado();
+    return D.eventos.filter(e =>
+      (!estado.fArea || e.area === estado.fArea)
+      && (!estado.fUsuario || e.usuario_id === estado.fUsuario)
+      && (!de || e.data >= de) && (!ate || e.data <= ate));
+  }
+  // série diária calculada no navegador a partir do recorte (não a pré-computada)
+  function serieDe(ev) {
+    const m = {};
+    for (const e of ev) {
+      if (!e.data) continue;
+      const d = m[e.data] ||= { data: e.data, total: 0, "Crítico": 0, "Alto": 0, "Médio": 0, "Baixo": 0, "REVISAR": 0 };
+      d.total++; d[e.risco] = (d[e.risco] || 0) + 1;
+    }
+    return Object.values(m).sort((a, b) => a.data.localeCompare(b.data));
+  }
+  function partesRecorte() {
+    const { de, ate } = periodoNormalizado(), p = [];
+    if (estado.fArea) p.push(estado.fArea);
+    if (estado.fUsuario && userPorId[estado.fUsuario]) p.push(userPorId[estado.fUsuario].nome);
+    if (de || ate) p.push((de ? dataBR(de) : "início") + " a " + (ate ? dataBR(ate) : "fim"));
+    return p;
+  }
+  function barraRecorte(pref) {
+    const { de, ate } = periodoNormalizado();
+    return `
+      <div class="filtros">
+        <label>Área <select id="${pref}-area"><option value="">todas</option>
+          ${areas.map(a => `<option value="${esc(a)}" ${estado.fArea === a ? "selected" : ""}>${esc(a)}</option>`).join("")}</select></label>
+        <label>Usuário <select id="${pref}-usuario"><option value="">todos</option>
+          ${D.usuarios.filter(u => !estado.fArea || u.area === estado.fArea)
+            .map(u => `<option value="${u.id}" ${estado.fUsuario === u.id ? "selected" : ""}>${esc(u.nome)}</option>`).join("")}</select></label>
+        <label>De <input type="date" id="${pref}-de" value="${de}" min="${D.meta.periodo.inicio}" max="${D.meta.periodo.fim}"></label>
+        <label>Até <input type="date" id="${pref}-ate" value="${ate}" min="${D.meta.periodo.inicio}" max="${D.meta.periodo.fim}"></label>
+        <button class="sug" id="${pref}-limpar" style="padding:5px 12px">Limpar</button>
+      </div>`;
+  }
+  function ligarRecorte(pref, aoMudar) {
+    for (const [suf, campo] of [["area", "fArea"], ["usuario", "fUsuario"], ["de", "fDe"], ["ate", "fAte"]]) {
+      const el = document.getElementById(`${pref}-${suf}`);
+      if (!el) continue;
+      el.addEventListener("change", ev => {
+        estado[campo] = ev.target.value;
+        if (campo === "fArea") {   // usuário de outra área não faz sentido no recorte
+          const u = userPorId[estado.fUsuario];
+          if (u && estado.fArea && u.area !== estado.fArea) estado.fUsuario = "";
+        }
+        aoMudar();
+      });
+    }
+    const limpar = document.getElementById(`${pref}-limpar`);
+    if (limpar) limpar.addEventListener("click", () => { Object.assign(estado, FILTROS_VAZIOS); aoMudar(); });
+  }
+
   // ============================================================
   // PANORAMA
   // ============================================================
 
   function vistaPanorama() {
-    const ev = D.eventos, n = ev.length, t = D.meta.totais, c = D.meta.concordancia;
+    const ev = recorte(), n = ev.length, t = D.meta.totais, c = D.meta.concordancia;
+    const partes = partesRecorte(), filtrado = partes.length > 0;
+    const pessoasRec = new Set(ev.map(e => e.usuario_id)).size;
+    const areasRec = new Set(ev.map(e => e.area)).size;
+    const diasRec = new Set(ev.map(e => e.data).filter(Boolean));
+    const idsRec = new Set(ev.map(e => e.id));
+    const alertasRec = D.alertas.filter(a => idsRec.has(a.evento_id));
     const naoAprov = ev.filter(e => !ferrPorId[e.ferramenta_id]?.aprovada);
     const sensivel = ev.filter(e => e.sensibilidade === "Confidencial" || e.sensibilidade === "Crítica");
     const criticos = ev.filter(e => e.risco === "Crítico");
@@ -470,12 +540,20 @@ python3 run.py painel</div>
         <h2>Panorama do uso de IA</h2>
         <p>${esc(D.meta.organizacao)} · ${dataBR(D.meta.periodo.inicio)} a ${dataBR(D.meta.periodo.fim)} ·
         ${t.usuarios} pessoas em ${t.areas} áreas · ${t.ferramentas} ferramentas · ${t.tipos} tipos de informação.
-        Fonte: a base oficial do desafio, sem dado externo.</p>
+        ${(t.capturas ?? 0) > 0
+          ? `Fonte: ${num(t.legado)} eventos da base oficial (carga legada) + ${num(t.capturas)} capturados ao vivo pelo espia-borda.`
+          : "Fonte: a base oficial do desafio, sem dado externo."}</p>
       </div>
 
+      ${barraRecorte("p")}
+      <p class="nota" style="margin:-4px 0 14px">${filtrado
+        ? `Recorte ativo: <strong>${partes.map(esc).join("</strong> · <strong>")}</strong> — ${num(n)} evento(s),
+           ${pessoasRec} pessoa(s), ${areasRec} área(s), ${diasRec.size} dia(s). O mesmo recorte vale na vista <strong>Alertas</strong>.`
+        : `Sem filtro: todos os ${num(n)} eventos. Filtre por área, usuário ou período — os blocos abaixo e a vista Alertas seguem o recorte.`}</p>
+
       <div class="kpis">
-        <div class="kpi"><span class="lab">Eventos de IA na base</span>
-          <span class="val">${num(n)}</span><span class="foot">${D.serie_diaria.length} dias</span></div>
+        <div class="kpi"><span class="lab">Eventos de IA ${filtrado ? "no recorte" : "na base"}</span>
+          <span class="val">${num(n)}</span><span class="foot">${diasRec.size} dia(s)</span></div>
         <div class="kpi"><span class="lab">Com informação confidencial ou crítica</span>
           <span class="val">${num(sensivel.length)}</span><span class="foot">${pct(sensivel.length, n)} do total</span></div>
         <div class="kpi alerta"><span class="lab">Em ferramenta não aprovada</span>
@@ -533,24 +611,34 @@ python3 run.py painel</div>
           </div>
         </div>
         <div class="panel">
-          <div class="panel-h"><h3>Alertas por situação</h3><span class="hint">${D.alertas.length} alertas na base</span></div>
+          <div class="panel-h"><h3>Alertas por situação</h3><span class="hint">${alertasRec.length} alertas ${filtrado ? "no recorte" : "na base"}</span></div>
           <div class="panel-b"><div class="hbars" id="bars-alertas"></div>
             <p class="nota" style="margin-top:12px">Nenhum alerta registra data de tratamento — por isso o indicador de
             SLA de 24h não é apurável a partir desta base.</p></div>
         </div>
       </div>`;
 
-    desenharSerie();
-    desenharHeat();
-    desenharAlertas();
+    document.getElementById("n-panorama").textContent = num(n);
+    ligarRecorte("p", vistaPanorama);
+    desenharSerie(ev);
+    desenharHeat(ev);
+    desenharAlertas(alertasRec);
   }
 
-  function desenharSerie() {
-    const dados = D.serie_diaria;
+  function desenharSerie(ev) {
+    const dados = serieDe(ev);
+    const wrap0 = document.getElementById("wrap-serie");
+    if (!dados.length) {
+      wrap0.innerHTML = `<p class="vazio">Nenhum evento no recorte.</p>`;
+      document.getElementById("leg-serie").innerHTML = "";
+      return;
+    }
     const W = 940, H = 210, ML = 34, MR = 8, MT = 10, MB = 26;
     const iw = W - ML - MR, ih = H - MT - MB;
     const maxV = Math.max(...dados.map(d => d.total), 1);
-    const passo = iw / dados.length, larg = Math.max(2, passo - 2.2);
+    // com poucos dias no recorte, barras largas demais ficam grosseiras: teto de 42px
+    const passo = iw / dados.length, larg = Math.max(2, Math.min(passo - 2.2, 42));
+    const passoRotulo = Math.max(1, Math.round(dados.length / 7));
     const y = v => MT + ih - (v / maxV) * ih;
 
     let ticks = "";
@@ -569,7 +657,7 @@ python3 run.py painel</div>
         barras += `<rect x="${x.toFixed(2)}" y="${y(acum + v).toFixed(2)}" width="${larg.toFixed(2)}" height="${alt.toFixed(2)}" fill="${corNivel(nv)}" rx="1"/>`;
         acum += v;
       }
-      if (i % 14 === 0) rotulos += `<text x="${(ML + i * passo + passo / 2).toFixed(1)}" y="${H - 8}" text-anchor="middle" font-size="10" font-family="var(--f-mono)" fill="var(--ink-3)">${dataBR(d.data)}</text>`;
+      if (i % passoRotulo === 0) rotulos += `<text x="${(ML + i * passo + passo / 2).toFixed(1)}" y="${H - 8}" text-anchor="middle" font-size="10" font-family="var(--f-mono)" fill="var(--ink-3)">${dataBR(d.data)}</text>`;
       alvos += `<rect class="alvo" data-i="${i}" x="${(ML + i * passo).toFixed(2)}" y="${MT}" width="${passo.toFixed(2)}" height="${ih}" fill="transparent"/>`;
     });
 
@@ -598,12 +686,17 @@ python3 run.py painel</div>
     svg.addEventListener("mouseleave", () => { tip.style.opacity = "0"; cross.setAttribute("opacity", "0"); });
   }
 
-  function desenharHeat() {
+  function desenharHeat(ev) {
+    const areasHeat = [...new Set(ev.map(e => e.area))].sort();
+    if (!areasHeat.length) {
+      document.getElementById("heat").innerHTML = `<p class="vazio">Nenhum evento no recorte.</p>`;
+      return;
+    }
     const m = {};
-    for (const a of areas) { m[a] = {}; for (const c of CLASSES) m[a][c] = 0; }
-    for (const e of D.eventos) if (m[e.area]) m[e.area][e.sensibilidade]++;
-    const max = Math.max(1, ...areas.flatMap(a => CLASSES.map(c => m[a][c])));
-    const ord = [...areas].sort((a, b) => (m[b]["Crítica"] + m[b]["Confidencial"]) - (m[a]["Crítica"] + m[a]["Confidencial"]));
+    for (const a of areasHeat) { m[a] = {}; for (const c of CLASSES) m[a][c] = 0; }
+    for (const e of ev) if (m[e.area] && m[e.area][e.sensibilidade] !== undefined) m[e.area][e.sensibilidade]++;
+    const max = Math.max(1, ...areasHeat.flatMap(a => CLASSES.map(c => m[a][c])));
+    const ord = [...areasHeat].sort((a, b) => (m[b]["Crítica"] + m[b]["Confidencial"]) - (m[a]["Crítica"] + m[a]["Confidencial"]));
 
     let html = `<div class="heat" style="grid-template-columns:minmax(96px,auto) repeat(${CLASSES.length},minmax(0,1fr))">`;
     html += `<span></span>` + CLASSES.map(c => `<span class="hh">${c}</span>`).join("");
@@ -624,9 +717,13 @@ python3 run.py painel</div>
     document.getElementById("heat").innerHTML = html;
   }
 
-  function desenharAlertas() {
+  function desenharAlertas(alertas) {
     const porStatus = {}, porResp = {};
-    for (const a of D.alertas) {
+    if (!alertas.length) {
+      document.getElementById("bars-alertas").innerHTML = `<p class="vazio">Nenhum alerta no recorte.</p>`;
+      return;
+    }
+    for (const a of alertas) {
       porStatus[a.status] = (porStatus[a.status] || 0) + 1;
       porResp[a.responsavel] = (porResp[a.responsavel] || 0) + 1;
     }
@@ -834,6 +931,8 @@ python3 run.py painel</div>
           ${["Aberto", "Em análise", "Tratado", "Sem alerta"].map(s => `<option value="${s}" ${estado.fStatus === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
         <label>Divergência <select id="f-diverg"><option value="">todas</option>
           <option value="1" ${estado.fSoDiverg === "1" ? "selected" : ""}>só divergentes da base</option></select></label>
+        <label>De <input type="date" id="f-de" value="${periodoNormalizado().de}" min="${D.meta.periodo.inicio}" max="${D.meta.periodo.fim}"></label>
+        <label>Até <input type="date" id="f-ate" value="${periodoNormalizado().ate}" min="${D.meta.periodo.inicio}" max="${D.meta.periodo.fim}"></label>
         <button class="sug" id="f-limpar" style="padding:5px 12px">Limpar</button>
       </div>
       <p class="nota" id="resumo-filtros" style="margin:-4px 0 14px"></p>
@@ -841,7 +940,7 @@ python3 run.py painel</div>
 
     for (const [id, campo] of [["f-risco", "fRisco"], ["f-area", "fArea"], ["f-usuario", "fUsuario"],
                                ["f-ferr", "fFerr"], ["f-classe", "fClasse"], ["f-status", "fStatus"],
-                               ["f-diverg", "fSoDiverg"]]) {
+                               ["f-diverg", "fSoDiverg"], ["f-de", "fDe"], ["f-ate", "fAte"]]) {
       document.getElementById(id).addEventListener("change", ev => {
         estado[campo] = ev.target.value; estado.eventoAberto = null;
         if (campo === "fArea") {
@@ -859,12 +958,14 @@ python3 run.py painel</div>
   }
 
   function eventosFiltrados() {
+    const { de, ate } = periodoNormalizado();
     return D.eventos.filter(e => {
       const al = alertaPorEvento[e.id];
       const status = al ? al.status : "Sem alerta";
       return (!estado.fRisco || e.risco === estado.fRisco)
         && (!estado.fArea || e.area === estado.fArea)
         && (!estado.fUsuario || e.usuario_id === estado.fUsuario)
+        && (!de || e.data >= de) && (!ate || e.data <= ate)
         && (!estado.fFerr || e.ferramenta_id === estado.fFerr)
         && (!estado.fClasse || e.sensibilidade === estado.fClasse)
         && (!estado.fStatus || status === estado.fStatus)
@@ -887,6 +988,8 @@ python3 run.py painel</div>
     if (estado.fFerr) partes.push(ferrPorId[estado.fFerr].nome);
     if (estado.fStatus) partes.push(`situação ${estado.fStatus.toLowerCase()}`);
     if (estado.fSoDiverg) partes.push("apenas divergentes da base");
+    { const { de, ate } = periodoNormalizado();
+      if (de || ate) partes.push((de ? dataBR(de) : "início") + " a " + (ate ? dataBR(ate) : "fim")); }
 
     const crit = todos.filter(e => e.risco === "Crítico").length;
     const alto = todos.filter(e => e.risco === "Alto").length;
