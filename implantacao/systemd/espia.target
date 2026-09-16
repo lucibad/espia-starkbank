@@ -1,0 +1,7 @@
+[Unit]
+Description=EspIA — todos os serviços
+Requires=espia@ingestao.service espia@nucleo.service espia@api.service
+After=postgresql.service redis.service
+
+[Install]
+WantedBy=multi-user.target

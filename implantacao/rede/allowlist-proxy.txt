@@ -1,0 +1,15 @@
+# EspIA — allowlist do proxy de saída da DMZ.
+#
+# Três domínios. Só o gateway de notificação usa este proxy, e ele só carrega
+# identificador, severidade e link interno — nunca conteúdo de evento.
+#
+# Se esta lista crescer, alguém mudou o desenho. Ela é pequena de propósito.
+
+api.telegram.org          # Bot API — canal Telegram (onda 4)
+graph.facebook.com        # Meta Cloud API — WhatsApp via BSP homologado (onda 4)
+hooks.slack.com           # webhook de entrada — canal Slack (onda 1)
+
+# NÃO adicionar:
+#   · qualquer domínio de provedor de IA — o sistema não chama IA nenhuma
+#   · repositório de pacote — as imagens vêm do registro interno
+#   · telemetria de fornecedor — não há fornecedor externo neste desenho

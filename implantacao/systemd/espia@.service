@@ -1,0 +1,47 @@
+# EspIA — unidade de serviço, instanciada por componente.
+#   systemctl enable --now espia@ingestao espia@nucleo espia@api
+[Unit]
+Description=EspIA — %i
+Documentation=file:///opt/espia/docs/EspIA-arquitetura.md
+After=network-online.target
+Wants=network-online.target
+PartOf=espia.target
+
+[Service]
+Type=exec
+User=espia
+Group=espia
+EnvironmentFile=/etc/espia/espia.env
+ExecStart=/opt/espia/venv/bin/espia-%i
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=30s
+
+# Endurecimento. O núcleo não precisa de nada disto, e um serviço de segurança
+# que roda sem restrição é um alvo com credencial de banco na mão.
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ProtectClock=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+CapabilityBoundingSet=
+ReadWritePaths=/var/lib/espia
+StateDirectory=espia
+LogsDirectory=espia
+
+# Só as famílias que o serviço usa de fato.
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=espia.target

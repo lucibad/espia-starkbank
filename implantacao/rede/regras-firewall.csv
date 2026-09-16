@@ -1,0 +1,19 @@
+id,origem,zona_origem,destino,zona_destino,porta,protocolo,sentido,justificativa,onda,obrigatoria
+FW-01,Estações corporativas (extensão),Rede corporativa,ingestao.espia.interno,VLAN Segurança,8443,TCP/mTLS,unidirecional,Coletor de borda envia metadados de evento. Nenhum conteúdo trafega.,2,sim
+FW-02,Servidor DLP,Rede corporativa,ingestao.espia.interno,VLAN Segurança,8443,TCP/mTLS,unidirecional,Conector DLP envia eventos de classificação.,0,sim
+FW-03,SWG / Proxy web,Rede corporativa,ingestao.espia.interno,VLAN Segurança,8443,TCP/mTLS,unidirecional,Ingestão de log de navegação para ferramentas de IA conhecidas.,0,sim
+FW-04,Gateway de IA interno,Rede corporativa,ingestao.espia.interno,VLAN Segurança,8443,TCP/mTLS,unidirecional,Inspeção inline de prompt no gateway aprovado.,2,não
+FW-05,Estações e notebooks,Rede corporativa,console.espia.interno,VLAN Segurança,443,TCP/TLS,unidirecional,Acesso de SegInfo e Compliance aos dois consoles.,0,sim
+FW-06,Núcleo EspIA,VLAN Segurança,sso.interno.banco,Rede corporativa,443,TCP/TLS,unidirecional,OIDC: descoberta e validação de token. Resolução de usuário para área e cargo.,0,sim
+FW-07,Núcleo EspIA,VLAN Segurança,siem.interno.banco,Rede corporativa,6514,TCP/TLS,unidirecional,Syslog de alerta e de trilha para o SIEM. Só saída.,1,sim
+FW-08,Núcleo EspIA,VLAN Segurança,harbor.interno.banco,Rede corporativa,443,TCP/TLS,unidirecional,Pull de imagem do registro interno. Pode ser janela de manutenção apenas.,0,sim
+FW-09,Núcleo EspIA,VLAN Segurança,ntp.interno.banco,Rede corporativa,123,UDP,unidirecional,Sincronia de relógio. Horário de evento é prova.,0,sim
+FW-10,Gateway de notificação,DMZ,fila.espia.interno,VLAN Segurança,6379,TCP/TLS,unidirecional,Consumo da fila de notificação. SOMENTE LEITURA na fila.,1,sim
+FW-11,Gateway de notificação,DMZ,proxy-dmz.interno.banco,DMZ,3128,TCP,unidirecional,Única saída do sistema. Allowlist de três domínios no proxy.,1,sim
+FW-12,Proxy de saída,DMZ,api.telegram.org,Internet,443,TCP/TLS,unidirecional,Canal Telegram. Allowlist por nome de domínio com inspeção TLS.,4,não
+FW-13,Proxy de saída,DMZ,graph.facebook.com,Internet,443,TCP/TLS,unidirecional,WhatsApp via Meta Cloud API por BSP homologado.,4,não
+FW-14,Proxy de saída,DMZ,hooks.slack.com,Internet,443,TCP/TLS,unidirecional,Canal Slack via webhook de entrada.,1,sim
+FW-15,Gateway de notificação,DMZ,smtp.interno.banco,Rede corporativa,587,TCP/TLS,unidirecional,Canal de e-mail. É o canal que não depende de internet.,1,sim
+FW-16,Backup,VLAN Segurança,backup.interno.banco,Rede corporativa,22,TCP,unidirecional,Envio do dump cifrado. Janela noturna.,0,sim
+FW-17,QUALQUER,Internet,QUALQUER,VLAN Segurança,QUALQUER,QUALQUER,bloqueio,NEGAR. O sistema não tem superfície externa. Esta linha existe para ser auditada.,0,sim
+FW-18,VLAN Segurança,VLAN Segurança,QUALQUER,Internet,QUALQUER,QUALQUER,bloqueio,NEGAR. A VLAN de Segurança não tem rota de saída. Nenhuma.,0,sim

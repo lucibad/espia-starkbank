@@ -1,0 +1,934 @@
+<meta charset="utf-8">
+<title>Console de Políticas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+/* ==================================================================
+   EspIA · Console de Políticas
+   Onde Compliance edita a política — com simulação obrigatória antes
+   de publicar e o gabarito oficial como trava.
+
+   Mesma linguagem visual do console de investigação, de propósito:
+   são duas aplicações do mesmo sistema, com RBAC diferente.
+   ================================================================== */
+
+:root {
+  --ground:#E9ECF0; --surface:#FFFFFF; --surface-2:#F3F5F8; --surface-3:#E7EAEF;
+  --line:#D2D8E0; --line-strong:#B6BFCB;
+  --ink:#0E151D; --ink-2:#4B5563; --ink-3:#7C8797;
+  --accent:#16607F; --accent-ink:#0E4358; --accent-soft:#DCEAF1;
+  --sev-Critico:#A01236; --sev-Alto:#C25A10; --sev-Medio:#CE9A12;
+  --sev-Baixo:#8B93A1; --sev-Revisar:#16607F;
+  --sev-Critico-bg:#F9DFE5; --sev-Alto-bg:#FAE7D8; --sev-Medio-bg:#FAF0D8;
+  --sev-Baixo-bg:#EDEFF2; --sev-Revisar-bg:#DCEAF1;
+  --ok:#2E6B4F; --ok-bg:#E1EFE7; --grid:#E4E8ED;
+  --edit:#7A3E9D; --edit-bg:#EFE4F6;
+  --r-sm:3px; --r-md:6px; --r-lg:10px;
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono","SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:#0C1118; --surface:#141B24; --surface-2:#1A222D; --surface-3:#212B38;
+    --line:#263140; --line-strong:#354356;
+    --ink:#E3E9F1; --ink-2:#9CA9BA; --ink-3:#6C7A8D;
+    --accent:#5FB3D4; --accent-ink:#96D2EA; --accent-soft:#10303E;
+    --sev-Critico:#DC3350; --sev-Alto:#F09030; --sev-Medio:#F7DC6F;
+    --sev-Baixo:#69737F; --sev-Revisar:#5FB3D4;
+    --sev-Critico-bg:#331520; --sev-Alto-bg:#33220F; --sev-Medio-bg:#2E2A17;
+    --sev-Baixo-bg:#1C242E; --sev-Revisar-bg:#10303E;
+    --ok:#74B894; --ok-bg:#14271D; --grid:#202A36;
+    --edit:#C79BE4; --edit-bg:#241733;
+  }
+}
+:root[data-theme="dark"] {
+  --ground:#0C1118; --surface:#141B24; --surface-2:#1A222D; --surface-3:#212B38;
+  --line:#263140; --line-strong:#354356;
+  --ink:#E3E9F1; --ink-2:#9CA9BA; --ink-3:#6C7A8D;
+  --accent:#5FB3D4; --accent-ink:#96D2EA; --accent-soft:#10303E;
+  --sev-Critico:#DC3350; --sev-Alto:#F09030; --sev-Medio:#F7DC6F;
+  --sev-Baixo:#69737F; --sev-Revisar:#5FB3D4;
+  --sev-Critico-bg:#331520; --sev-Alto-bg:#33220F; --sev-Medio-bg:#2E2A17;
+  --sev-Baixo-bg:#1C242E; --sev-Revisar-bg:#10303E;
+  --ok:#74B894; --ok-bg:#14271D; --grid:#202A36;
+  --edit:#C79BE4; --edit-bg:#241733;
+}
+
+* { box-sizing:border-box; }
+body { margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--f-body); font-size:14px; line-height:1.55; -webkit-font-smoothing:antialiased; }
+h1,h2,h3 { font-family:var(--f-display); font-weight:600; margin:0; text-wrap:balance; letter-spacing:-.012em; }
+.mono { font-family:var(--f-mono); font-variant-numeric:tabular-nums; }
+button { font:inherit; color:inherit; }
+:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:var(--r-sm); }
+
+/* ---------- barra superior ---------- */
+.topo {
+  position:sticky; top:0; z-index:40; background:var(--surface);
+  border-bottom:1px solid var(--line);
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  padding:11px 24px;
+}
+.marca { display:flex; align-items:baseline; gap:9px; }
+.marca h1 { font-size:17px; letter-spacing:.09em; font-weight:700; }
+.marca span { font-size:11.5px; color:var(--ink-3); letter-spacing:.03em; }
+.estado { margin-left:auto; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.selo { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600;
+  padding:3px 11px; border-radius:100px; white-space:nowrap; }
+.selo-limpo { color:var(--ink-3); background:var(--surface-2); }
+.selo-rascunho { color:var(--edit); background:var(--edit-bg); }
+.selo-bloqueado { color:var(--sev-Critico); background:var(--sev-Critico-bg); }
+.selo-ok { color:var(--ok); background:var(--ok-bg); }
+
+.btn { border:1px solid var(--line); background:var(--surface-2); border-radius:var(--r-md);
+  padding:6px 14px; cursor:pointer; font-size:13px; color:var(--ink-2); white-space:nowrap; }
+.btn:hover:not(:disabled) { border-color:var(--line-strong); color:var(--ink); }
+.btn:disabled { opacity:.45; cursor:not-allowed; }
+.btn-primario { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+.btn-primario:hover:not(:disabled) { filter:brightness(1.08); color:#fff; }
+:root[data-theme="dark"] .btn-primario, :root:not([data-theme="light"]) .btn-primario { color:#0C1118; }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .btn-primario { color:#fff; } }
+
+/* ---------- shell ---------- */
+.shell { display:grid; grid-template-columns:212px minmax(0,1fr); }
+.rail { border-right:1px solid var(--line); background:var(--surface);
+  padding:18px 14px 28px; display:flex; flex-direction:column; gap:4px;
+  position:sticky; top:53px; height:calc(100vh - 53px); overflow-y:auto; }
+.navbtn { display:flex; align-items:baseline; gap:8px; background:none; border:0; text-align:left;
+  cursor:pointer; padding:7px 10px; border-radius:var(--r-md); color:var(--ink-2); font-size:13.5px; width:100%; }
+.navbtn:hover { background:var(--surface-2); color:var(--ink); }
+.navbtn[aria-current="true"] { background:var(--accent-soft); color:var(--accent-ink); font-weight:600; }
+.navbtn .n { margin-left:auto; font-family:var(--f-mono); font-size:11px; color:var(--ink-3); }
+.navbtn .n.mud { color:var(--edit); font-weight:700; }
+.navbtn[aria-current="true"] .n { color:var(--accent-ink); }
+.rail-foot { margin-top:auto; display:flex; flex-direction:column; gap:9px; }
+.disclaimer { font-size:10.5px; line-height:1.45; color:var(--ink-3); }
+.main { padding:22px 28px 64px; max-width:1420px; }
+.pagehead { margin-bottom:18px; }
+.pagehead h2 { font-size:23px; }
+.pagehead p { margin:5px 0 0; color:var(--ink-2); max-width:72ch; font-size:13.5px; }
+
+/* ---------- primitivas ---------- */
+.panel { background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); }
+.panel-h { padding:13px 18px 11px; border-bottom:1px solid var(--line);
+  display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+.panel-h h3 { font-size:14.5px; }
+.panel-h .hint { font-size:12px; color:var(--ink-3); margin-left:auto; }
+.panel-b { padding:16px 18px; }
+.grid { display:grid; gap:16px; }
+.eyebrow { font-family:var(--f-mono); font-size:10px; font-weight:500; text-transform:uppercase;
+  letter-spacing:.11em; color:var(--ink-3); }
+.nota { font-size:12.5px; color:var(--ink-2); max-width:78ch; }
+.nota strong { color:var(--ink); }
+.vazio { color:var(--ink-3); font-size:13px; padding:26px 0; text-align:center; }
+
+.sev { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:500;
+  padding:1px 7px 1px 5px; border-radius:100px; white-space:nowrap; }
+.sev::before { content:""; width:7px; height:7px; border-radius:2px; background:currentColor; flex:none; }
+.sev-Critico{color:var(--sev-Critico);background:var(--sev-Critico-bg)}
+.sev-Alto{color:var(--sev-Alto);background:var(--sev-Alto-bg)}
+.sev-Medio{color:var(--sev-Medio);background:var(--sev-Medio-bg)}
+.sev-Baixo{color:var(--sev-Baixo);background:var(--sev-Baixo-bg)}
+.sev-Revisar{color:var(--sev-Revisar);background:var(--sev-Revisar-bg)}
+.regra { font-family:var(--f-mono); font-size:10.5px; padding:1px 6px; border-radius:var(--r-sm);
+  background:var(--accent-soft); color:var(--accent-ink); font-weight:500; white-space:nowrap; }
+.pill-ok { display:inline-flex; font-size:11.5px; font-weight:600; padding:1px 8px;
+  border-radius:100px; color:var(--ok); background:var(--ok-bg); white-space:nowrap; }
+.pill-nao { display:inline-flex; font-size:11.5px; font-weight:600; padding:1px 8px;
+  border-radius:100px; color:var(--sev-Critico); background:var(--sev-Critico-bg); white-space:nowrap; }
+.pill-mud { display:inline-flex; font-size:11px; font-weight:600; padding:1px 8px;
+  border-radius:100px; color:var(--edit); background:var(--edit-bg); white-space:nowrap; }
+
+.tw { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th { text-align:left; font-family:var(--f-mono); font-size:10.5px; font-weight:500;
+  text-transform:uppercase; letter-spacing:.08em; color:var(--ink-3); padding:8px 12px;
+  border-bottom:1px solid var(--line); white-space:nowrap; background:var(--surface); }
+td { padding:9px 12px; border-bottom:1px solid var(--grid); vertical-align:top; }
+tbody tr:last-child td { border-bottom:0; }
+tr.alterada td { background:var(--edit-bg); }
+tr.desligada td { opacity:.5; }
+.num { text-align:right; font-family:var(--f-mono); font-variant-numeric:tabular-nums; }
+.dim { color:var(--ink-3); }
+.nowrap { white-space:nowrap; }
+
+select, input[type="text"], input[type="number"], textarea {
+  font:inherit; font-size:12.5px; color:var(--ink); background:var(--surface);
+  border:1px solid var(--line); border-radius:var(--r-md); padding:4px 8px; max-width:100%; }
+select:hover, input:hover, textarea:hover { border-color:var(--line-strong); }
+select.mud, input.mud, textarea.mud { border-color:var(--edit); background:var(--edit-bg); }
+textarea { width:100%; resize:vertical; min-height:52px; line-height:1.45; }
+label.chk { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-2); cursor:pointer; }
+
+.kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1px;
+  background:var(--line); border:1px solid var(--line); border-radius:var(--r-lg); overflow:hidden; }
+.kpi { background:var(--surface); padding:13px 16px 14px; display:flex; flex-direction:column; gap:2px; }
+.kpi .lab { font-size:11.5px; color:var(--ink-3); line-height:1.3; }
+.kpi .val { font-family:var(--f-display); font-size:25px; font-weight:600; line-height:1.12;
+  font-variant-numeric:tabular-nums; }
+.kpi .foot { font-size:11px; color:var(--ink-3); font-family:var(--f-mono); }
+.kpi.alerta .val { color:var(--sev-Critico); }
+.kpi.bom .val { color:var(--ok); }
+.kpi.mud .val { color:var(--edit); }
+
+.faixa { padding:11px 15px; border-radius:0 var(--r-md) var(--r-md) 0; font-size:13px; border-left:3px solid; }
+.faixa b { font-family:var(--f-mono); font-size:10px; text-transform:uppercase; letter-spacing:.07em;
+  display:block; margin-bottom:2px; }
+.faixa-alerta { background:var(--sev-Critico-bg); border-color:var(--sev-Critico); }
+.faixa-info { background:var(--accent-soft); border-color:var(--accent); }
+.faixa-ok { background:var(--ok-bg); border-color:var(--ok); }
+.faixa-edit { background:var(--edit-bg); border-color:var(--edit); }
+
+/* barras de impacto */
+.imp { display:grid; grid-template-columns:86px minmax(0,1fr) 46px minmax(0,1fr) 84px;
+  gap:8px; align-items:center; font-size:12.5px; margin-bottom:7px; }
+.imp .trk { background:var(--surface-2); border-radius:var(--r-sm); height:18px; overflow:hidden; }
+.imp .fl { display:block; height:100%; min-width:2px; border-radius:var(--r-sm); }
+.imp .vl { font-family:var(--f-mono); font-size:11.5px; color:var(--ink-2);
+  text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
+
+/* precedência */
+.prec { list-style:none; margin:0; padding:0; counter-reset:p; }
+.prec li { counter-increment:p; display:flex; align-items:center; gap:10px; padding:7px 10px;
+  border-top:1px solid var(--grid); }
+.prec li:first-child { border-top:0; }
+.prec li::before { content:counter(p); font-family:var(--f-mono); font-size:10.5px; color:var(--ink-3);
+  border:1px solid var(--line-strong); border-radius:var(--r-sm); width:22px; text-align:center; flex:none; }
+.prec .txt { flex:1 1 auto; font-size:12.5px; min-width:0; }
+.prec .mv { display:flex; gap:3px; flex:none; }
+.prec .mv button { border:1px solid var(--line); background:var(--surface-2); border-radius:var(--r-sm);
+  width:26px; height:24px; cursor:pointer; font-size:11px; line-height:1; color:var(--ink-2); }
+.prec .mv button:hover:not(:disabled) { border-color:var(--accent); color:var(--accent-ink); }
+.prec .mv button:disabled { opacity:.3; cursor:not-allowed; }
+.prec li.movida { background:var(--edit-bg); }
+
+.diff { font-family:var(--f-mono); font-size:12px; }
+.diff .de { color:var(--sev-Critico); text-decoration:line-through; }
+.diff .para { color:var(--ok); font-weight:600; }
+
+@media (max-width:900px) {
+  .shell { grid-template-columns:minmax(0,1fr); }
+  .rail { position:static; height:auto; flex-direction:row; overflow-x:auto;
+    border-right:0; border-bottom:1px solid var(--line); padding:10px 16px; }
+  .rail-foot { display:none; }
+  .navbtn { white-space:nowrap; width:auto; }
+  .main { padding-inline:16px; }
+  .topo { padding-inline:16px; }
+  .imp { grid-template-columns:70px minmax(0,1fr) 78px; }
+  .imp .trk:first-of-type, .imp .vl.dim { display:none; }
+}
+</style>
+
+<div class="topo">
+  <div class="marca"><h1>EspIA</h1><span>Console de Políticas</span></div>
+  <div class="estado" id="estado"></div>
+</div>
+
+<div class="shell">
+  <nav class="rail">
+    <button class="navbtn" data-vista="regras">Regras<span class="n" id="n-regras"></span></button>
+    <button class="navbtn" data-vista="ferramentas">Ferramentas<span class="n" id="n-ferr"></span></button>
+    <button class="navbtn" data-vista="precedencia">Precedência<span class="n" id="n-prec"></span></button>
+    <button class="navbtn" data-vista="simulacao">Simulação<span class="n" id="n-sim"></span></button>
+    <button class="navbtn" data-vista="versoes">Versões<span class="n" id="n-ver"></span></button>
+    <div class="rail-foot">
+      <button class="btn" id="tema">Alternar tema</button>
+      <p class="disclaimer" id="disclaimer"></p>
+    </div>
+  </nav>
+  <main class="main" id="main"></main>
+</div>
+
+<script src="dados.js"></script>
+<script src="motor.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  const D = window.EspIA;
+  const MOT = window.ESPIA_MOTOR;
+  if (!D || !MOT) {
+    document.getElementById("main").innerHTML =
+      '<div class="pagehead"><h2>Base não carregada</h2><p>Este console precisa de ' +
+      '<span class="mono">dados.js</span> e <span class="mono">motor.js</span> na mesma pasta.</p></div>';
+    return;
+  }
+
+  const NIVEIS = ["Crítico", "Alto", "Médio", "Baixo", "REVISAR"];
+  const NIVEIS_EDITAVEIS = ["Crítico", "Alto", "Médio", "Baixo"];
+  const STATUS_FERR = ["Aprovada", "Aprovada condicional",
+                       "Aprovada apenas para conteúdo público", "Não aprovada"];
+
+  const slug = s => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z]/g, "");
+  const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+  const num = v => (v ?? 0).toLocaleString("pt-BR");
+  const chipSev = n => `<span class="sev sev-${n === "REVISAR" ? "Revisar" : slug(n)}">${esc(n)}</span>`;
+  const chipRegra = r => r && r !== "—" ? `<span class="regra">${esc(r)}</span>` : "";
+  const agora = () => new Date().toISOString();
+  const dataHora = iso => { try { return new Date(iso).toLocaleString("pt-BR",
+    { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" }); }
+    catch (_) { return iso; } };
+
+  // ---------------- estado ----------------
+  const base = { ferramentas: D.ferramentas, tipos: D.tipos, regras: D.politica.regras };
+  const politicaPlanilha = MOT.politicaDoPayload(D);
+
+  const estado = {
+    vista: "regras",
+    publicada: MOT.clonar(politicaPlanilha),   // o que está valendo
+    versaoAtual: null,                          // id da versão publicada, se houver
+    rascunho: MOT.clonar(politicaPlanilha),     // o que está sendo editado
+    sim: null,                                  // resultado da simulação
+    versoes: [],
+    db: null,
+    dbErro: null,
+    autor: (() => { try { return localStorage.getItem("espia_autor") || ""; } catch (_) { return ""; } })(),
+  };
+
+  const motorPublicado = new MOT.Motor(base, estado.publicada);
+  const motorRascunho = new MOT.Motor(base, estado.rascunho);
+
+  // ---------------- diferenças ----------------
+
+  function diferencas(a, b) {
+    const d = [];
+    for (const r of D.politica.regras) {
+      const x = a.regras[r.id] || {}, y = b.regras[r.id] || {};
+      if (x.nivel !== y.nivel) d.push({ tipo:"regra", alvo:r.id, campo:"nível", de:x.nivel, para:y.nivel });
+      if ((x.acao || "") !== (y.acao || "")) d.push({ tipo:"regra", alvo:r.id, campo:"ação", de:x.acao, para:y.acao });
+      if ((x.ativa !== false) !== (y.ativa !== false))
+        d.push({ tipo:"regra", alvo:r.id, campo:"situação",
+                 de:x.ativa === false ? "desligada" : "ativa",
+                 para:y.ativa === false ? "desligada" : "ativa" });
+    }
+    for (const f of D.ferramentas) {
+      const x = a.ferramentas[f.id] || {}, y = b.ferramentas[f.id] || {};
+      if (x.status !== y.status)
+        d.push({ tipo:"ferramenta", alvo:f.id, campo:"status", de:x.status, para:y.status });
+    }
+    if (a.limiteVolume !== b.limiteVolume)
+      d.push({ tipo:"limiar", alvo:"volume", campo:"limite",
+               de:String(a.limiteVolume), para:String(b.limiteVolume) });
+    if (a.precedencia.join(">") !== b.precedencia.join(">"))
+      d.push({ tipo:"precedencia", alvo:"ordem", campo:"sequência",
+               de:a.precedencia.join(" › "), para:b.precedencia.join(" › ") });
+    return d;
+  }
+
+  const mudancas = () => diferencas(estado.publicada, estado.rascunho);
+  const mudou = (tipo, alvo, campo) =>
+    mudancas().some(d => d.tipo === tipo && d.alvo === alvo && (!campo || d.campo === campo));
+
+  // ---------------- simulação ----------------
+
+  function simular() {
+    motorPublicado.aplicar(estado.publicada);
+    motorRascunho.aplicar(estado.rascunho);
+
+    const antesDist = {}, depoisDist = {};
+    const mudados = [];
+    let alertasAntes = 0, alertasDepois = 0;
+
+    for (const e of D.eventos) {
+      const a = motorPublicado.avaliarEvento(e);
+      const b = motorRascunho.avaliarEvento(e);
+      antesDist[a.nivel] = (antesDist[a.nivel] || 0) + 1;
+      depoisDist[b.nivel] = (depoisDist[b.nivel] || 0) + 1;
+      const alertaA = a.nivel === "Crítico" || a.nivel === "Alto";
+      const alertaB = b.nivel === "Crítico" || b.nivel === "Alto";
+      if (alertaA) alertasAntes++;
+      if (alertaB) alertasDepois++;
+      if (a.nivel !== b.nivel || a.regra !== b.regra) {
+        mudados.push({ e, antes:a, depois:b,
+                       viraAlerta: !alertaA && alertaB, deixaAlerta: alertaA && !alertaB });
+      }
+    }
+
+    const casos = D.validacao.map(c => {
+      const r = motorRascunho.avaliarCaso(c);
+      return { caso:c.caso, ferramenta:c.ferramenta, informacao:c.informacao,
+               esperado:c.esperado, obtido:r.nivel, regra:r.regra,
+               passou: r.nivel.trim().toUpperCase() === c.esperado.trim().toUpperCase(),
+               justificativa:c.justificativa };
+    });
+
+    estado.sim = {
+      antesDist, depoisDist, mudados,
+      alertasAntes, alertasDepois,
+      novosAlertas: mudados.filter(m => m.viraAlerta).length,
+      alertasRemovidos: mudados.filter(m => m.deixaAlerta).length,
+      casos, casosFalhos: casos.filter(c => !c.passou),
+    };
+    return estado.sim;
+  }
+
+  const podePublicar = () =>
+    mudancas().length > 0 && estado.sim && estado.sim.casosFalhos.length === 0 && !!estado.db;
+
+  // ---------------- persistência ----------------
+
+  async function conectar() {
+    try {
+      const db = window.claude && window.claude.use ? await window.claude.use("db") : null;
+      if (!db) { estado.dbErro = "sem_db"; return; }
+      estado.db = db;
+
+      const atual = await db.doc("config/atual").get();
+      if (atual.exists) {
+        const v = atual.data();
+        const doc = await db.doc("versoes/" + v.versao_id).get();
+        if (doc.exists) {
+          const d = doc.data();
+          estado.publicada = d.politica;
+          estado.rascunho = MOT.clonar(d.politica);
+          estado.versaoAtual = d.id;
+        }
+      }
+      db.collection("versoes").orderBy("criado_em", "desc").limit(50).onSnapshot(
+        snap => { estado.versoes = snap.docs.map(x => x.data()); render(); },
+        err => { estado.dbErro = err.code; render(); }
+      );
+    } catch (err) {
+      estado.dbErro = (err && err.code) || "erro";
+    }
+    simular(); render();
+  }
+
+  async function publicar(nota) {
+    if (!podePublicar()) return;
+    const id = "v" + Date.now().toString(36);
+    const s = estado.sim;
+    const registro = {
+      id,
+      criado_em: agora(),
+      autor: estado.autor || "não informado",
+      nota: nota || "",
+      base: estado.versaoAtual || "planilha",
+      politica: estado.rascunho,
+      mudancas: mudancas(),
+      impacto: {
+        eventos_alterados: s.mudados.length,
+        alertas_antes: s.alertasAntes,
+        alertas_depois: s.alertasDepois,
+        novos_alertas: s.novosAlertas,
+        alertas_removidos: s.alertasRemovidos,
+        casos_ok: s.casos.length - s.casosFalhos.length,
+        casos_total: s.casos.length,
+      },
+    };
+    try {
+      await estado.db.doc("versoes/" + id).set(registro);
+      await estado.db.doc("config/atual").set({
+        versao_id: id, publicado_em: registro.criado_em, publicado_por: registro.autor });
+      estado.publicada = MOT.clonar(estado.rascunho);
+      estado.versaoAtual = id;
+      simular(); render();
+    } catch (err) {
+      alert("Não foi possível publicar: " + ((err && err.code) || "erro desconhecido") +
+            "\n\nO rascunho continua aqui — nada foi perdido.");
+    }
+  }
+
+  function restaurar(v) {
+    estado.rascunho = MOT.clonar(v.politica);
+    simular(); ir("simulacao");
+  }
+
+  function descartar() {
+    estado.rascunho = MOT.clonar(estado.publicada);
+    simular(); render();
+  }
+
+  // ---------------- barra de estado ----------------
+
+  function renderTopo() {
+    const m = mudancas();
+    const s = estado.sim;
+    const alvo = document.getElementById("estado");
+    let selo;
+    if (!m.length) {
+      selo = `<span class="selo selo-limpo">sem alterações</span>`;
+    } else if (s && s.casosFalhos.length) {
+      selo = `<span class="selo selo-bloqueado">publicação bloqueada — ${s.casosFalhos.length} caso(s) do gabarito falhando</span>`;
+    } else {
+      selo = `<span class="selo selo-rascunho">rascunho · ${m.length} alteração(ões)</span>`;
+    }
+    const origem = estado.versaoAtual
+      ? `versão ${esc(estado.versaoAtual)}`
+      : "política da planilha";
+
+    alvo.innerHTML = `
+      <span class="dim" style="font-size:12px">em vigor: ${origem}</span>
+      ${selo}
+      <button class="btn" id="btn-descartar" ${m.length ? "" : "disabled"}>Descartar</button>
+      <button class="btn btn-primario" id="btn-publicar" ${podePublicar() ? "" : "disabled"}>Publicar</button>`;
+
+    document.getElementById("btn-descartar").onclick = descartar;
+    document.getElementById("btn-publicar").onclick = () => ir("simulacao", true);
+
+    document.getElementById("n-regras").textContent = D.politica.regras.length;
+    document.getElementById("n-ferr").textContent = D.ferramentas.length;
+    document.getElementById("n-prec").textContent = estado.rascunho.precedencia.length;
+    document.getElementById("n-ver").textContent = estado.versoes.length || "—";
+    const nsim = document.getElementById("n-sim");
+    nsim.textContent = s ? (s.mudados.length ? "±" + s.mudados.length : "0") : "—";
+    nsim.className = "n" + (s && s.mudados.length ? " mud" : "");
+    document.getElementById("disclaimer").textContent =
+      "Base: " + D.meta.fonte + ". " + D.meta.aviso;
+  }
+
+  // ============================================================
+  // REGRAS
+  // ============================================================
+
+  function vistaRegras() {
+    const R = estado.rascunho.regras;
+    document.getElementById("main").innerHTML = `
+      <div class="pagehead">
+        <h2>As catorze regras</h2>
+        <p>O texto de cada regra vem da aba <span class="mono">Regras_Risco</span> da planilha e não
+        se edita aqui — mudar o texto de uma regra é mudar a política escrita, e isso passa pelo
+        comitê. O que se edita é <strong>o nível que ela atribui, a ação que ela obriga e se ela
+        está ligada</strong>.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-h"><h3>Editor</h3>
+          <span class="hint">cada mudança recalcula a simulação na hora</span></div>
+        <div class="tw"><table>
+          <thead><tr><th>Regra</th><th>Texto da política</th><th>Nível</th><th>Ação obrigatória</th>
+            <th class="nowrap">Ativa</th><th class="num">Usos hoje</th></tr></thead>
+          <tbody>${D.politica.regras.map(r => {
+            const e = R[r.id] || {};
+            const alterada = mudou("regra", r.id);
+            const desligada = e.ativa === false;
+            return `<tr class="${alterada ? "alterada" : ""} ${desligada ? "desligada" : ""}">
+              <td>${chipRegra(r.id)}<div class="dim" style="font-size:11.5px;margin-top:3px">${esc(r.tema)}</div></td>
+              <td style="font-size:12.5px;max-width:36ch">${esc(r.texto)}</td>
+              <td><select data-regra="${r.id}" data-campo="nivel" class="${mudou("regra", r.id, "nível") ? "mud" : ""}">
+                ${NIVEIS_EDITAVEIS.map(n => `<option value="${n}" ${e.nivel === n ? "selected" : ""}>${n}</option>`).join("")}
+                ${r.nivel === "REVISAR" || e.nivel === "REVISAR" ? `<option value="REVISAR" ${e.nivel === "REVISAR" ? "selected" : ""}>REVISAR</option>` : ""}
+              </select></td>
+              <td style="min-width:200px"><textarea data-regra="${r.id}" data-campo="acao"
+                class="${mudou("regra", r.id, "ação") ? "mud" : ""}">${esc(e.acao || "")}</textarea></td>
+              <td class="nowrap"><label class="chk"><input type="checkbox" data-regra="${r.id}"
+                data-campo="ativa" ${desligada ? "" : "checked"}> ${desligada ? "não" : "sim"}</label></td>
+              <td class="num dim">${r.usos_base}</td>
+            </tr>`;
+          }).join("")}</tbody>
+        </table></div>
+        <div class="panel-b" style="border-top:1px solid var(--line)">
+          <p class="nota" style="margin:0"><strong>Desligar uma regra não a apaga.</strong> Ela some da
+          avaliação e o evento passa a ser decidido pela próxima regra aplicável — o que pode significar
+          nível mais baixo, ou nenhum. A simulação mostra exatamente quantos eventos mudam.</p>
+        </div>
+      </div>`;
+
+    document.querySelectorAll("[data-regra]").forEach(el => {
+      const ev = el.type === "checkbox" ? "change" : (el.tagName === "SELECT" ? "change" : "input");
+      el.addEventListener(ev, () => {
+        const id = el.dataset.regra, campo = el.dataset.campo;
+        const alvo = estado.rascunho.regras[id] || (estado.rascunho.regras[id] = {});
+        if (campo === "ativa") alvo.ativa = el.checked;
+        else alvo[campo] = el.value;
+        agendarSimulacao(campo === "acao");
+      });
+    });
+  }
+
+  // ============================================================
+  // FERRAMENTAS
+  // ============================================================
+
+  function vistaFerramentas() {
+    const F = estado.rascunho.ferramentas;
+    const usoPorFerr = {};
+    for (const e of D.eventos) usoPorFerr[e.ferramenta_id] = (usoPorFerr[e.ferramenta_id] || 0) + 1;
+
+    document.getElementById("main").innerHTML = `
+      <div class="pagehead">
+        <h2>Ferramentas e limiares</h2>
+        <p>O status de uma ferramenta é a decisão de governança com maior efeito sobre o risco:
+        mudar uma ferramenta de aprovada para não aprovada reclassifica de uma vez todo o histórico
+        dela. Por isso a simulação mostra o impacto antes.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-h"><h3>Cadastro de ferramentas</h3>
+          <span class="hint">os demais campos vêm da planilha</span></div>
+        <div class="tw"><table>
+          <thead><tr><th>Ferramenta</th><th>Tipo</th><th>Status</th><th>Finalidade aprovada</th>
+            <th>Controles</th><th class="num">Eventos</th></tr></thead>
+          <tbody>${D.ferramentas.map(f => {
+            const e = F[f.id] || {};
+            const alterada = mudou("ferramenta", f.id);
+            return `<tr class="${alterada ? "alterada" : ""}">
+              <td><span class="mono dim" style="font-size:11px">${f.id}</span><br><strong>${esc(f.nome)}</strong></td>
+              <td class="dim">${esc(f.tipo)}</td>
+              <td><select data-ferr="${f.id}" class="${alterada ? "mud" : ""}" style="min-width:230px">
+                ${STATUS_FERR.map(s => `<option value="${esc(s)}" ${e.status === s ? "selected" : ""}>${esc(s)}</option>`).join("")}
+                ${STATUS_FERR.indexOf(e.status) === -1 ? `<option value="${esc(e.status)}" selected>${esc(e.status)}</option>` : ""}
+              </select>
+              ${alterada ? `<div class="pill-mud" style="margin-top:4px">era: ${esc((estado.publicada.ferramentas[f.id] || {}).status || "")}</div>` : ""}</td>
+              <td class="dim" style="font-size:12px">${esc(f.finalidade)}</td>
+              <td class="dim" style="font-size:12px;max-width:24ch">${esc(f.controles)}</td>
+              <td class="num">${num(usoPorFerr[f.id] || 0)}</td>
+            </tr>`;
+          }).join("")}</tbody>
+        </table></div>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <div class="panel-h"><h3>Limiares</h3></div>
+        <div class="panel-b" style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <label style="font-size:13px">Volume que aciona R11
+              <input type="number" id="lim-volume" min="1" max="100" value="${estado.rascunho.limiteVolume}"
+                class="${mudou("limiar", "volume") ? "mud" : ""}" style="width:80px;margin-left:8px"> itens
+            </label>
+            ${mudou("limiar", "volume") ? `<span class="pill-mud">era: ${estado.publicada.limiteVolume}</span>` : ""}
+          </div>
+          <p class="nota" style="margin:0">R11 trata upload massivo de conteúdo confidencial ou crítico.
+          A base usa 10 itens. Baixar esse número aumenta a cobertura e a fila; subir faz o contrário.
+          O caso de validação CV15 depende deste limiar — se você passar de 10, ele quebra, e a
+          publicação fica bloqueada.</p>
+        </div>
+      </div>`;
+
+    document.querySelectorAll("[data-ferr]").forEach(el =>
+      el.addEventListener("change", () => {
+        const alvo = estado.rascunho.ferramentas[el.dataset.ferr] ||
+                     (estado.rascunho.ferramentas[el.dataset.ferr] = {});
+        alvo.status = el.value;
+        agendarSimulacao();
+      }));
+
+    const lim = document.getElementById("lim-volume");
+    lim.addEventListener("input", () => {
+      const v = parseInt(lim.value, 10);
+      if (Number.isFinite(v) && v > 0) { estado.rascunho.limiteVolume = v; agendarSimulacao(true); }
+    });
+  }
+
+  // ============================================================
+  // PRECEDÊNCIA
+  // ============================================================
+
+  function vistaPrecedencia() {
+    const p = estado.rascunho.precedencia;
+    const orig = estado.publicada.precedencia;
+    const desc = {};
+    for (const linha of D.politica.precedencia) {
+      const [id, ...resto] = linha.split("·");
+      desc[id.trim()] = resto.join("·").trim();
+    }
+
+    document.getElementById("main").innerHTML = `
+      <div class="pagehead">
+        <h2>Ordem de precedência</h2>
+        <p>Quando mais de uma regra se aplica ao mesmo evento, o <strong>nível</strong> é sempre o da
+        mais severa — isso não se negocia. A precedência decide outra coisa: <strong>qual regra é
+        citada como principal</strong> entre as que empataram na severidade. E isso importa porque
+        cada regra obriga uma ação diferente.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-h"><h3>Da primeira à última avaliada</h3>
+          <span class="hint">use as setas para reordenar</span></div>
+        <div class="panel-b">
+          <ol class="prec">${p.map((rid, i) => {
+            const movida = orig[i] !== rid;
+            const r = D.politica.regras.find(x => x.id === rid) || {};
+            return `<li class="${movida ? "movida" : ""}">
+              <span class="txt">${chipRegra(rid)} ${esc(desc[rid] || r.texto || "")}</span>
+              <span class="mv">
+                <button data-mv="cima" data-i="${i}" ${i === 0 ? "disabled" : ""} title="subir">▲</button>
+                <button data-mv="baixo" data-i="${i}" ${i === p.length - 1 ? "disabled" : ""} title="descer">▼</button>
+              </span></li>`;
+          }).join("")}</ol>
+        </div>
+        <div class="panel-b" style="border-top:1px solid var(--line)">
+          <div class="faixa faixa-info"><b>por que a ordem importa</b>
+          Dado pessoal numa IA pública dispara R01 e R04 ao mesmo tempo, ambas Crítico. Com R04 antes,
+          o registro cita “dado pessoal em IA pública” e obriga a <strong>resposta de privacidade</strong>.
+          Com R01 antes, cita “confidencial em ferramenta não aprovada” e obriga apenas investigar —
+          e a obrigação de comunicar o titular some do registro. Foi exatamente esse defeito que a
+          auditoria encontrou na base.</div>
+        </div>
+      </div>`;
+
+    document.querySelectorAll("[data-mv]").forEach(b =>
+      b.addEventListener("click", () => {
+        const i = +b.dataset.i;
+        const j = b.dataset.mv === "cima" ? i - 1 : i + 1;
+        if (j < 0 || j >= p.length) return;
+        [p[i], p[j]] = [p[j], p[i]];
+        agendarSimulacao();
+      }));
+  }
+
+  // ============================================================
+  // SIMULAÇÃO
+  // ============================================================
+
+  function vistaSimulacao(abrirPublicacao) {
+    const s = estado.sim || simular();
+    const m = mudancas();
+    const NIV = ["Crítico", "Alto", "Médio", "Baixo", "REVISAR"];
+    const maxD = Math.max(...NIV.map(n => Math.max(s.antesDist[n] || 0, s.depoisDist[n] || 0)), 1);
+    const corNivel = n => `var(--sev-${n === "REVISAR" ? "Revisar" : slug(n)})`;
+
+    const delta = (a, b) => {
+      const d = b - a;
+      if (!d) return '<span class="dim">—</span>';
+      const cor = d > 0 ? "var(--sev-Critico)" : "var(--ok)";
+      return `<span style="color:${cor};font-weight:600">${d > 0 ? "+" : ""}${num(d)}</span>`;
+    };
+
+    document.getElementById("main").innerHTML = `
+      <div class="pagehead">
+        <h2>Simulação</h2>
+        <p>A política do rascunho, aplicada aos ${num(D.eventos.length)} eventos da base e aos
+        ${s.casos.length} casos do gabarito oficial. Nada é publicado sem passar por aqui.</p>
+      </div>
+
+      ${!m.length ? `<div class="faixa faixa-info" style="margin-bottom:16px"><b>sem alterações</b>
+        O rascunho é igual à política em vigor. Edite alguma regra, ferramenta ou a precedência para
+        ver o impacto.</div>` : ""}
+
+      <div class="kpis">
+        <div class="kpi ${s.mudados.length ? "mud" : ""}"><span class="lab">Eventos que mudam de resultado</span>
+          <span class="val">${num(s.mudados.length)}</span>
+          <span class="foot">de ${num(D.eventos.length)}</span></div>
+        <div class="kpi ${s.novosAlertas ? "alerta" : ""}"><span class="lab">Viram alerta</span>
+          <span class="val">${num(s.novosAlertas)}</span>
+          <span class="foot">não eram Alto nem Crítico</span></div>
+        <div class="kpi ${s.alertasRemovidos ? "alerta" : ""}"><span class="lab">Deixam de ser alerta</span>
+          <span class="val">${num(s.alertasRemovidos)}</span>
+          <span class="foot">saem da fila</span></div>
+        <div class="kpi"><span class="lab">Fila de alertas</span>
+          <span class="val">${num(s.alertasDepois)}</span>
+          <span class="foot">era ${num(s.alertasAntes)}</span></div>
+        <div class="kpi ${s.casosFalhos.length ? "alerta" : "bom"}">
+          <span class="lab">Gabarito oficial</span>
+          <span class="val">${s.casos.length - s.casosFalhos.length}/${s.casos.length}</span>
+          <span class="foot">${s.casosFalhos.length ? "publicação bloqueada" : "todos passam"}</span></div>
+      </div>
+
+      ${s.casosFalhos.length ? `
+      <div class="faixa faixa-alerta" style="margin-top:16px"><b>publicação bloqueada</b>
+        ${s.casosFalhos.length} caso(s) do gabarito deixariam de ser reproduzidos com esta política:
+        ${s.casosFalhos.map(c => `<strong>${esc(c.caso)}</strong> (esperado ${esc(c.esperado)},
+        obteria ${esc(c.obtido)})`).join(" · ")}.
+        Um caso de validação é o que a Stark Bank definiu como resposta correta — uma política que
+        o contradiz não é uma política mais rígida ou mais frouxa, é uma política errada.</div>` : ""}
+
+      <div class="grid" style="margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(330px,1fr))">
+        <div class="panel">
+          <div class="panel-h"><h3>Distribuição de risco</h3><span class="hint">antes → depois</span></div>
+          <div class="panel-b">
+            ${NIV.map(n => {
+              const a = s.antesDist[n] || 0, b = s.depoisDist[n] || 0;
+              if (!a && !b) return "";
+              return `<div class="imp">
+                <span>${chipSev(n)}</span>
+                <span class="trk"><span class="fl" style="width:${a / maxD * 100}%;background:${corNivel(n)};opacity:.35"></span></span>
+                <span class="vl dim">${num(a)}</span>
+                <span class="trk"><span class="fl" style="width:${b / maxD * 100}%;background:${corNivel(n)}"></span></span>
+                <span class="vl">${num(b)} ${delta(a, b)}</span>
+              </div>`;
+            }).join("")}
+            <p class="nota" style="margin:10px 0 0;font-size:12px">A barra clara é a política em vigor;
+            a cheia, o rascunho.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-h"><h3>O que mudou na política</h3>
+            <span class="hint">${m.length} alteração(ões)</span></div>
+          <div class="panel-b">
+            ${m.length ? `<div class="tw"><table><tbody>${m.map(d => `
+              <tr><td class="nowrap">${d.tipo === "regra" ? chipRegra(d.alvo) :
+                `<span class="mono" style="font-size:11.5px">${esc(d.alvo)}</span>`}
+                <div class="dim" style="font-size:11px">${esc(d.campo)}</div></td>
+              <td class="diff"><span class="de">${esc((d.de || "").slice(0, 90) || "—")}</span><br>
+                <span class="para">${esc((d.para || "").slice(0, 90) || "—")}</span></td></tr>`).join("")}
+            </tbody></table></div>` : `<p class="vazio">Nada alterado.</p>`}
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <div class="panel-h"><h3>Os ${s.casos.length} casos do gabarito com esta política</h3></div>
+        <div class="tw"><table>
+          <thead><tr><th>Caso</th><th>Situação</th><th>Esperado</th><th>Obteria</th><th>Regra</th><th></th></tr></thead>
+          <tbody>${s.casos.map(c => `
+            <tr class="${c.passou ? "" : "alterada"}">
+              <td class="mono">${esc(c.caso)}</td>
+              <td style="font-size:12.5px">${esc(c.informacao)}<div class="dim" style="font-size:11.5px">${esc(c.ferramenta)}</div></td>
+              <td class="mono">${esc(c.esperado)}</td>
+              <td>${chipSev(c.obtido)}</td>
+              <td>${chipRegra(c.regra)}</td>
+              <td>${c.passou ? '<span class="pill-ok">passa</span>' : '<span class="pill-nao">falha</span>'}</td>
+            </tr>`).join("")}</tbody>
+        </table></div>
+      </div>
+
+      ${s.mudados.length ? `
+      <div class="panel" style="margin-top:16px">
+        <div class="panel-h"><h3>Eventos afetados</h3>
+          <span class="hint">exibindo ${Math.min(60, s.mudados.length)} de ${num(s.mudados.length)}</span></div>
+        <div class="tw" style="max-height:52vh;overflow-y:auto"><table>
+          <thead><tr><th>Evento</th><th>Informação</th><th>Ferramenta</th><th>Antes</th><th>Depois</th><th>Efeito</th></tr></thead>
+          <tbody>${s.mudados.slice(0, 60).map(x => `
+            <tr><td class="mono" style="font-size:12px">${esc(x.e.id)}</td>
+              <td style="font-size:12.5px">${esc(x.e.informacao)}<div class="dim" style="font-size:11.5px">${esc(x.e.sensibilidade)}</div></td>
+              <td style="font-size:12.5px">${esc(x.e.ferramenta)}</td>
+              <td class="nowrap">${chipSev(x.antes.nivel)} ${chipRegra(x.antes.regra)}</td>
+              <td class="nowrap">${chipSev(x.depois.nivel)} ${chipRegra(x.depois.regra)}</td>
+              <td class="nowrap" style="font-size:12px">${
+                x.viraAlerta ? '<span style="color:var(--sev-Critico);font-weight:600">passa a alertar</span>'
+                : x.deixaAlerta ? '<span style="color:var(--ok);font-weight:600">deixa de alertar</span>'
+                : '<span class="dim">só a regra citada</span>'}</td>
+            </tr>`).join("")}</tbody>
+        </table></div>
+      </div>` : ""}
+
+      <div class="panel" style="margin-top:16px" id="bloco-publicar">
+        <div class="panel-h"><h3>Publicar</h3>
+          <span class="hint">cria uma versão com autor, nota e diferenças</span></div>
+        <div class="panel-b" style="display:flex;flex-direction:column;gap:12px">
+          ${estado.db ? "" : `<div class="faixa faixa-info"><b>modo somente leitura</b>
+            Este console não conseguiu abrir o armazenamento de versões${estado.dbErro ? ` (${esc(estado.dbErro)})` : ""}.
+            A simulação funciona normalmente; a publicação fica indisponível nesta sessão.</div>`}
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+            <label style="font-size:12.5px;display:flex;flex-direction:column;gap:4px">Publicado por
+              <input type="text" id="pub-autor" value="${esc(estado.autor)}"
+                placeholder="seu nome" style="min-width:200px"></label>
+            <label style="font-size:12.5px;display:flex;flex-direction:column;gap:4px;flex:1 1 320px">Nota da versão
+              <input type="text" id="pub-nota" placeholder="por que esta mudança" style="width:100%"></label>
+            <button class="btn btn-primario" id="btn-pub2" ${podePublicar() ? "" : "disabled"}
+              style="padding:8px 18px">Publicar versão</button>
+          </div>
+          <p class="nota" style="margin:0">Numa implantação real este campo vem do SSO e a publicação
+          exige aprovação de um segundo par — quem edita não aprova. Aqui o nome é digitado porque o
+          console roda sem diretório corporativo.</p>
+        </div>
+      </div>`;
+
+    const autor = document.getElementById("pub-autor");
+    autor.addEventListener("input", () => {
+      estado.autor = autor.value;
+      try { localStorage.setItem("espia_autor", autor.value); } catch (_) {}
+    });
+    document.getElementById("btn-pub2").onclick = () =>
+      publicar(document.getElementById("pub-nota").value);
+
+    if (abrirPublicacao) {
+      document.getElementById("bloco-publicar").scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+
+  // ============================================================
+  // VERSÕES
+  // ============================================================
+
+  function vistaVersoes() {
+    const vs = estado.versoes;
+    document.getElementById("main").innerHTML = `
+      <div class="pagehead">
+        <h2>Versões da política</h2>
+        <p>Cada publicação vira uma versão com autor, data, nota e o que mudou. É o que permite
+        responder, seis meses depois, por que um evento daquela semana foi classificado como foi.</p>
+      </div>
+
+      ${!estado.db ? `<div class="faixa faixa-info" style="margin-bottom:16px"><b>sem armazenamento</b>
+        O histórico de versões não está disponível nesta sessão${estado.dbErro ? ` (${esc(estado.dbErro)})` : ""}.</div>` : ""}
+
+      <div class="panel">
+        <div class="panel-h"><h3>Histórico</h3>
+          <span class="hint">${vs.length} versão(ões) publicada(s)</span></div>
+        ${vs.length ? `<div class="tw"><table>
+          <thead><tr><th>Versão</th><th>Quando</th><th>Quem</th><th>Nota</th>
+            <th class="num">Alterações</th><th class="num">Eventos afetados</th><th>Gabarito</th><th></th></tr></thead>
+          <tbody>${vs.map(v => `
+            <tr class="${v.id === estado.versaoAtual ? "alterada" : ""}">
+              <td class="mono" style="font-size:12px">${esc(v.id)}
+                ${v.id === estado.versaoAtual ? '<div class="pill-ok" style="margin-top:3px">em vigor</div>' : ""}</td>
+              <td class="dim nowrap" style="font-size:12px">${esc(dataHora(v.criado_em))}</td>
+              <td style="font-size:12.5px">${esc(v.autor)}</td>
+              <td style="font-size:12.5px;max-width:30ch">${esc(v.nota || "—")}</td>
+              <td class="num">${(v.mudancas || []).length}</td>
+              <td class="num">${num((v.impacto || {}).eventos_alterados || 0)}</td>
+              <td>${(v.impacto || {}).casos_ok === (v.impacto || {}).casos_total
+                ? '<span class="pill-ok">' + ((v.impacto || {}).casos_ok || 0) + '/' + ((v.impacto || {}).casos_total || 0) + '</span>'
+                : '<span class="pill-nao">—</span>'}</td>
+              <td><button class="btn" data-restaurar="${esc(v.id)}" style="padding:3px 10px;font-size:12px">Carregar</button></td>
+            </tr>
+            ${(v.mudancas || []).length ? `<tr><td colspan="8" style="background:var(--surface-2);padding-top:4px">
+              <div class="diff" style="display:flex;flex-direction:column;gap:3px">
+                ${v.mudancas.map(d => `<div><span class="regra">${esc(d.alvo)}</span>
+                  <span class="dim">${esc(d.campo)}</span>
+                  <span class="de">${esc((d.de || "").slice(0, 70) || "—")}</span> →
+                  <span class="para">${esc((d.para || "").slice(0, 70) || "—")}</span></div>`).join("")}
+              </div></td></tr>` : ""}`).join("")}
+          </tbody></table></div>`
+        : `<div class="panel-b"><p class="vazio">Nenhuma versão publicada ainda.
+            A política em vigor é a que veio da planilha.</p></div>`}
+      </div>`;
+
+    document.querySelectorAll("[data-restaurar]").forEach(b =>
+      b.addEventListener("click", () => {
+        const v = vs.find(x => x.id === b.dataset.restaurar);
+        if (v) restaurar(v);
+      }));
+  }
+
+  // ============================================================
+  // roteamento
+  // ============================================================
+
+  const VISTAS = { regras: vistaRegras, ferramentas: vistaFerramentas,
+                   precedencia: vistaPrecedencia, simulacao: vistaSimulacao, versoes: vistaVersoes };
+
+  function ir(vista, arg) {
+    estado.vista = vista;
+    document.querySelectorAll(".navbtn").forEach(b =>
+      b.setAttribute("aria-current", b.dataset.vista === vista ? "true" : "false"));
+    renderTopo();
+    VISTAS[vista](arg);
+  }
+
+  function render() {
+    renderTopo();
+    VISTAS[estado.vista]();
+  }
+
+  // Recalcular é barato (650 eventos), mas re-renderizar enquanto se digita
+  // rouba o cursor do campo. Por isso o texto só atualiza a barra de estado.
+  let t = null;
+  function agendarSimulacao(semRerender) {
+    clearTimeout(t);
+    t = setTimeout(() => {
+      simular();
+      if (semRerender) renderTopo();
+      else render();
+    }, semRerender ? 400 : 60);
+  }
+
+  document.querySelectorAll(".navbtn").forEach(b =>
+    b.addEventListener("click", () => ir(b.dataset.vista)));
+
+  document.getElementById("tema").addEventListener("click", () => {
+    const atual = document.documentElement.getAttribute("data-theme");
+    const escuro = atual ? atual === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.setAttribute("data-theme", escuro ? "light" : "dark");
+    render();
+  });
+
+  simular();
+  ir("regras");
+  conectar();
+})();
+</script>

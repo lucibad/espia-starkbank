@@ -1,0 +1,38 @@
+{
+  "_comentario": [
+    "EspIA — política de instalação da extensão por GPO (Edge e Chrome).",
+    "Onda 2. É o único componente que toca a estação.",
+    "Instale em modo somente observação por 15 dias antes de ligar a oferta",
+    "de mascaramento: a primeira impressão que a ferramenta deixa nos",
+    "funcionários define se ela será usada ou contornada."
+  ],
+
+  "ExtensionInstallForcelist": [
+    "espia-borda;https://extensoes.interno.banco/espia/update.xml"
+  ],
+  "ExtensionSettings": {
+    "espia-borda": {
+      "installation_mode": "force_installed",
+      "update_url": "https://extensoes.interno.banco/espia/update.xml",
+      "toolbar_pin": "force_pinned"
+    }
+  },
+
+  "3rdparty": {
+    "extensions": {
+      "espia-borda": {
+        "ingestao_url": "https://ingestao.espia.interno:8443/eventos",
+        "modo": "observacao",
+        "_modos": "observacao | mascaramento | bloqueio — nesta ordem, nunca pulando etapa",
+        "enviar_conteudo": false,
+        "fingerprint_local": true,
+        "detectores": ["cpf", "cnpj", "cartao_luhn", "credencial"],
+        "aviso_ao_usuario": true,
+        "texto_aviso": "Este conteúdo parece conter dado sensível. A EspIA pode mascarar antes de você colar.",
+        "dominios_monitorados_url": "https://api.espia.interno:8083/ferramentas/dominios",
+        "intervalo_atualizacao_h": 6,
+        "modo_privado": "desligado"
+      }
+    }
+  }
+}

@@ -1,0 +1,1389 @@
+<meta charset="utf-8">
+<title>EspIA</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+/* ==================================================================
+   EspIA — console de rastreabilidade e governança de IA
+   Base oficial do Desafio 2 · Stark Bank
+
+   Cor = risco.  Densidade de tinta = classificação da informação.
+   Nunca as duas escalas na mesma matiz.
+   ================================================================== */
+
+:root {
+  --ground:      #E9ECF0;
+  --surface:     #FFFFFF;
+  --surface-2:   #F3F5F8;
+  --surface-3:   #E7EAEF;
+  --line:        #D2D8E0;
+  --line-strong: #B6BFCB;
+  --ink:         #0E151D;
+  --ink-2:       #4B5563;
+  --ink-3:       #7C8797;
+
+  --accent:      #16607F;
+  --accent-ink:  #0E4358;
+  --accent-soft: #DCEAF1;
+
+  --sev-Critico: #A01236;
+  --sev-Alto:    #C25A10;
+  --sev-Medio:   #CE9A12;
+  --sev-Baixo:   #8B93A1;
+  --sev-Revisar: #16607F;
+  --sev-Critico-bg: #F9DFE5;
+  --sev-Alto-bg:    #FAE7D8;
+  --sev-Medio-bg:   #FAF0D8;
+  --sev-Baixo-bg:   #EDEFF2;
+  --sev-Revisar-bg: #DCEAF1;
+
+  --ok:          #2E6B4F;
+  --ok-bg:       #E1EFE7;
+  --grid:        #E4E8ED;
+
+  --r-sm: 3px; --r-md: 6px; --r-lg: 10px;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0C1118; --surface: #141B24; --surface-2: #1A222D; --surface-3: #212B38;
+    --line: #263140; --line-strong: #354356;
+    --ink: #E3E9F1; --ink-2: #9CA9BA; --ink-3: #6C7A8D;
+    --accent: #5FB3D4; --accent-ink: #96D2EA; --accent-soft: #10303E;
+    --sev-Critico: #DC3350; --sev-Alto: #F09030; --sev-Medio: #F7DC6F;
+    --sev-Baixo: #69737F; --sev-Revisar: #5FB3D4;
+    --sev-Critico-bg: #331520; --sev-Alto-bg: #33220F; --sev-Medio-bg: #2E2A17;
+    --sev-Baixo-bg: #1C242E; --sev-Revisar-bg: #10303E;
+    --ok: #74B894; --ok-bg: #14271D; --grid: #202A36;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #0C1118; --surface: #141B24; --surface-2: #1A222D; --surface-3: #212B38;
+  --line: #263140; --line-strong: #354356;
+  --ink: #E3E9F1; --ink-2: #9CA9BA; --ink-3: #6C7A8D;
+  --accent: #5FB3D4; --accent-ink: #96D2EA; --accent-soft: #10303E;
+  --sev-Critico: #DC3350; --sev-Alto: #F09030; --sev-Medio: #F7DC6F;
+  --sev-Baixo: #69737F; --sev-Revisar: #5FB3D4;
+  --sev-Critico-bg: #331520; --sev-Alto-bg: #33220F; --sev-Medio-bg: #2E2A17;
+  --sev-Baixo-bg: #1C242E; --sev-Revisar-bg: #10303E;
+  --ok: #74B894; --ok-bg: #14271D; --grid: #202A36;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font-family: var(--f-body); font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { font-family: var(--f-display); font-weight: 600; margin: 0; text-wrap: balance; letter-spacing: -0.012em; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--r-sm); }
+
+/* ---------------- shell ---------------- */
+.shell { display: grid; grid-template-columns: 236px minmax(0, 1fr); min-height: 100vh; }
+.rail {
+  background: var(--surface); border-right: 1px solid var(--line);
+  padding-block: 20px 28px; padding-inline: 16px;
+  display: flex; flex-direction: column; gap: 24px;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+.brand { display: flex; flex-direction: column; gap: 3px; }
+.brand h1 { font-size: 19px; letter-spacing: 0.1em; font-weight: 700; }
+.brand .sub { font-size: 11px; color: var(--ink-3); letter-spacing: 0.04em; line-height: 1.35; }
+.navgroup { display: flex; flex-direction: column; gap: 3px; }
+.eyebrow {
+  font-family: var(--f-mono); font-size: 10px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.11em; color: var(--ink-3);
+}
+.navgroup > .eyebrow { margin-bottom: 5px; }
+.navbtn {
+  display: flex; align-items: baseline; gap: 8px; background: none; border: 0;
+  text-align: left; cursor: pointer; padding: 7px 10px; border-radius: var(--r-md);
+  color: var(--ink-2); font-size: 13.5px; width: 100%;
+}
+.navbtn:hover { background: var(--surface-2); color: var(--ink); }
+.navbtn[aria-current="true"] { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
+.navbtn .n { margin-left: auto; font-family: var(--f-mono); font-size: 11px; color: var(--ink-3); }
+.navbtn[aria-current="true"] .n { color: var(--accent-ink); }
+.navbtn .n.alerta { color: var(--sev-Critico); font-weight: 600; }
+.rail-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+.themebtn {
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md);
+  padding: 6px 10px; cursor: pointer; font-size: 12px; color: var(--ink-2);
+}
+.themebtn:hover { border-color: var(--line-strong); color: var(--ink); }
+.disclaimer { font-size: 10.5px; line-height: 1.45; color: var(--ink-3); }
+.main { padding-block: 22px 64px; padding-inline: 28px; max-width: 1480px; }
+.pagehead { margin-bottom: 20px; }
+.pagehead h2 { font-size: 24px; }
+.pagehead p { margin: 5px 0 0; color: var(--ink-2); max-width: 70ch; font-size: 13.5px; }
+
+/* ---------------- primitivas ---------------- */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); }
+.panel-h { padding: 14px 18px 12px; border-bottom: 1px solid var(--line); display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.panel-h h3 { font-size: 14.5px; }
+.panel-h .hint { font-size: 12px; color: var(--ink-3); margin-left: auto; }
+.panel-b { padding: 16px 18px; }
+.grid { display: grid; gap: 16px; }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+.kpi { background: var(--surface); padding: 13px 16px 14px; display: flex; flex-direction: column; gap: 2px; }
+.kpi .lab { font-size: 11.5px; color: var(--ink-3); line-height: 1.3; }
+.kpi .val { font-family: var(--f-display); font-size: 26px; font-weight: 600; line-height: 1.12; font-variant-numeric: tabular-nums; }
+.kpi .foot { font-size: 11px; color: var(--ink-3); font-family: var(--f-mono); }
+.kpi.alerta .val { color: var(--sev-Critico); }
+.kpi.bom .val { color: var(--ok); }
+
+/* risco: cor + rótulo, nunca cor sozinha */
+.sev { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 500; padding: 1px 7px 1px 5px; border-radius: 100px; white-space: nowrap; }
+.sev::before { content: ""; width: 7px; height: 7px; border-radius: 2px; background: currentColor; flex: none; }
+.sev-Critico { color: var(--sev-Critico); background: var(--sev-Critico-bg); }
+.sev-Alto    { color: var(--sev-Alto);    background: var(--sev-Alto-bg); }
+.sev-Medio   { color: var(--sev-Medio);   background: var(--sev-Medio-bg); }
+.sev-Baixo   { color: var(--sev-Baixo);   background: var(--sev-Baixo-bg); }
+.sev-Revisar { color: var(--sev-Revisar); background: var(--sev-Revisar-bg); }
+
+/* classificação: densidade, sem matiz */
+.cls { display: inline-block; font-size: 11px; font-weight: 500; padding: 1px 7px; border-radius: var(--r-sm); white-space: nowrap; }
+.cls-Publica      { color: var(--ink-3); border: 1px solid var(--line-strong); }
+.cls-Interna      { color: var(--ink-2); background: var(--surface-3); }
+.cls-Confidencial { color: var(--ink); background: var(--line); font-weight: 600; }
+.cls-Critica      { color: var(--surface); background: var(--ink); font-weight: 600; }
+
+.tag { font-family: var(--f-mono); font-size: 10.5px; padding: 1px 6px; border-radius: var(--r-sm); border: 1px solid var(--line-strong); color: var(--ink-3); white-space: nowrap; }
+.tag-aprovada    { color: var(--ok); border-color: currentColor; }
+.tag-condicional { color: var(--accent); border-color: currentColor; }
+.tag-publica     { color: var(--sev-Alto); border-color: currentColor; }
+.tag-naoaprovada { color: var(--sev-Critico); border-color: currentColor; background: var(--sev-Critico-bg); }
+.regra { font-family: var(--f-mono); font-size: 10.5px; padding: 1px 6px; border-radius: var(--r-sm); background: var(--accent-soft); color: var(--accent-ink); white-space: nowrap; font-weight: 500; }
+
+.pill-ok  { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; padding: 1px 8px; border-radius: 100px; color: var(--ok); background: var(--ok-bg); white-space: nowrap; }
+.pill-nao { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; padding: 1px 8px; border-radius: 100px; color: var(--sev-Critico); background: var(--sev-Critico-bg); white-space: nowrap; }
+
+/* ---------------- tabelas ---------------- */
+.tw { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  text-align: left; font-family: var(--f-mono); font-size: 10.5px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3);
+  padding: 8px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; background: var(--surface);
+}
+td { padding: 9px 12px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+tbody tr:last-child td { border-bottom: 0; }
+tr.clicavel { cursor: pointer; }
+tr.clicavel:hover td { background: var(--surface-2); }
+tr.sel td { background: var(--accent-soft); }
+.num { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.dim { color: var(--ink-3); }
+.nowrap { white-space: nowrap; }
+
+/* ---------------- controles ---------------- */
+.filtros { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+select, input[type="search"] {
+  font: inherit; font-size: 13px; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: var(--r-md); padding: 6px 10px; max-width: 100%;
+}
+select:hover, input:hover { border-color: var(--line-strong); }
+input[type="search"] { min-width: 280px; }
+.filtros label { font-size: 11.5px; color: var(--ink-3); display: flex; align-items: center; gap: 6px; }
+.sug {
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: 100px;
+  padding: 3px 11px; font-size: 12px; cursor: pointer; color: var(--ink-2);
+}
+.sug:hover { border-color: var(--accent); color: var(--accent-ink); }
+.sug[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+
+/* ---------------- gráficos ---------------- */
+.chartwrap { position: relative; }
+svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
+.tip {
+  position: absolute; pointer-events: none; z-index: 20; opacity: 0;
+  background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-md);
+  padding: 8px 10px; font-size: 12px; box-shadow: 0 6px 20px rgba(8,15,25,.18);
+  min-width: 150px; transition: opacity .1s;
+}
+.tip .t { font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-3); margin-bottom: 4px; }
+.tip .r { display: flex; align-items: center; gap: 6px; justify-content: space-between; }
+.tip .r .k { display: flex; align-items: center; gap: 5px; }
+.tip .sw { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+.tip .v { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 11.5px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+
+.heat { display: grid; gap: 2px; font-size: 11.5px; align-items: center; }
+.heat .hh { font-family: var(--f-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); padding-bottom: 4px; text-align: center; }
+.heat .rh { color: var(--ink-2); padding-right: 10px; white-space: nowrap; }
+.heat .cell { height: 30px; border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; font-family: var(--f-mono); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+.hbars { display: flex; flex-direction: column; gap: 10px; }
+.hbar { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) 52px; gap: 12px; align-items: center; font-size: 12.5px; }
+.hbar .rot { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.hbar .rot .tag { flex: none; }
+.hbar .rot .nm { flex: 1 1 auto; min-width: 3ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hbar .track { background: var(--surface-2); border-radius: var(--r-sm); height: 16px; overflow: hidden; }
+.hbar .fill { display: block; height: 100%; min-width: 3px; border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+.hbar .v { font-family: var(--f-mono); font-size: 11.5px; text-align: right; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+/* ---------------- linhagem ---------------- */
+.resumo-linhagem { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; background: var(--line); }
+.resumo-linhagem > div { background: var(--surface); padding: 11px 18px; flex: 1 1 124px; }
+.resumo-linhagem .lab { font-size: 11px; color: var(--ink-3); }
+.resumo-linhagem .val { font-family: var(--f-display); font-size: 21px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.trilha { list-style: none; margin: 0; padding: 0; position: relative; }
+.trilha::before { content: ""; position: absolute; left: 7px; top: 10px; bottom: 10px; width: 1px; background: var(--line); }
+.trilha li { position: relative; padding: 9px 0 9px 28px; cursor: pointer; border-radius: var(--r-md); }
+.trilha li:hover { background: var(--surface-2); }
+.trilha li::before { content: ""; position: absolute; left: 3px; top: 16px; width: 9px; height: 9px; border-radius: 50%; background: var(--surface); border: 2px solid var(--sev-Baixo); }
+.trilha li.n-Critico::before { border-color: var(--sev-Critico); background: var(--sev-Critico); }
+.trilha li.n-Alto::before    { border-color: var(--sev-Alto);    background: var(--sev-Alto); }
+.trilha li.n-Medio::before   { border-color: var(--sev-Medio); }
+.trilha li.n-Revisar::before { border-color: var(--sev-Revisar); }
+.trilha .l1 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.trilha .l2 { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+
+/* ---------------- evidência ---------------- */
+.evid { display: flex; flex-direction: column; gap: 14px; }
+.achado { padding: 11px 0; border-top: 1px solid var(--grid); }
+.achado:first-child { border-top: 0; }
+.achado .top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 3px; }
+.achado .tit { font-weight: 600; font-size: 13px; }
+.achado .mot { font-size: 12.5px; color: var(--ink-2); max-width: 74ch; margin: 0; }
+.achado .acao { font-size: 12px; color: var(--ink-3); margin-top: 4px; }
+.achado .acao b { display: block; font-family: var(--f-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--ink-3); margin-bottom: 1px; }
+.achado.contextual { opacity: .78; }
+
+.faixa { padding: 10px 14px; border-radius: 0 var(--r-md) var(--r-md) 0; font-size: 13px; border-left: 3px solid; }
+.faixa b { font-family: var(--f-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .07em; display: block; margin-bottom: 2px; }
+.faixa-alerta { background: var(--sev-Critico-bg); border-color: var(--sev-Critico); }
+.faixa-info   { background: var(--accent-soft); border-color: var(--accent); }
+.faixa-ok     { background: var(--ok-bg); border-color: var(--ok); }
+
+.vazio { color: var(--ink-3); font-size: 13px; padding: 26px 0; text-align: center; }
+.nota { font-size: 12.5px; color: var(--ink-2); max-width: 76ch; }
+.nota strong { color: var(--ink); }
+
+/* ---------------- auditoria ---------------- */
+.achado-card { border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); overflow: hidden; }
+.achado-card > .cab { padding: 13px 18px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
+.achado-card > .cab h3 { font-size: 14px; flex: 1 1 320px; }
+.achado-card > .corpo { padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
+.grav { font-family: var(--f-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; padding: 1px 7px; border-radius: var(--r-sm); }
+.grav-alta { color: var(--sev-Critico); background: var(--sev-Critico-bg); }
+.grav-media { color: var(--sev-Alto); background: var(--sev-Alto-bg); }
+.grav-baixa { color: var(--ink-3); background: var(--surface-2); }
+
+.formula {
+  font-family: var(--f-mono); font-size: 12.5px; line-height: 1.85;
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md);
+  padding: 12px 14px; overflow-x: auto; white-space: pre; color: var(--ink-2);
+}
+.lista-num { list-style: none; margin: 0; padding: 0; counter-reset: p; font-size: 12.5px; }
+.lista-num li { counter-increment: p; padding: 5px 0 5px 30px; position: relative; border-top: 1px solid var(--grid); color: var(--ink-2); }
+.lista-num li:first-child { border-top: 0; }
+.lista-num li::before {
+  content: counter(p); position: absolute; left: 0; top: 5px;
+  font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-3);
+  border: 1px solid var(--line-strong); border-radius: var(--r-sm); width: 20px; text-align: center;
+}
+
+/* ---------------- responsivo ---------------- */
+@media (max-width: 900px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .rail {
+    position: static; height: auto; flex-direction: row; align-items: center; gap: 14px;
+    overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line);
+    padding-block: 12px; padding-inline: 16px;
+  }
+  .rail .eyebrow, .rail-foot .disclaimer, .navbtn .n { display: none; }
+  .navgroup { flex-direction: row; gap: 4px; }
+  .brand .sub { display: none; }
+  .brand h1 { font-size: 16px; }
+  .navbtn { white-space: nowrap; padding: 6px 11px; }
+  .rail-foot { margin-top: 0; margin-left: auto; }
+  .main { padding-inline: 16px; }
+  .hbar { grid-template-columns: minmax(96px, 1fr) minmax(0, 1.2fr) 46px; }
+}
+</style>
+
+<div class="shell">
+  <nav class="rail">
+    <div class="brand">
+      <h1>EspIA</h1>
+      <span class="sub">Rastreabilidade e governança<br>de informações em IA</span>
+    </div>
+
+    <div class="navgroup">
+      <div class="eyebrow">Operação</div>
+      <button class="navbtn" data-vista="panorama">Panorama<span class="n" id="n-panorama"></span></button>
+      <button class="navbtn" data-vista="rastrear">Rastrear<span class="n">⌕</span></button>
+      <button class="navbtn" data-vista="alertas">Alertas<span class="n" id="n-alertas"></span></button>
+    </div>
+
+    <div class="navgroup">
+      <div class="eyebrow">Garantia</div>
+      <button class="navbtn" data-vista="auditoria">Auditoria<span class="n alerta" id="n-auditoria"></span></button>
+      <button class="navbtn" data-vista="validacao">Validação<span class="n" id="n-validacao"></span></button>
+    </div>
+
+    <div class="navgroup">
+      <div class="eyebrow">Referência</div>
+      <button class="navbtn" data-vista="politica">Política<span class="n" id="n-politica"></span></button>
+      <button class="navbtn" data-vista="inventario">Inventário<span class="n" id="n-inventario"></span></button>
+    </div>
+
+    <div class="rail-foot">
+      <button class="themebtn" id="tema">Alternar tema</button>
+      <p class="disclaimer" id="disclaimer"></p>
+    </div>
+  </nav>
+
+  <main class="main" id="main"></main>
+</div>
+
+<script src="dados.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  const D = window.EspIA;
+  if (!D) {
+    // Sem dados: este é o index.html aberto direto do disco, sem o dados.js ao lado.
+    // O menu fica desligado de propósito — e um link leva ao arquivo certo, para
+    // ninguém precisar caçar pasta no Finder.
+    document.querySelectorAll(".navbtn").forEach(b => {
+      b.disabled = true;
+      b.style.opacity = ".4";
+      b.style.cursor = "not-allowed";
+      b.title = "Sem dados carregados — abra o painel.html";
+    });
+    document.getElementById("main").innerHTML = `
+      <div class="pagehead"><h2>Este não é o painel</h2>
+        <p>Você abriu o <span class="mono">index.html</span>, que é o corpo da versão publicada
+        na web e sozinho não tem dados — por isso o menu ao lado está desligado.
+        O painel do seu computador é outro arquivo, na mesma pasta.</p></div>
+
+      <div class="panel"><div class="panel-b" style="display:flex;flex-direction:column;gap:16px">
+        <a href="painel.html" style="align-self:flex-start;text-decoration:none;
+           background:var(--accent);color:var(--surface);font-weight:600;font-size:15px;
+           padding:10px 20px;border-radius:var(--r-md);display:inline-block">
+          Abrir o painel.html →
+        </a>
+        <p class="nota" style="margin:0">Se o botão não funcionar, dê dois cliques em
+        <span class="mono">dashboard/painel.html</span> no Finder. Ele é um arquivo só, com os
+        dados dentro.</p>
+
+        <div>
+          <div class="eyebrow" style="margin-bottom:6px">Se o painel.html não estiver na pasta</div>
+          <div class="formula">cd caminho/da/pasta/espia
+python3 run.py gerar
+python3 run.py painel</div>
+        </div>
+      </div></div>`;
+    return;
+  }
+
+  // ---------------- índices ----------------
+  const ferrPorId = Object.fromEntries(D.ferramentas.map(f => [f.id, f]));
+  const tipoPorId = Object.fromEntries(D.tipos.map(t => [t.id, t]));
+  const userPorId = Object.fromEntries(D.usuarios.map(u => [u.id, u]));
+  const evtPorId  = Object.fromEntries(D.eventos.map(e => [e.id, e]));
+  const regraPorId = Object.fromEntries(D.politica.regras.map(r => [r.id, r]));
+  const alertaPorEvento = Object.fromEntries(D.alertas.map(a => [a.evento_id, a]));
+
+  const NIVEIS = ["Crítico", "Alto", "Médio", "Baixo", "REVISAR"];
+  const CLASSES = ["Crítica", "Confidencial", "Interna", "Pública"];
+  const areas = [...new Set(D.eventos.map(e => e.area))].sort();
+
+  const eventosPorTipo = {};
+  const eventosPorUsuario = {};
+  for (const e of D.eventos) {
+    (eventosPorTipo[e.informacao_id] ||= []).push(e);
+    (eventosPorUsuario[e.usuario_id] ||= []).push(e);
+  }
+
+  // ---------------- utilidades ----------------
+  const slug = s => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "")
+                     .replace(/[^A-Za-z]/g, "");
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const corNivel = n => css("--sev-" + (n === "REVISAR" ? "Revisar" : slug(n)));
+  const num = v => (v ?? 0).toLocaleString("pt-BR");
+  const pct = (a, b) => b ? (100 * a / b).toFixed(1).replace(".", ",") + "%" : "—";
+  const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const dataBR = iso => iso ? iso.slice(8, 10) + "/" + iso.slice(5, 7) : "—";
+  const dataHora = ts => ts ? ts.slice(8, 10) + "/" + ts.slice(5, 7) + " " + ts.slice(11, 16) : "—";
+  const dataCompleta = ts => ts ? ts.slice(8, 10) + "/" + ts.slice(5, 7) + "/" + ts.slice(0, 4) + " às " + ts.slice(11, 16) : "—";
+
+  const chipSev = n => `<span class="sev sev-${n === "REVISAR" ? "Revisar" : slug(n)}">${esc(n)}</span>`;
+  const chipCls = c => `<span class="cls cls-${slug(c)}">${esc(c)}</span>`;
+  const chipRegra = r => r && r !== "—" ? `<span class="regra">${esc(r)}</span>` : "";
+  const classeStatus = f => {
+    const s = (f.status || "").toLowerCase();
+    return !f.aprovada ? "naoaprovada" : s.includes("condicional") ? "condicional"
+         : s.includes("apenas") ? "publica" : "aprovada";
+  };
+  const chipStatusFerr = f => `<span class="tag tag-${classeStatus(f)}">${esc(f.status)}</span>`;
+  // nas barras o rótulo concorre com o nome da ferramenta — aqui a versão curta
+  const chipStatusCurto = f => {
+    const curto = { naoaprovada: "não aprovada", condicional: "condicional",
+                    publica: "só conteúdo público", aprovada: "aprovada" }[classeStatus(f)];
+    return `<span class="tag tag-${classeStatus(f)}" title="${esc(f.status)}">${curto}</span>`;
+  };
+
+  // ---------------- estado ----------------
+  const FILTROS_VAZIOS = {
+    fRisco: "", fArea: "", fUsuario: "", fFerr: "", fClasse: "", fStatus: "", fSoDiverg: ""
+  };
+  const estado = {
+    vista: "panorama", ...FILTROS_VAZIOS,
+    eventoAberto: null, modoRastreio: "informacao", alvoRastreio: null, busca: ""
+  };
+
+  // ============================================================
+  // PANORAMA
+  // ============================================================
+
+  function vistaPanorama() {
+    const ev = D.eventos, n = ev.length, t = D.meta.totais, c = D.meta.concordancia;
+    const naoAprov = ev.filter(e => !ferrPorId[e.ferramenta_id]?.aprovada);
+    const sensivel = ev.filter(e => e.sensibilidade === "Confidencial" || e.sensibilidade === "Crítica");
+    const criticos = ev.filter(e => e.risco === "Crítico");
+    const altos = ev.filter(e => e.risco === "Alto");
+    const divergentes = ev.filter(e => e.divergente);
+    const val = D.validacao.filter(v => v.passou).length;
+    const indDiv = D.indicadores.filter(i => i.divergente).length;
+
+    const porFerr = {};
+    for (const e of sensivel) (porFerr[e.ferramenta_id] ||= { n: 0, risco: 0 }),
+      porFerr[e.ferramenta_id].n++, (e.risco === "Crítico" || e.risco === "Alto") && porFerr[e.ferramenta_id].risco++;
+    const rank = Object.entries(porFerr).map(([id, v]) => ({ f: ferrPorId[id], ...v }))
+      .sort((a, b) => b.n - a.n);
+    const maxF = Math.max(...rank.map(r => r.n), 1);
+
+    document.getElementById("main").innerHTML = `
+      <div class="pagehead">
+        <h2>Panorama do uso de IA</h2>
+        <p>${esc(D.meta.organizacao)} · ${dataBR(D.meta.periodo.inicio)} a ${dataBR(D.meta.periodo.fim)} ·
+        ${t.usuarios} pessoas em ${t.areas} áreas · ${t.ferramentas} ferramentas · ${t.tipos} tipos de informação.
+        Fonte: a base oficial do desafio, sem dado externo.</p>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi"><span class="lab">Eventos de IA na base</span>
+          <span class="val">${num(n)}</span><span class="foot">${D.serie_diaria.length} dias</span></div>
+        <div class="kpi"><span class="lab">Com informação confidencial ou crítica</span>
+          <span class="val">${num(sensivel.length)}</span><span class="foot">${pct(sensivel.length, n)} do total</span></div>
+        <div class="kpi alerta"><span class="lab">Em ferramenta não aprovada</span>
+          <span class="val">${pct(naoAprov.length, n)}</span><span class="foot">${naoAprov.length} eventos · meta &lt; 3%</span></div>
+        <div class="kpi alerta"><span class="lab">Risco crítico</span>
+          <span class="val">${num(criticos.length)}</span><span class="foot">+${num(altos.length)} de risco alto</span></div>
+        <div class="kpi bom"><span class="lab">Casos oficiais reproduzidos</span>
+          <span class="val">${val}/${D.validacao.length}</span><span class="foot">gabarito do desafio</span></div>
+        <div class="kpi alerta"><span class="lab">Indicadores declarados que divergem</span>
+          <span class="val">${indDiv}/${D.indicadores.length}</span><span class="foot">apurados na base</span></div>
+      </div>
+
+      <div class="grid" style="margin-top:16px">
+        <div class="panel">
+          <div class="panel-h"><h3>Eventos por dia, segundo o risco apurado</h3>
+            <span class="hint">passe o cursor sobre um dia</span></div>
+          <div class="panel-b">
+            <div class="chartwrap" id="wrap-serie"></div>
+            <div class="legend" style="margin-top:12px" id="leg-serie"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
+        <div class="panel">
+          <div class="panel-h"><h3>Onde a informação sensível está indo</h3>
+            <span class="hint">eventos confidenciais e críticos</span></div>
+          <div class="panel-b"><div class="hbars">${rank.map(r => `
+            <div class="hbar">
+              <span class="rot" title="${esc(r.f.nome)}"><span class="nm">${esc(r.f.nome)}</span>${chipStatusCurto(r.f)}</span>
+              <span class="track"><span class="fill" style="width:${Math.max(2, r.n / maxF * 100)}%;background:${r.f.aprovada ? "var(--accent)" : "var(--sev-Critico)"}"></span></span>
+              <span class="v">${num(r.n)}</span>
+            </div>`).join("")}</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><h3>Área × sensibilidade da informação</h3>
+            <span class="hint">todos os ${num(n)} eventos</span></div>
+          <div class="panel-b"><div id="heat"></div></div>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(330px,1fr))">
+        <div class="panel">
+          <div class="panel-h"><h3>O motor confere com a base?</h3><span class="hint">R01–R14 aplicadas a cada evento</span></div>
+          <div class="panel-b" style="display:flex;flex-direction:column;gap:12px">
+            <div class="resumo-linhagem">
+              <div><span class="lab">Mesmo nível de risco</span><div class="val">${pct(c.nivel, c.total)}</div></div>
+              <div><span class="lab">Mesma regra citada</span><div class="val">${pct(c.regra, c.total)}</div></div>
+              <div><span class="lab">Divergências</span><div class="val" style="color:var(--sev-Critico)">${divergentes.length}</div></div>
+            </div>
+            <p class="nota" style="margin:0">Aplicamos as catorze regras da planilha a cada um dos ${num(n)} eventos e
+            comparamos com o risco que a base já traz. As ${divergentes.length} divergências não são ruído: são todas o
+            mesmo padrão, detalhado em <strong>Auditoria</strong>.</p>
+            <div><button class="sug" data-ir-vista="auditoria">Ver os achados de auditoria →</button></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><h3>Alertas por situação</h3><span class="hint">${D.alertas.length} alertas na base</span></div>
+          <div class="panel-b"><div class="hbars" id="bars-alertas"></div>
+            <p class="nota" style="margin-top:12px">Nenhum alerta registra data de tratamento — por isso o indicador de
+            SLA de 24h não é apurável a partir desta base.</p></div>
+        </div>
+      </div>`;
+
+    desenharSerie();
+    desenharHeat();
+    desenharAlertas();
+  }
+
+  function desenharSerie() {
+    const dados = D.serie_diaria;
+    const W = 940, H = 210, ML = 34, MR = 8, MT = 10, MB = 26;
+    const iw = W - ML - MR, ih = H - MT - MB;
+    const maxV = Math.max(...dados.map(d => d.total), 1);
+    const passo = iw / dados.length, larg = Math.max(2, passo - 2.2);
+    const y = v => MT + ih - (v / maxV) * ih;
+
+    let ticks = "";
+    for (let i = 0; i <= 4; i++) {
+      const v = Math.round(maxV / 4 * i), yy = y(v);
+      ticks += `<line x1="${ML}" x2="${W - MR}" y1="${yy}" y2="${yy}" stroke="var(--grid)" stroke-width="1"/>
+        <text x="${ML - 7}" y="${yy + 3.5}" text-anchor="end" font-size="10" font-family="var(--f-mono)" fill="var(--ink-3)">${v}</text>`;
+    }
+    let barras = "", rotulos = "", alvos = "";
+    dados.forEach((d, i) => {
+      const x = ML + i * passo + (passo - larg) / 2;
+      let acum = 0;
+      for (const nv of ["Baixo", "REVISAR", "Médio", "Alto", "Crítico"]) {
+        const v = d[nv] || 0; if (!v) continue;
+        const alt = Math.max(0.8, (v / maxV) * ih - 1);
+        barras += `<rect x="${x.toFixed(2)}" y="${y(acum + v).toFixed(2)}" width="${larg.toFixed(2)}" height="${alt.toFixed(2)}" fill="${corNivel(nv)}" rx="1"/>`;
+        acum += v;
+      }
+      if (i % 14 === 0) rotulos += `<text x="${(ML + i * passo + passo / 2).toFixed(1)}" y="${H - 8}" text-anchor="middle" font-size="10" font-family="var(--f-mono)" fill="var(--ink-3)">${dataBR(d.data)}</text>`;
+      alvos += `<rect class="alvo" data-i="${i}" x="${(ML + i * passo).toFixed(2)}" y="${MT}" width="${passo.toFixed(2)}" height="${ih}" fill="transparent"/>`;
+    });
+
+    const wrap = document.getElementById("wrap-serie");
+    wrap.innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img"
+        aria-label="Eventos de IA por dia, empilhados por nível de risco apurado">
+        ${ticks}<line class="cross" x1="0" x2="0" y1="${MT}" y2="${MT + ih}" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="3 3" opacity="0"/>
+        ${barras}${rotulos}${alvos}</svg><div class="tip" id="tip-serie"></div>`;
+    document.getElementById("leg-serie").innerHTML = NIVEIS.map(nv =>
+      `<span><i style="background:${corNivel(nv)}"></i>${nv}</span>`).join("");
+
+    const svg = wrap.querySelector("svg"), tip = wrap.querySelector("#tip-serie"), cross = wrap.querySelector(".cross");
+    svg.addEventListener("mousemove", ev => {
+      const alvo = ev.target.closest(".alvo"); if (!alvo) return;
+      const i = +alvo.dataset.i, d = dados[i], cx = ML + i * passo + passo / 2;
+      cross.setAttribute("x1", cx); cross.setAttribute("x2", cx); cross.setAttribute("opacity", ".5");
+      tip.innerHTML = `<div class="t">${d.data.split("-").reverse().join("/")}</div>` +
+        NIVEIS.filter(nv => d[nv]).map(nv =>
+          `<div class="r"><span class="k"><span class="sw" style="background:${corNivel(nv)}"></span>${nv}</span><span class="v">${d[nv]}</span></div>`).join("") +
+        `<div class="r" style="margin-top:4px;border-top:1px solid var(--line);padding-top:4px"><span class="k">Total</span><span class="v">${d.total}</span></div>`;
+      const r = wrap.getBoundingClientRect();
+      tip.style.opacity = "1";
+      tip.style.left = Math.min(Math.max(6, ev.clientX - r.left + 14), r.width - tip.offsetWidth - 6) + "px";
+      tip.style.top = Math.max(4, ev.clientY - r.top - 10) + "px";
+    });
+    svg.addEventListener("mouseleave", () => { tip.style.opacity = "0"; cross.setAttribute("opacity", "0"); });
+  }
+
+  function desenharHeat() {
+    const m = {};
+    for (const a of areas) { m[a] = {}; for (const c of CLASSES) m[a][c] = 0; }
+    for (const e of D.eventos) if (m[e.area]) m[e.area][e.sensibilidade]++;
+    const max = Math.max(1, ...areas.flatMap(a => CLASSES.map(c => m[a][c])));
+    const ord = [...areas].sort((a, b) => (m[b]["Crítica"] + m[b]["Confidencial"]) - (m[a]["Crítica"] + m[a]["Confidencial"]));
+
+    let html = `<div class="heat" style="grid-template-columns:minmax(96px,auto) repeat(${CLASSES.length},minmax(0,1fr))">`;
+    html += `<span></span>` + CLASSES.map(c => `<span class="hh">${c}</span>`).join("");
+    for (const a of ord) {
+      html += `<span class="rh">${esc(a)}</span>`;
+      for (const c of CLASSES) {
+        const v = m[a][c], inten = v / max;
+        // uma matiz só: a densidade é a escala. A cor de risco fica no gráfico de cima.
+        const cor = "var(--ink)";
+        const alpha = v === 0 ? 0.04 : 0.10 + inten * 0.72;
+        html += `<span class="cell" title="${esc(a)} · ${c}: ${v} evento(s)"
+          style="background:color-mix(in srgb, ${cor} ${(alpha * 100).toFixed(0)}%, var(--surface));
+                 color:${inten > 0.45 ? "var(--surface)" : "var(--ink-2)"}">${v || ""}</span>`;
+      }
+    }
+    html += `</div><p class="nota" style="margin:12px 0 0;font-size:12px">A densidade acompanha a classificação da
+      informação — a cor de risco fica reservada para o gráfico de cima, para as duas escalas não competirem.</p>`;
+    document.getElementById("heat").innerHTML = html;
+  }
+
+  function desenharAlertas() {
+    const porStatus = {}, porResp = {};
+    for (const a of D.alertas) {
+      porStatus[a.status] = (porStatus[a.status] || 0) + 1;
+      porResp[a.responsavel] = (porResp[a.responsavel] || 0) + 1;
+    }
+    const linhas = [...Object.entries(porStatus).map(([k, v]) => ["status", k, v]),
+                    ...Object.entries(porResp).map(([k, v]) => ["resp", k, v])];
+    const max = Math.max(...linhas.map(l => l[2]), 1);
+    document.getElementById("bars-alertas").innerHTML =
+      `<div class="eyebrow" style="margin-bottom:2px">Situação</div>` +
+      Object.entries(porStatus).sort((a, b) => b[1] - a[1]).map(([k, v]) => `
+        <div class="hbar"><span class="rot"><span class="nm">${esc(k)}</span></span>
+        <span class="track"><span class="fill" style="width:${v / max * 100}%;background:${k === "Tratado" ? "var(--ok)" : k === "Aberto" ? "var(--sev-Critico)" : "var(--sev-Alto)"}"></span></span>
+        <span class="v">${v}</span></div>`).join("") +
+      `<div class="eyebrow" style="margin:10px 0 2px">Responsável</div>` +
+      Object.entries(porResp).sort((a, b) => b[1] - a[1]).map(([k, v]) => `
+        <div class="hbar"><span class="rot"><span class="nm">${esc(k)}</span></span>
+        <span class="track"><span class="fill" style="width:${v / max * 100}%;background:var(--accent)"></span></span>
+        <span class="v">${v}</span></div>`).join("");
+  }
+
+  // ============================================================
+  // RASTREAR
+  // ============================================================
+
+  function vistaRastrear() {
+    const porInfo = D.tipos.map(t => {
+      const us = eventosPorTipo[t.id] || [];
+      return { alvo: t, tipo: "informacao", nome: t.nome, sub: t.categoria, cls: t.classificacao,
+        n: us.length, pessoas: new Set(us.map(e => e.usuario_id)).size,
+        ferr: new Set(us.map(e => e.ferramenta_id)).size,
+        risco: us.filter(e => e.risco === "Crítico" || e.risco === "Alto").length,
+        fora: us.filter(e => !ferrPorId[e.ferramenta_id]?.aprovada).length,
+        ultimo: us.length ? us.map(e => e.ts).sort().at(-1) : null };
+    }).sort((a, b) => b.risco - a.risco || b.n - a.n);
+
+    const porUser = D.usuarios.map(u => {
+      const us = eventosPorUsuario[u.id] || [];
+      return { alvo: u, tipo: "usuario", nome: u.nome, sub: `${u.cargo} · ${u.area}`, cls: null,
+        n: us.length, pessoas: 1, ferr: new Set(us.map(e => e.ferramenta_id)).size,
+        risco: us.filter(e => e.risco === "Crítico" || e.risco === "Alto").length,
+        fora: us.filter(e => !ferrPorId[e.ferramenta_id]?.aprovada).length,
+        ultimo: us.length ? us.map(e => e.ts).sort().at(-1) : null };
+    }).sort((a, b) => b.risco - a.risco || b.n - a.n);
+
+    const lista = estado.modoRastreio === "informacao" ? porInfo : porUser;
+    const destaques = lista.slice(0, 5);
+
+    document.getElementById("main").innerHTML = `
+      <div class="pagehead">
+        <h2>Rastrear</h2>
+        <p>A pergunta norteadora do desafio se faz pelo documento, não pelo funcionário. Escolha um
+        tipo de informação e veja onde ele foi parar — ou inverta e siga uma pessoa.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-b" style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="sug" data-modo="informacao" aria-pressed="${estado.modoRastreio === "informacao"}">Por informação</button>
+            <button class="sug" data-modo="usuario" aria-pressed="${estado.modoRastreio === "usuario"}">Por usuário</button>
+            <input type="search" id="busca" autocomplete="off" value="${esc(estado.busca)}"
+              placeholder="${estado.modoRastreio === "informacao" ? "Buscar tipo de informação ou código (INF-02)…" : "Buscar usuário ou código (USR-0007)…"}">
+            <span class="dim" style="font-size:12px">${lista.length} ${estado.modoRastreio === "informacao" ? "tipos catalogados" : "usuários ativos"}</span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+            <span class="dim" style="font-size:11.5px">mais expostos:</span>
+            ${destaques.map(d => `<button class="sug" data-alvo="${d.alvo.id}">${esc(d.nome)}</button>`).join("")}
+          </div>
+        </div>
+      </div>
+
+      <div id="resultado" style="margin-top:16px"></div>`;
+
+    document.querySelectorAll("[data-modo]").forEach(b => b.addEventListener("click", () => {
+      estado.modoRastreio = b.dataset.modo; estado.alvoRastreio = null; estado.busca = "";
+      vistaRastrear();
+    }));
+
+    const input = document.getElementById("busca");
+    input.addEventListener("input", () => {
+      estado.busca = input.value;
+      const termo = input.value.trim().toLowerCase();
+      if (!termo) { estado.alvoRastreio = null; renderRastreio(lista); return; }
+      const achado = lista.find(x => x.nome.toLowerCase().includes(termo) || x.alvo.id.toLowerCase().includes(termo));
+      estado.alvoRastreio = achado ? achado.alvo.id : null;
+      renderRastreio(lista, termo);
+    });
+
+    renderRastreio(lista);
+    if (!estado.alvoRastreio) input.focus();
+  }
+
+  function renderRastreio(lista, termoSemResultado) {
+    const alvo = document.getElementById("resultado");
+    if (!alvo) return;
+    const item = lista.find(x => x.alvo.id === estado.alvoRastreio);
+
+    if (!item) {
+      if (termoSemResultado) {
+        alvo.innerHTML = `<div class="panel"><div class="panel-b"><p class="vazio">
+          Nada corresponde a “${esc(termoSemResultado)}”.</p></div></div>`;
+        return;
+      }
+      const porInfo = estado.modoRastreio === "informacao";
+      alvo.innerHTML = `
+        <div class="panel">
+          <div class="panel-h"><h3>Exposição por ${porInfo ? "tipo de informação" : "usuário"}</h3>
+            <span class="hint">clique para abrir a linhagem</span></div>
+          <div class="tw"><table>
+            <thead><tr>
+              <th>${porInfo ? "Tipo de informação" : "Usuário"}</th>
+              <th>${porInfo ? "Classificação" : "Área"}</th>
+              <th class="num">Usos</th><th class="num">${porInfo ? "Pessoas" : "—"}</th>
+              <th class="num">Ferramentas</th><th class="num">Fora da política</th>
+              <th class="num">Alto ou crítico</th><th>Último uso</th>
+            </tr></thead>
+            <tbody>${lista.map(l => `
+              <tr class="clicavel" data-alvo="${l.alvo.id}">
+                <td><span class="mono dim" style="font-size:11px">${l.alvo.id}</span><br>${esc(l.nome)}</td>
+                <td>${l.cls ? chipCls(l.cls) : `<span class="dim">${esc(l.alvo.area || "")}</span>`}</td>
+                <td class="num">${l.n}</td>
+                <td class="num dim">${porInfo ? l.pessoas : "—"}</td>
+                <td class="num">${l.ferr}</td>
+                <td class="num" style="${l.fora ? "color:var(--sev-Alto);font-weight:600" : "color:var(--ink-3)"}">${l.fora}</td>
+                <td class="num" style="${l.risco ? "color:var(--sev-Critico);font-weight:600" : "color:var(--ink-3)"}">${l.risco}</td>
+                <td class="dim nowrap">${dataHora(l.ultimo)}</td>
+              </tr>`).join("")}</tbody>
+          </table></div>
+        </div>`;
+      return;
+    }
+
+    const usos = (estado.modoRastreio === "informacao"
+      ? eventosPorTipo[item.alvo.id] : eventosPorUsuario[item.alvo.id] || []
+    ).slice().sort((a, b) => b.ts.localeCompare(a.ts));
+
+    const pessoas = new Set(usos.map(e => e.usuario_id));
+    const ferramentas = new Set(usos.map(e => e.ferramenta_id));
+    const emRisco = usos.filter(e => e.risco === "Crítico" || e.risco === "Alto");
+    const fora = usos.filter(e => !ferrPorId[e.ferramenta_id]?.aprovada);
+    const alertados = usos.filter(e => alertaPorEvento[e.id]);
+
+    const cab = estado.modoRastreio === "informacao"
+      ? `${chipCls(item.alvo.classificacao)} · ${esc(item.alvo.categoria)} · área típica: ${esc(item.alvo.area_tipica)}`
+      : `${esc(item.alvo.cargo)} · ${esc(item.alvo.area)} · ${esc(item.alvo.modelo)} · perfil ${esc(item.alvo.perfil)}`;
+
+    alvo.innerHTML = `
+      <div class="panel">
+        <div class="panel-h"><h3>${esc(item.nome)}</h3><span class="hint mono">${item.alvo.id}</span></div>
+        <div class="panel-b" style="display:flex;flex-direction:column;gap:16px">
+          <div class="resumo-linhagem">
+            <div><span class="lab">Usos em IA</span><div class="val">${usos.length}</div></div>
+            ${estado.modoRastreio === "informacao" ? `<div><span class="lab">Pessoas</span><div class="val">${pessoas.size}</div></div>` : ""}
+            <div><span class="lab">Ferramentas</span><div class="val">${ferramentas.size}</div></div>
+            <div><span class="lab">Fora da política</span><div class="val" style="color:${fora.length ? "var(--sev-Alto)" : "inherit"}">${fora.length}</div></div>
+            <div><span class="lab">Alto ou crítico</span><div class="val" style="color:${emRisco.length ? "var(--sev-Critico)" : "inherit"}">${emRisco.length}</div></div>
+            <div><span class="lab">Viraram alerta</span><div class="val">${alertados.length}</div></div>
+          </div>
+          <p class="nota" style="margin:0">${cab}</p>
+          <div>
+            <div class="eyebrow" style="margin-bottom:8px">Linha do tempo — ${usos.length} evento(s), do mais recente ao mais antigo</div>
+            <ul class="trilha">${usos.map(e => {
+              const u = userPorId[e.usuario_id], f = ferrPorId[e.ferramenta_id], al = alertaPorEvento[e.id];
+              return `<li class="n-${e.risco === "REVISAR" ? "Revisar" : slug(e.risco)}" data-evt-ir="${e.id}">
+                <div class="l1">
+                  <span class="mono" style="font-size:12px;color:var(--ink-3)">${dataHora(e.ts)}</span>
+                  <strong>${esc(estado.modoRastreio === "informacao" ? u.nome : e.informacao)}</strong>
+                  <span class="dim">→</span><span>${esc(e.ferramenta)}</span>
+                  ${chipStatusFerr(f)} ${chipSev(e.risco)} ${chipRegra(e.regra)}
+                </div>
+                <div class="l2">
+                  ${esc(e.area)} · ${esc(e.forma_uso)} · ${e.qtd} item(ns) · finalidade: ${esc(e.finalidade)} ·
+                  origem do registro: ${esc(e.origem)}
+                  ${al ? ` · <span style="color:var(--sev-Critico)">alerta ${esc(al.id)} (${esc(al.status)})</span>` : ""}
+                  ${e.divergente ? ` · <span style="color:var(--sev-Alto)">base classificou como ${esc(e.risco_base)}</span>` : ""}
+                </div></li>`;
+            }).join("")}</ul>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ============================================================
+  // ALERTAS
+  // ============================================================
+
+  function vistaAlertas() {
+    document.getElementById("main").innerHTML = `
+      <div class="pagehead">
+        <h2>Fila de alertas</h2>
+        <p>Cada linha abre a cadeia de evidências: as regras que se aplicaram ao evento, o que cada
+        uma diz e a ação que a política obriga. Sem isso, um alerta é opinião.</p>
+      </div>
+      <div class="filtros">
+        <label>Risco <select id="f-risco"><option value="">todos</option>
+          ${NIVEIS.map(n => `<option value="${n}" ${estado.fRisco === n ? "selected" : ""}>${n}</option>`).join("")}</select></label>
+        <label>Área <select id="f-area"><option value="">todas</option>
+          ${areas.map(a => `<option value="${esc(a)}" ${estado.fArea === a ? "selected" : ""}>${esc(a)}</option>`).join("")}</select></label>
+        <label>Usuário <select id="f-usuario"><option value="">todos</option>
+          ${D.usuarios.filter(u => !estado.fArea || u.area === estado.fArea)
+            .map(u => `<option value="${u.id}" ${estado.fUsuario === u.id ? "selected" : ""}>${esc(u.nome)}</option>`).join("")}</select></label>
+        <label>Ferramenta <select id="f-ferr"><option value="">todas</option>
+          ${D.ferramentas.map(f => `<option value="${f.id}" ${estado.fFerr === f.id ? "selected" : ""}>${esc(f.nome)}</option>`).join("")}</select></label>
+        <label>Tipo de informação <select id="f-classe"><option value="">todos</option>
+          ${CLASSES.map(c => `<option value="${c}" ${estado.fClasse === c ? "selected" : ""}>${c}</option>`).join("")}</select></label>
+        <label>Situação <select id="f-status"><option value="">todas</option>
+          ${["Aberto", "Em análise", "Tratado", "Sem alerta"].map(s => `<option value="${s}" ${estado.fStatus === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
+        <label>Divergência <select id="f-diverg"><option value="">todas</option>
+          <option value="1" ${estado.fSoDiverg === "1" ? "selected" : ""}>só divergentes da base</option></select></label>
+        <button class="sug" id="f-limpar" style="padding:5px 12px">Limpar</button>
+      </div>
+      <p class="nota" id="resumo-filtros" style="margin:-4px 0 14px"></p>
+      <div class="grid" style="grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);align-items:start" id="area-alertas"></div>`;
+
+    for (const [id, campo] of [["f-risco", "fRisco"], ["f-area", "fArea"], ["f-usuario", "fUsuario"],
+                               ["f-ferr", "fFerr"], ["f-classe", "fClasse"], ["f-status", "fStatus"],
+                               ["f-diverg", "fSoDiverg"]]) {
+      document.getElementById(id).addEventListener("change", ev => {
+        estado[campo] = ev.target.value; estado.eventoAberto = null;
+        if (campo === "fArea") {
+          const u = userPorId[estado.fUsuario];
+          if (u && estado.fArea && u.area !== estado.fArea) estado.fUsuario = "";
+          vistaAlertas(); return;
+        }
+        renderAlertas();
+      });
+    }
+    document.getElementById("f-limpar").addEventListener("click", () => {
+      Object.assign(estado, FILTROS_VAZIOS); estado.eventoAberto = null; vistaAlertas();
+    });
+    renderAlertas();
+  }
+
+  function eventosFiltrados() {
+    return D.eventos.filter(e => {
+      const al = alertaPorEvento[e.id];
+      const status = al ? al.status : "Sem alerta";
+      return (!estado.fRisco || e.risco === estado.fRisco)
+        && (!estado.fArea || e.area === estado.fArea)
+        && (!estado.fUsuario || e.usuario_id === estado.fUsuario)
+        && (!estado.fFerr || e.ferramenta_id === estado.fFerr)
+        && (!estado.fClasse || e.sensibilidade === estado.fClasse)
+        && (!estado.fStatus || status === estado.fStatus)
+        && (!estado.fSoDiverg || e.divergente);
+    });
+  }
+
+  const ORDEM_RISCO = { "Crítico": 0, "Alto": 1, "REVISAR": 2, "Médio": 3, "Baixo": 4 };
+
+  function renderAlertas() {
+    const todos = eventosFiltrados();
+    const ordenados = todos.slice().sort((a, b) =>
+      ORDEM_RISCO[a.risco] - ORDEM_RISCO[b.risco] || b.ts.localeCompare(a.ts)).slice(0, 80);
+
+    const partes = [];
+    if (estado.fRisco) partes.push(`risco ${estado.fRisco.toLowerCase()}`);
+    if (estado.fClasse) partes.push(`informação ${estado.fClasse.toLowerCase()}`);
+    if (estado.fArea) partes.push(estado.fArea);
+    if (estado.fUsuario) partes.push(userPorId[estado.fUsuario].nome);
+    if (estado.fFerr) partes.push(ferrPorId[estado.fFerr].nome);
+    if (estado.fStatus) partes.push(`situação ${estado.fStatus.toLowerCase()}`);
+    if (estado.fSoDiverg) partes.push("apenas divergentes da base");
+
+    const crit = todos.filter(e => e.risco === "Crítico").length;
+    const alto = todos.filter(e => e.risco === "Alto").length;
+    const resumo = document.getElementById("resumo-filtros");
+    if (resumo) resumo.innerHTML = (partes.length
+      ? `Recorte ativo: <strong>${partes.map(esc).join("</strong> · <strong>")}</strong> — `
+      : "Sem filtro: ") + `${num(todos.length)} evento(s), ${crit} crítico(s) e ${alto} alto(s). ` +
+      `A tabela mostra os ${ordenados.length} primeiros.`;
+
+    if (!estado.eventoAberto && ordenados.length) estado.eventoAberto = ordenados[0].id;
+
+    document.getElementById("area-alertas").innerHTML = `
+      <div class="panel">
+        <div class="panel-h"><h3>Eventos</h3><span class="hint">risco decrescente, depois mais recentes</span></div>
+        <div class="tw" style="max-height:72vh;overflow-y:auto"><table>
+          <thead><tr><th>Quando</th><th>Quem</th><th>Ferramenta</th><th>Informação</th><th>Risco</th></tr></thead>
+          <tbody>${ordenados.map(e => {
+            const u = userPorId[e.usuario_id], f = ferrPorId[e.ferramenta_id], al = alertaPorEvento[e.id];
+            return `<tr class="clicavel ${e.id === estado.eventoAberto ? "sel" : ""}" data-evt="${e.id}">
+              <td class="mono nowrap dim" style="font-size:12px">${dataHora(e.ts)}</td>
+              <td>${esc(u.nome)}<br><span class="dim" style="font-size:11.5px">${esc(e.area)}</span></td>
+              <td>${esc(e.ferramenta)}<br>${chipStatusFerr(f)}</td>
+              <td>${esc(e.informacao)}<br>${chipCls(e.sensibilidade)}</td>
+              <td class="nowrap">${chipSev(e.risco)} ${chipRegra(e.regra)}
+                ${al ? `<div class="dim" style="font-size:11px;margin-top:2px">${esc(al.status)} · ${esc(al.responsavel)}</div>` : ""}
+                ${e.divergente ? `<div style="font-size:11px;margin-top:2px;color:var(--sev-Alto)">base: ${esc(e.risco_base)}</div>` : ""}</td>
+            </tr>`;
+          }).join("") || `<tr><td colspan="5"><p class="vazio">Nenhum evento com esses filtros.</p></td></tr>`}</tbody>
+        </table></div>
+      </div>
+      <div id="painel-evidencia"></div>`;
+    renderEvidencia();
+  }
+
+  function renderEvidencia() {
+    const alvo = document.getElementById("painel-evidencia");
+    if (!alvo) return;
+    const e = estado.eventoAberto ? evtPorId[estado.eventoAberto] : null;
+    if (!e) { alvo.innerHTML = `<div class="panel"><div class="panel-b"><p class="vazio">Selecione um evento.</p></div></div>`; return; }
+
+    const u = userPorId[e.usuario_id], f = ferrPorId[e.ferramenta_id], t = tipoPorId[e.informacao_id];
+    const al = alertaPorEvento[e.id];
+    const principal = e.achados.find(a => a.regra === e.regra) || e.achados[0];
+
+    alvo.innerHTML = `
+      <div class="panel">
+        <div class="panel-h"><h3>Por que isto é risco</h3><span class="hint mono">${e.id}</span></div>
+        <div class="panel-b evid">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            ${chipSev(e.risco)} ${chipRegra(e.regra)}
+            ${e.divergente ? `<span class="pill-nao">a base classificou como ${esc(e.risco_base)} (${esc(e.regra_base)})</span>`
+                           : `<span class="pill-ok">confere com a base</span>`}
+          </div>
+
+          <div class="tw"><table><tbody>
+            <tr><td class="dim nowrap">Quem</td><td><strong>${esc(u.nome)}</strong> · ${esc(u.cargo)} · ${esc(e.area)}
+              <span class="dim">· perfil ${esc(u.perfil)}, ${esc(u.modelo)}</span></td></tr>
+            <tr><td class="dim nowrap">Onde</td><td>${esc(e.ferramenta)} ${chipStatusFerr(f)}
+              <div class="dim" style="font-size:12px">${esc(f.tipo)} · controles: ${esc(f.controles)} · logs: ${esc(f.logs)}</div></td></tr>
+            <tr><td class="dim nowrap">Quando</td><td class="mono">${dataCompleta(e.ts)}${e.fora_horario ? ' <span class="dim">· fora do horário padrão</span>' : ""}</td></tr>
+            <tr><td class="dim nowrap">O quê</td><td>${esc(e.informacao)} ${chipCls(e.sensibilidade)}
+              <div class="dim" style="font-size:12px">${esc(t.categoria)} · ${esc(e.forma_uso)} · ${e.qtd} item(ns)</div></td></tr>
+            <tr><td class="dim nowrap">Para quê</td><td>${esc(e.finalidade)}
+              <div class="dim" style="font-size:12px">finalidade aprovada da ferramenta: ${esc(f.finalidade)}</div></td></tr>
+            <tr><td class="dim nowrap">Como soubemos</td><td>${esc(e.origem)}</td></tr>
+            ${al ? `<tr><td class="dim nowrap">Alerta</td><td><span class="mono">${esc(al.id)}</span> · ${esc(al.status)} · ${esc(al.responsavel)}</td></tr>` : ""}
+          </tbody></table></div>
+
+          <div>
+            <div class="eyebrow" style="margin-bottom:6px">Cadeia de evidências — ${e.achados.length} regra(s) aplicável(is)</div>
+            ${e.achados.map(a => `
+              <div class="achado ${a.contextual ? "contextual" : ""}">
+                <div class="top">${chipRegra(a.regra)} <span class="tit">${esc(a.titulo)}</span>
+                  ${chipSev(a.nivel)}${a.contextual ? ' <span class="dim" style="font-size:11.5px">contexto — não eleva o nível</span>' : ""}</div>
+                <p class="mot">${esc(a.motivo)}</p>
+                <div class="acao"><b>ação prevista</b>${esc(a.acao)}</div>
+              </div>`).join("")}
+          </div>
+
+          ${e.lacuna ? `<div class="faixa faixa-info"><b>lacuna de política</b>${esc(e.lacuna)}</div>` : ""}
+          ${principal ? `<div class="faixa ${e.risco === "Crítico" || e.risco === "Alto" ? "faixa-alerta" : "faixa-info"}">
+            <b>ação obrigatória</b>${esc(principal.acao)}</div>` : ""}
+        </div>
+      </div>`;
+  }
+
+  // ============================================================
+  // AUDITORIA
+  // ============================================================
+
+  function vistaAuditoria() {
+    const ind = D.indicadores;
+    const divergentes = ind.filter(i => i.divergente).length;
+    const conferem = ind.filter(i => i.confere).length;
+
+    document.getElementById("main").innerHTML = `
+      <div class="pagehead">
+        <h2>Auditoria da base</h2>
+        <p>A EspIA não confia na classificação que recebeu. Ela recalcula os indicadores a partir
+        dos fatos, compara com o que a organização declara, e procura defeitos na própria rotulagem.
+        Cada achado traz os eventos afetados — dá para conferir um a um.</p>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi alerta"><span class="lab">Indicadores declarados que divergem da base</span>
+          <span class="val">${divergentes}/${ind.length}</span><span class="foot">recalculados do zero</span></div>
+        <div class="kpi bom"><span class="lab">Nossa apuração confere com a da planilha</span>
+          <span class="val">${conferem}/${ind.length}</span><span class="foot">mesma conta, mesmo resultado</span></div>
+        <div class="kpi alerta"><span class="lab">Achados de rotulagem</span>
+          <span class="val">${D.auditoria.length}</span>
+          <span class="foot">${D.auditoria.filter(a => a.gravidade === "alta").length} de gravidade alta</span></div>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <div class="panel-h"><h3>Indicadores: o que a empresa declara × o que a base diz</h3>
+          <span class="hint">a coluna da direita é o que a própria planilha apurou</span></div>
+        <div class="tw"><table>
+          <thead><tr><th>Indicador</th><th>Declarado</th><th>Apurado pela EspIA</th>
+            <th>Apurado na planilha</th><th>Confere?</th><th>Observação</th></tr></thead>
+          <tbody>${ind.map(i => `
+            <tr>
+              <td>${esc(i.nome)}</td>
+              <td class="mono" style="${i.divergente ? "color:var(--sev-Critico);font-weight:600" : ""}">${esc(i.declarado)}</td>
+              <td class="mono" style="font-weight:600">${esc(i.apurado)}</td>
+              <td class="mono dim">${esc(i.planilha)}</td>
+              <td>${i.confere ? '<span class="pill-ok">bate</span>' : '<span class="pill-nao">não bate</span>'}</td>
+              <td class="dim" style="font-size:12px">${esc(i.observacao)}</td>
+            </tr>`).join("")}</tbody>
+        </table></div>
+        <div class="panel-b" style="border-top:1px solid var(--line)">
+          <p class="nota" style="margin:0"><strong>Como ler esta tabela.</strong> A coluna "Confere?"
+          não compara o declarado com a realidade — compara <em>a nossa conta</em> com a conta que a
+          própria planilha fez. Bater em ${conferem} de ${ind.length} é o que autoriza confiar nas
+          divergências que a coluna "Declarado" mostra.</p>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:16px">
+        ${D.auditoria.map(a => `
+          <div class="achado-card">
+            <div class="cab">
+              <span class="mono dim" style="font-size:11.5px">${esc(a.id)}</span>
+              <h3>${esc(a.titulo)}</h3>
+              <span class="grav grav-${esc(a.gravidade)}">${esc(a.gravidade)}</span>
+              ${a.eventos.length ? `<span class="dim mono" style="font-size:11.5px">${a.eventos.length} evento(s)</span>` : ""}
+            </div>
+            <div class="corpo">
+              <p class="nota" style="margin:0">${esc(a.resumo)}</p>
+              <div class="faixa ${a.gravidade === "alta" ? "faixa-alerta" : "faixa-info"}">
+                <b>por que importa</b>${esc(a.consequencia)}</div>
+              <p class="dim" style="font-size:12px;margin:0">Verificável em: ${esc(a.evidencia)}</p>
+              ${a.detalhe && a.detalhe.length ? `
+                <details><summary class="sug" style="display:inline-block;margin-top:2px">Ver amostra (${a.detalhe.length})</summary>
+                  <div class="tw" style="margin-top:10px"><table>
+                    <thead><tr>${Object.keys(a.detalhe[0]).map(k => `<th>${esc(k)}</th>`).join("")}</tr></thead>
+                    <tbody>${a.detalhe.map(d => `<tr>${Object.entries(d).map(([k, v]) =>
+                      `<td class="${k === "evento" || k === "regra" ? "mono" : ""}" style="font-size:12px">${esc(v)}</td>`).join("")}</tr>`).join("")}</tbody>
+                  </table></div></details>` : ""}
+              ${a.eventos.length && a.eventos[0].startsWith("EVT") ? `
+                <div><button class="sug" data-filtrar-eventos="${esc(a.id)}">Abrir estes eventos em Alertas →</button></div>` : ""}
+            </div>
+          </div>`).join("")}
+      </div>`;
+  }
+
+  // ============================================================
+  // VALIDAÇÃO
+  // ============================================================
+
+  function vistaValidacao() {
+    const v = D.validacao, ok = v.filter(x => x.passou).length;
+    document.getElementById("main").innerHTML = `
+      <div class="pagehead">
+        <h2>Validação contra o gabarito oficial</h2>
+        <p>A aba <span class="mono">Casos_Validacao</span> da planilha traz quinze situações com o
+        resultado que a Stark Bank espera de qualquer solução. Rodar o motor contra elas transforma
+        “nosso motor está correto” de opinião em afirmação verificável.</p>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi ${ok === v.length ? "bom" : "alerta"}">
+          <span class="lab">Casos reproduzidos</span><span class="val">${ok}/${v.length}</span>
+          <span class="foot">sem ajuste por caso</span></div>
+        <div class="kpi"><span class="lab">Níveis cobertos pelo gabarito</span>
+          <span class="val">${new Set(v.map(x => x.esperado)).size}</span>
+          <span class="foot">${[...new Set(v.map(x => x.esperado))].join(" · ")}</span></div>
+        <div class="kpi"><span class="lab">Regras exercitadas</span>
+          <span class="val">${new Set(v.map(x => x.regra)).size}</span>
+          <span class="foot">de ${D.politica.regras.length} na política</span></div>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <div class="panel-h"><h3>Os quinze casos</h3><span class="hint">clique para ver a cadeia de evidências</span></div>
+        <div class="tw"><table>
+          <thead><tr><th>Caso</th><th>Situação</th><th>Esperado</th><th>Obtido</th><th>Regra</th><th></th><th>Justificativa do gabarito</th></tr></thead>
+          <tbody>${v.map(x => `
+            <tr class="clicavel" data-caso="${esc(x.caso)}">
+              <td class="mono">${esc(x.caso)}</td>
+              <td><strong>${esc(x.informacao)}</strong><br><span class="dim" style="font-size:12px">${esc(x.ferramenta)} · ${esc(x.area)}</span></td>
+              <td class="mono">${esc(x.esperado)}</td>
+              <td>${chipSev(x.obtido)}</td>
+              <td>${chipRegra(x.regra)}</td>
+              <td>${x.passou ? '<span class="pill-ok">passou</span>' : '<span class="pill-nao">falhou</span>'}</td>
+              <td class="dim" style="font-size:12px;max-width:34ch">${esc(x.justificativa)}</td>
+            </tr>
+            <tr id="det-${esc(x.caso)}" hidden><td colspan="7" style="background:var(--surface-2)">
+              ${x.achados.map(a => `
+                <div class="achado ${a.contextual ? "contextual" : ""}">
+                  <div class="top">${chipRegra(a.regra)} <span class="tit">${esc(a.titulo)}</span> ${chipSev(a.nivel)}</div>
+                  <p class="mot">${esc(a.motivo)}</p>
+                  <div class="acao"><b>ação prevista</b>${esc(a.acao)}</div>
+                </div>`).join("")}
+            </td></tr>`).join("")}</tbody>
+        </table></div>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <div class="panel-h"><h3>Por que os casos passam sem ajuste individual</h3></div>
+        <div class="panel-b" style="display:flex;flex-direction:column;gap:12px">
+          <p class="nota" style="margin:0">O motor não tem exceção escrita para nenhum caso. Ele aplica
+          as catorze regras em ordem de precedência e deixa a mais severa decidir. Dois casos mostram
+          por que a ordem importa:</p>
+          <p class="nota" style="margin:0"><strong>CV12</strong> — credencial numa ferramenta
+          <em>aprovada</em>. Se a precedência começasse pela ferramenta, daria Médio. Como R03 vem
+          antes de tudo que fala em ferramenta, dá Crítico, que é o esperado.</p>
+          <p class="nota" style="margin:0"><strong>CV13</strong> — ferramenta desconhecida e
+          informação sem classificação. Nenhuma regra de conteúdo se aplica; a resposta correta é
+          recusar-se a classificar. R14 devolve REVISAR em vez de inventar um nível.</p>
+        </div>
+      </div>`;
+
+    document.querySelectorAll("[data-caso]").forEach(tr => tr.addEventListener("click", () => {
+      const det = document.getElementById("det-" + tr.dataset.caso);
+      if (det) det.hidden = !det.hidden;
+    }));
+  }
+
+  // ============================================================
+  // POLÍTICA
+  // ============================================================
+
+  function vistaPolitica() {
+    const p = D.politica;
+    document.getElementById("main").innerHTML = `
+      <div class="pagehead">
+        <h2>Política vigente</h2>
+        <p>As catorze regras vêm da aba <span class="mono">Regras_Risco</span> da planilha. Nenhuma
+        está reescrita: o que a EspIA acrescenta é a <strong>ordem de precedência</strong>, porque
+        política escrita em linguagem natural se sobrepõe — e é essa ordem que Compliance audita.</p>
+      </div>
+
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(330px,1fr))">
+        <div class="panel">
+          <div class="panel-h"><h3>Ordem de precedência</h3><span class="hint">da primeira à última avaliada</span></div>
+          <div class="panel-b"><ol class="lista-num">${p.precedencia.map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><h3>Níveis de classificação</h3><span class="hint">definidos pela empresa</span></div>
+          <div class="panel-b"><div class="tw"><table><tbody>${p.classificacoes.map(c => `
+            <tr><td style="width:1%">${chipCls(c.classificacao)}</td>
+              <td><div style="font-size:12.5px">${esc(c.definicao)}</div>
+                <div class="dim" style="font-size:12px;margin-top:3px">${esc(c.regra_geral)}</div></td>
+              <td class="nowrap dim mono" style="font-size:11.5px">risco base<br>${esc(c.risco_base)}</td></tr>`).join("")}
+          </tbody></table></div></div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <div class="panel-h"><h3>As catorze regras</h3>
+          <span class="hint">“usos” compara quantas vezes cada regra aparece na base e no nosso motor</span></div>
+        <div class="tw"><table>
+          <thead><tr><th>Regra</th><th>Tema</th><th>Texto da política</th><th>Nível</th><th>Ação</th>
+            <th class="num">Usos na base</th><th class="num">Usos no motor</th></tr></thead>
+          <tbody>${p.regras.map(r => {
+            const morta = r.usos_base === 0;
+            return `<tr>
+              <td>${chipRegra(r.id)}</td>
+              <td class="dim" style="font-size:12px">${esc(r.tema)}</td>
+              <td style="font-size:12.5px;max-width:40ch">${esc(r.texto)}</td>
+              <td>${r.nivel === "—" ? "" : chipSev(r.nivel === "Crítico" || r.nivel === "Alto" || r.nivel === "Médio" || r.nivel === "Baixo" ? r.nivel : "REVISAR")}</td>
+              <td class="dim" style="font-size:12px;max-width:28ch">${esc(r.acao)}</td>
+              <td class="num" style="${morta ? "color:var(--sev-Critico);font-weight:600" : ""}">${r.usos_base}</td>
+              <td class="num">${r.usos_total}</td>
+            </tr>`;
+          }).join("")}</tbody>
+        </table></div>
+        <div class="panel-b" style="border-top:1px solid var(--line)">
+          <p class="nota" style="margin:0">As regras com <strong style="color:var(--sev-Critico)">zero</strong>
+          usos na base nunca foram acionadas pela rotulagem existente. No nosso motor algumas delas passam a
+          aparecer — não porque mudamos o nível de risco, mas porque a regra específica descreve melhor o fato e
+          <em>aciona uma resposta diferente</em>. O detalhe está em Auditoria.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <div class="panel-h"><h3>Propostas de política</h3>
+          <span class="hint">não são regras da planilha — são lacunas que a auditoria encontrou</span></div>
+        <div class="tw"><table>
+          <thead><tr><th>Proposta</th><th>Tema</th><th>Regra sugerida</th><th>Nível</th><th>Por quê</th></tr></thead>
+          <tbody>${p.propostas.map(x => `
+            <tr><td class="mono" style="color:var(--accent)">${esc(x.id)}</td>
+              <td class="dim" style="font-size:12px">${esc(x.tema)}</td>
+              <td style="font-size:12.5px"><strong>${esc(x.regra)}</strong>
+                <div class="dim" style="font-size:12px;margin-top:2px">${esc(x.acao)}</div></td>
+              <td>${x.nivel === "—" ? '<span class="dim">—</span>' : chipSev(x.nivel)}</td>
+              <td class="dim" style="font-size:12px;max-width:44ch">${esc(x.porque)}</td></tr>`).join("")}</tbody>
+        </table></div>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <div class="panel-b" style="display:flex;flex-wrap:wrap;gap:14px;align-items:center">
+          <div style="flex:1 1 320px">
+            <div class="eyebrow" style="margin-bottom:4px">Para mudar qualquer regra desta tela</div>
+            <p class="nota" style="margin:0">Edite a aba <span class="mono">Regras_Risco</span> da planilha e rode
+            <span class="mono">python3 run.py gerar</span>. O motor lê os níveis e as ações direto de lá — o código
+            não tem os textos das regras escritos dentro dele. Esta tela é deliberadamente
+            <strong>somente leitura</strong>: a política precisa viver num arquivo versionado, com histórico de
+            quem mudou o quê.</p>
+          </div>
+          <div class="formula" style="flex:1 1 280px;white-space:normal">Base_de_Dados_Starkbank.xlsx
+  ├ Classificacao_Informacao  níveis
+  ├ Ferramentas_IA            cadastro e status
+  ├ Tipos_Informacao          classificação padrão
+  └ Regras_Risco              R01–R14, nível e ação</div>
+        </div>
+      </div>`;
+  }
+
+  // ============================================================
+  // INVENTÁRIO
+  // ============================================================
+
+  function vistaInventario() {
+    const usoFerr = {};
+    for (const e of D.eventos) {
+      const v = usoFerr[e.ferramenta_id] ||= { n: 0, sens: 0, risco: 0, users: new Set() };
+      v.n++; v.users.add(e.usuario_id);
+      if (e.sensibilidade === "Confidencial" || e.sensibilidade === "Crítica") v.sens++;
+      if (e.risco === "Crítico" || e.risco === "Alto") v.risco++;
+    }
+    const usoTipo = {};
+    for (const e of D.eventos) (usoTipo[e.informacao_id] = (usoTipo[e.informacao_id] || 0) + 1);
+
+    document.getElementById("main").innerHTML = `
+      <div class="pagehead">
+        <h2>Inventário</h2>
+        <p>O que a organização declara possuir: oito ferramentas de IA, vinte tipos de informação
+        classificados e sete fontes de log que alimentam a rastreabilidade.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-h"><h3>Ferramentas de IA</h3>
+          <span class="hint">status e controles vêm do cadastro da governança</span></div>
+        <div class="tw"><table>
+          <thead><tr><th>Ferramenta</th><th>Tipo</th><th>Status</th><th>Uso principal</th>
+            <th>Finalidade aprovada</th><th>Controles</th><th>Logs</th>
+            <th class="num">Eventos</th><th class="num">Pessoas</th><th class="num">Sensíveis</th><th class="num">Alto/crítico</th></tr></thead>
+          <tbody>${D.ferramentas.map(f => {
+            const u = usoFerr[f.id] || { n: 0, sens: 0, risco: 0, users: new Set() };
+            return `<tr>
+              <td><span class="mono dim" style="font-size:11px">${f.id}</span><br><strong>${esc(f.nome)}</strong></td>
+              <td class="dim">${esc(f.tipo)}</td>
+              <td>${chipStatusFerr(f)}</td>
+              <td class="dim" style="font-size:12px">${esc(f.uso_principal)}</td>
+              <td class="dim" style="font-size:12px">${esc(f.finalidade)}</td>
+              <td class="dim" style="font-size:12px;max-width:26ch">${esc(f.controles)}</td>
+              <td class="mono" style="font-size:12px;color:${f.logs === "Sim" ? "var(--ok)" : f.logs === "Parcial" ? "var(--sev-Alto)" : "var(--sev-Critico)"}">${esc(f.logs)}</td>
+              <td class="num">${u.n}</td><td class="num">${u.users.size}</td>
+              <td class="num">${u.sens}</td>
+              <td class="num" style="${u.risco ? "color:var(--sev-Critico);font-weight:600" : "color:var(--ink-3)"}">${u.risco}</td>
+            </tr>`;
+          }).join("")}</tbody>
+        </table></div>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <div class="panel-h"><h3>Tipos de informação</h3><span class="hint">a classificação acontece aqui, uma vez, na origem</span></div>
+        <div class="tw"><table>
+          <thead><tr><th>Tipo</th><th>Categoria</th><th>Classificação padrão</th><th>Área típica</th><th class="num">Eventos</th></tr></thead>
+          <tbody>${D.tipos.slice().sort((a, b) =>
+            CLASSES.indexOf(a.classificacao) - CLASSES.indexOf(b.classificacao) || a.nome.localeCompare(b.nome)
+          ).map(t => `
+            <tr class="clicavel" data-alvo-info="${t.id}">
+              <td><span class="mono dim" style="font-size:11px">${t.id}</span><br>${esc(t.nome)}</td>
+              <td class="dim" style="font-size:12px">${esc(t.categoria)}</td>
+              <td>${chipCls(t.classificacao)}</td>
+              <td class="dim" style="font-size:12px">${esc(t.area_tipica)}</td>
+              <td class="num">${usoTipo[t.id] || 0}</td>
+            </tr>`).join("")}</tbody>
+        </table></div>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <div class="panel-h"><h3>Fontes de log</h3>
+          <span class="hint">é daqui que a captura híbrida tira os eventos</span></div>
+        <div class="tw"><table>
+          <thead><tr><th>Fonte</th><th>Dados disponíveis</th><th>Formato</th><th>Confiabilidade</th><th>Atualização</th></tr></thead>
+          <tbody>${D.fontes.map(f => `
+            <tr><td><span class="mono dim" style="font-size:11px">${f.id}</span><br>${esc(f.nome)}</td>
+              <td style="font-size:12.5px">${esc(f.dados)}</td>
+              <td class="dim">${esc(f.formato)}</td>
+              <td class="dim">${esc(f.confiabilidade)}</td>
+              <td class="dim">${esc(f.atualizacao)}</td></tr>`).join("")}</tbody>
+        </table></div>
+        <div class="panel-b" style="border-top:1px solid var(--line)">
+          <p class="nota" style="margin:0">Os 650 eventos da base chegaram por quatro caminhos —
+          DLP, log de aplicação, proxy corporativo e registro manual. Nenhum sozinho vê tudo:
+          é por isso que a arquitetura é híbrida.</p>
+        </div>
+      </div>`;
+  }
+
+  // ============================================================
+  // roteamento
+  // ============================================================
+
+  const VISTAS = {
+    panorama: vistaPanorama, rastrear: vistaRastrear, alertas: vistaAlertas,
+    auditoria: vistaAuditoria, validacao: vistaValidacao, politica: vistaPolitica,
+    inventario: vistaInventario
+  };
+
+  function ir(vista) {
+    estado.vista = vista;
+    document.querySelectorAll(".navbtn").forEach(b =>
+      b.setAttribute("aria-current", b.dataset.vista === vista ? "true" : "false"));
+    VISTAS[vista]();
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
+
+  document.querySelectorAll(".navbtn").forEach(b =>
+    b.addEventListener("click", () => ir(b.dataset.vista)));
+
+  document.addEventListener("click", ev => {
+    const irVista = ev.target.closest("[data-ir-vista]");
+    if (irVista) { ir(irVista.dataset.irVista); return; }
+
+    const alvoInfo = ev.target.closest("[data-alvo-info]");
+    if (alvoInfo) {
+      estado.modoRastreio = "informacao";
+      estado.alvoRastreio = alvoInfo.dataset.alvoInfo;
+      estado.busca = tipoPorId[estado.alvoRastreio]?.nome || "";
+      ir("rastrear"); return;
+    }
+
+    const alvo = ev.target.closest("[data-alvo]");
+    if (alvo && estado.vista === "rastrear") {
+      estado.alvoRastreio = alvo.dataset.alvo;
+      const item = tipoPorId[alvo.dataset.alvo] || userPorId[alvo.dataset.alvo];
+      estado.busca = item ? item.nome : "";
+      vistaRastrear(); return;
+    }
+
+    const evtIr = ev.target.closest("[data-evt-ir]");
+    if (evtIr) {
+      estado.eventoAberto = evtIr.dataset.evtIr;
+      Object.assign(estado, FILTROS_VAZIOS);
+      ir("alertas"); return;
+    }
+
+    const filtrar = ev.target.closest("[data-filtrar-eventos]");
+    if (filtrar) {
+      const achado = D.auditoria.find(a => a.id === filtrar.dataset.filtrarEventos);
+      if (achado) {
+        Object.assign(estado, FILTROS_VAZIOS);
+        estado.eventoAberto = achado.eventos[0];
+        estado.fSoDiverg = achado.id === "A-03" ? "1" : "";
+        ir("alertas");
+      }
+      return;
+    }
+
+    const linha = ev.target.closest("[data-evt]");
+    if (linha) {
+      estado.eventoAberto = linha.dataset.evt;
+      document.querySelectorAll("[data-evt]").forEach(r => r.classList.toggle("sel", r === linha));
+      renderEvidencia();
+    }
+  });
+
+  document.getElementById("tema").addEventListener("click", () => {
+    const atual = document.documentElement.getAttribute("data-theme");
+    const escuro = atual ? atual === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.setAttribute("data-theme", escuro ? "light" : "dark");
+    VISTAS[estado.vista]();
+  });
+
+  // contadores do rail
+  document.getElementById("n-panorama").textContent = num(D.meta.totais.eventos);
+  document.getElementById("n-alertas").textContent = num(D.alertas.length);
+  document.getElementById("n-auditoria").textContent = D.auditoria.length;
+  document.getElementById("n-validacao").textContent =
+    D.validacao.filter(v => v.passou).length + "/" + D.validacao.length;
+  document.getElementById("n-politica").textContent = D.politica.regras.length;
+  document.getElementById("n-inventario").textContent = D.ferramentas.length;
+  document.getElementById("disclaimer").textContent = D.meta.aviso;
+
+  ir("panorama");
+})();
+</script>

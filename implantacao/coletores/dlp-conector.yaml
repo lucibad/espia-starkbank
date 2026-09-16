@@ -1,0 +1,48 @@
+# EspIA — conector DLP.
+# Onda 0. Roda no servidor de DLP, como serviço. Não toca em estação nenhuma.
+
+destino:
+  url: https://ingestao.espia.interno:8443/eventos
+  mtls:
+    ca: /etc/espia/ca-interna.crt
+    certificado: /etc/espia/coletor-dlp.crt
+    chave: /etc/espia/coletor-dlp.key
+  lote: 200                      # eventos por requisição
+  intervalo_s: 30
+  fila_local: /var/lib/espia/fila.db   # se a ingestão cair, nada se perde
+
+origem:
+  tipo: syslog                   # syslog | api | arquivo
+  escuta: 0.0.0.0:5514
+  formato: cef
+
+# Só entra evento cuja política do DLP envolva ferramenta de IA. O resto do
+# tráfego de DLP continua onde sempre esteve; o EspIA não é um segundo DLP.
+filtro:
+  politicas:
+    - "IA-Generativa-Upload"
+    - "IA-Generativa-Colagem"
+  descartar_se_sem_usuario: false   # evento sem usuário vira REVISAR por R14,
+                                    # e isso é informação, não lixo
+
+# A única parte que exige decisão humana: o rótulo do DLP vira tipo de
+# informação da planilha. Faça com Compliance.
+mapeamento:
+  rotulo_para_tipo:
+    "PII-CPF":              INFO-003    # Dados pessoais de clientes
+    "PII-Cartao":           INFO-004    # Dados de cartão
+    "FIN-Resultado":        INFO-011    # Resultado financeiro não divulgado
+    "SEC-Credencial":       INFO-018    # Chave/API secret
+    "DEV-Codigo":           INFO-014    # Código-fonte proprietário
+    "__default__":          INFO-000    # sem correspondência → R13 → REVISAR
+
+  severidade_para_sensibilidade:
+    critical:  Crítica
+    high:      Confidencial
+    medium:    Interna
+    low:       Pública
+
+privacidade:
+  enviar_conteudo: false         # trava. Mudar para true é violação de projeto.
+  enviar_assinatura: true        # MinHash/SimHash — permite a busca reversa
+  mascarar_em_log_local: true

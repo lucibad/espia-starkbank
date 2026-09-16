@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- EspIA — perfil de configuração para macOS (Jamf, Intune ou Workspace ONE).
+     Mesmo conteúdo do extensao-gpo.json, no formato que o MDM da Apple lê.
+     Onda 2. Assine este perfil com o certificado de MDM do banco antes de distribuir. -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>PayloadType</key>            <string>Configuration</string>
+  <key>PayloadIdentifier</key>      <string>banco.interno.espia.borda</string>
+  <key>PayloadDisplayName</key>     <string>EspIA — coletor de borda</string>
+  <key>PayloadDescription</key>
+  <string>Classifica localmente o conteúdo enviado a ferramentas de IA. Nenhum texto sai da estação.</string>
+  <key>PayloadVersion</key>         <integer>1</integer>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>PayloadType</key>        <string>com.google.Chrome</string>
+      <key>PayloadIdentifier</key>  <string>banco.interno.espia.chrome</string>
+      <key>PayloadVersion</key>     <integer>1</integer>
+      <key>ExtensionSettings</key>
+      <dict>
+        <key>espia-borda</key>
+        <dict>
+          <key>installation_mode</key> <string>force_installed</string>
+          <key>update_url</key>        <string>https://extensoes.interno.banco/espia/update.xml</string>
+        </dict>
+      </dict>
+      <key>EspIAIngestao</key>   <string>https://ingestao.espia.interno:8443/eventos</string>
+      <key>EspIAModo</key>       <string>observacao</string>
+      <key>EspIAEnviarConteudo</key> <false/>
+    </dict>
+  </array>
+</dict>
+</plist>

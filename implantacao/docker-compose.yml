@@ -1,0 +1,274 @@
+# EspIA — núcleo, VLAN de Segurança.
+#
+# Esta zona NÃO tem rota para a internet. Todas as imagens vêm do registro
+# interno do banco (${REGISTRO}), carregadas por `docker load` a partir do
+# tarball assinado, ou espelhadas pelo Harbor/Artifactory que o banco já tem.
+# Nenhum serviço aqui faz pull da internet, nem em tempo de execução.
+#
+#   docker compose --env-file .env up -d
+#
+# O gateway de notificação NÃO está aqui: ele roda na DMZ, com o
+# docker-compose.dmz.yml, em outro host. É a única peça com saída.
+
+name: espia
+
+x-comum: &comum
+  restart: unless-stopped
+  init: true
+  read_only: true
+  tmpfs: ["/tmp:size=64m"]
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: ["ALL"]
+  logging:
+    driver: "json-file"
+    options: { max-size: "50m", max-file: "5" }
+  environment:
+    TZ: ${TZ:-America/Sao_Paulo}
+    ESPIA_AMBIENTE: ${AMBIENTE:-producao}
+    ESPIA_LOG_NIVEL: ${LOG_NIVEL:-info}
+
+x-nucleo-env: &nucleo-env
+  PGHOST: postgres
+  PGPORT: "5432"
+  PGDATABASE: ${PG_BANCO:-espia}
+  PGUSER: ${PG_USUARIO:-espia}
+  PGPASSWORD_FILE: /run/secrets/pg_senha
+  REDIS_URL: redis://redis:6379/0
+  MINIO_ENDPOINT: http://minio:9000
+  MINIO_ACCESS_KEY_FILE: /run/secrets/minio_chave
+  MINIO_SECRET_KEY_FILE: /run/secrets/minio_segredo
+
+secrets:
+  pg_senha:      { file: ./segredos/pg_senha }
+  minio_chave:   { file: ./segredos/minio_chave }
+  minio_segredo: { file: ./segredos/minio_segredo }
+  jwt_assinatura:{ file: ./segredos/jwt_assinatura }
+
+volumes:
+  pgdados:
+  redisdados:
+  miniodados:
+  modelos:
+
+networks:
+  interna:
+    driver: bridge
+    internal: true          # sem gateway: os contêineres do núcleo não saem
+  borda:
+    driver: bridge          # só ingestão e consoles ficam aqui
+
+services:
+
+  # ── persistência ───────────────────────────────────────────────────────────
+  postgres:
+    <<: *comum
+    image: ${REGISTRO}/postgres:16-alpine
+    read_only: false
+    networks: [interna]
+    environment:
+      TZ: ${TZ:-America/Sao_Paulo}
+      POSTGRES_DB: ${PG_BANCO:-espia}
+      POSTGRES_USER: ${PG_USUARIO:-espia}
+      POSTGRES_PASSWORD_FILE: /run/secrets/pg_senha
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    secrets: [pg_senha]
+    volumes:
+      - pgdados:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USUARIO:-espia} -d ${PG_BANCO:-espia}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    deploy:
+      resources:
+        limits: { cpus: "8", memory: 32G }
+
+  redis:
+    <<: *comum
+    image: ${REGISTRO}/redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+    read_only: false
+    networks: [interna]
+    volumes: [redisdados:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+    deploy:
+      resources:
+        limits: { cpus: "2", memory: 4G }
+
+  minio:
+    <<: *comum
+    image: ${REGISTRO}/minio:RELEASE.2026-04-12T00-00-00Z
+    command: ["server", "/dados", "--console-address", ":9001"]
+    read_only: false
+    networks: [interna]
+    environment:
+      TZ: ${TZ:-America/Sao_Paulo}
+      MINIO_ROOT_USER_FILE: /run/secrets/minio_chave
+      MINIO_ROOT_PASSWORD_FILE: /run/secrets/minio_segredo
+    secrets: [minio_chave, minio_segredo]
+    volumes: [miniodados:/dados]
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 20s
+      timeout: 5s
+      retries: 6
+
+  # ── núcleo ─────────────────────────────────────────────────────────────────
+  ingestao:
+    <<: *comum
+    image: ${REGISTRO}/espia-ingestao:${TAG}
+    networks: [interna, borda]     # borda: é quem os coletores procuram
+    ports: ["${BIND_INGESTAO:-0.0.0.0}:8443:8443"]
+    environment:
+      <<: [*nucleo-env]
+      TZ: ${TZ:-America/Sao_Paulo}
+      ESPIA_MTLS_CA: /certs/ca-interna.crt
+      ESPIA_TLS_CERT: /certs/espia.crt
+      ESPIA_TLS_KEY: /certs/espia.key
+      ESPIA_EXIGIR_MTLS: "true"
+    secrets: [pg_senha, minio_chave, minio_segredo]
+    volumes: ["./certs:/certs:ro"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis:    { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "/app/saude.sh"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+      start_period: 30s
+    deploy:
+      # Uma instância por host, com porta publicada. A escala da ingestão é
+      # horizontal por HOST, atrás do balanceador do banco — não por réplica
+      # dentro do mesmo compose, que brigaria pela porta 8443.
+      resources:
+        limits: { cpus: "2", memory: 4G }
+
+  nucleo:
+    <<: *comum
+    image: ${REGISTRO}/espia-nucleo:${TAG}
+    networks: [interna]
+    environment:
+      <<: [*nucleo-env]
+      TZ: ${TZ:-America/Sao_Paulo}
+      ESPIA_INFERENCIA_URL: http://inferencia:8082
+      ESPIA_MODO_SOMBRA: ${MODO_SOMBRA:-true}
+    secrets: [pg_senha, minio_chave, minio_segredo]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis:    { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "/app/saude.sh"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+      start_period: 30s
+    deploy:
+      replicas: ${REPLICAS_NUCLEO:-2}
+      resources:
+        limits: { cpus: "4", memory: 8G }
+
+  inferencia:
+    <<: *comum
+    image: ${REGISTRO}/espia-inferencia:${TAG}
+    networks: [interna]
+    environment:
+      <<: [*nucleo-env]
+      TZ: ${TZ:-America/Sao_Paulo}
+      ESPIA_MODELOS: /modelos
+      OMP_NUM_THREADS: "2"          # scikit-learn em CPU; sem GPU, por projeto
+    secrets: [pg_senha, minio_chave, minio_segredo]
+    volumes: [modelos:/modelos]
+    depends_on:
+      minio: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "/app/saude.sh"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+      start_period: 45s
+    profiles: ["onda2", "onda3", "onda4", "completo"]
+    deploy:
+      replicas: ${REPLICAS_INFERENCIA:-2}
+      resources:
+        limits: { cpus: "4", memory: 8G }
+
+  treinador:
+    <<: *comum
+    image: ${REGISTRO}/espia-treinador:${TAG}
+    networks: [interna]
+    environment:
+      <<: [*nucleo-env]
+      TZ: ${TZ:-America/Sao_Paulo}
+      ESPIA_CRON_TREINO: ${CRON_TREINO:-0 3 * * 0}
+    secrets: [pg_senha, minio_chave, minio_segredo]
+    volumes: [modelos:/modelos]
+    depends_on:
+      postgres: { condition: service_healthy }
+    profiles: ["onda2", "onda3", "onda4", "completo"]
+    deploy:
+      resources:
+        limits: { cpus: "8", memory: 16G }
+
+  # ── aplicações ─────────────────────────────────────────────────────────────
+  consoles:
+    <<: *comum
+    image: ${REGISTRO}/espia-consoles:${TAG}
+    networks: [interna, borda]
+    ports: ["${BIND_CONSOLES:-0.0.0.0}:8081:8081"]
+    environment:
+      TZ: ${TZ:-America/Sao_Paulo}
+      ESPIA_API_URL: http://api:8083
+      ESPIA_OIDC_ISSUER: ${OIDC_ISSUER}
+      ESPIA_OIDC_CLIENT_ID: ${OIDC_CLIENT_ID}
+    volumes: ["./certs:/certs:ro", "./nginx/espia.conf:/etc/nginx/conf.d/espia.conf:ro"]
+    depends_on: [api]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8081/saude"]
+      interval: 20s
+      timeout: 5s
+      retries: 4
+
+  api:
+    <<: *comum
+    image: ${REGISTRO}/espia-api:${TAG}
+    networks: [interna]
+    environment:
+      <<: [*nucleo-env]
+      TZ: ${TZ:-America/Sao_Paulo}
+      ESPIA_JWT_CHAVE_FILE: /run/secrets/jwt_assinatura
+      ESPIA_OIDC_ISSUER: ${OIDC_ISSUER}
+    secrets: [pg_senha, minio_chave, minio_segredo, jwt_assinatura]
+    depends_on:
+      postgres: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "/app/saude.sh"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+      start_period: 30s
+    deploy:
+      resources:
+        limits: { cpus: "2", memory: 4G }
+
+  # ── saída para o SIEM ──────────────────────────────────────────────────────
+  # Uma direção só: o EspIA escreve, o SIEM lê. Não há caminho de volta.
+  encaminhador-siem:
+    <<: *comum
+    image: ${REGISTRO}/espia-siem:${TAG}
+    networks: [interna, borda]
+    environment:
+      <<: [*nucleo-env]
+      TZ: ${TZ:-America/Sao_Paulo}
+      ESPIA_SIEM_HOST: ${SIEM_HOST}
+      ESPIA_SIEM_PORTA: ${SIEM_PORTA:-6514}
+      ESPIA_SIEM_TLS: "true"
+    secrets: [pg_senha, minio_chave, minio_segredo]
+    volumes: ["./certs:/certs:ro"]
+    depends_on:
+      redis: { condition: service_healthy }

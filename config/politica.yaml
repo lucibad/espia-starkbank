@@ -1,0 +1,242 @@
+# =====================================================================
+# EspIA — Política de Governança de Informações em IA
+# ---------------------------------------------------------------------
+# Este arquivo é o "contrato" entre a empresa e a ferramenta.
+# A Stark Bank (ou qualquer organização) define AQUI o que é sensível,
+# quais ferramentas são aceitáveis e como o risco é calculado.
+# Nenhuma regra está escondida no código.
+# =====================================================================
+
+organizacao:
+  nome: "Stark Bank"
+  setor: "Instituição financeira regulada"
+  # Marcos regulatórios que a política declara observar. Servem para
+  # etiquetar as regras e para a evidência citar a origem da exigência.
+  marcos_regulatorios:
+    - id: LGPD
+      nome: "Lei Geral de Proteção de Dados (Lei 13.709/2018)"
+    - id: SIGILO_BANCARIO
+      nome: "Sigilo de operações bancárias (LC 105/2001)"
+    - id: BCB_CIBER
+      nome: "Política de segurança cibernética exigida pelo Banco Central"
+    - id: PCI_DSS
+      nome: "PCI DSS — dados de portador de cartão"
+    - id: ISO_42001
+      nome: "ISO/IEC 42001 — sistema de gestão de IA"
+
+# ---------------------------------------------------------------------
+# 1. TAXONOMIA DE CLASSIFICAÇÃO
+# A empresa define os níveis e o que pode ser feito com cada um.
+# ---------------------------------------------------------------------
+classificacao:
+  publico:
+    rotulo: "Público"
+    peso: 1
+    cor: "verde"
+    descricao: "Já divulgado externamente. Site, material de marketing, docs públicas da API."
+    ia_permitida: "qualquer"
+  interno:
+    rotulo: "Interno"
+    peso: 3
+    cor: "azul"
+    descricao: "Uso interno, sem impacto se vazar para outro colaborador. Processos, runbooks, wiki."
+    ia_permitida: "homologada_ou_corporativa"
+  confidencial:
+    rotulo: "Confidencial"
+    peso: 7
+    cor: "ambar"
+    descricao: "Contratos, propostas, dados de clientes, planejamento, código proprietário."
+    ia_permitida: "somente_homologada"
+  critico:
+    rotulo: "Crítico"
+    peso: 12
+    cor: "vermelho"
+    descricao: "Sigilo bancário, dados de portador de cartão, modelos de risco, dados pessoais sensíveis, informação não divulgada com efeito material."
+    ia_permitida: "nenhuma_sem_aprovacao"
+
+# ---------------------------------------------------------------------
+# 2. CATEGORIAS DE INFORMAÇÃO (as 6 do desafio + específicas do setor)
+# ---------------------------------------------------------------------
+categorias_informacao:
+  dados_pessoais:      { rotulo: "Dados pessoais e de colaboradores", marcos: [LGPD] }
+  clientes:            { rotulo: "Informações de clientes",           marcos: [LGPD, SIGILO_BANCARIO] }
+  estrategica:         { rotulo: "Informações estratégicas",          marcos: [] }
+  propriedade_intelectual: { rotulo: "Propriedade intelectual",       marcos: [] }
+  juridico:            { rotulo: "Documentos jurídicos e contratuais", marcos: [] }
+  comercial:           { rotulo: "Informações comerciais",            marcos: [] }
+  financeiro_regulado: { rotulo: "Dados financeiros regulados",       marcos: [SIGILO_BANCARIO, PCI_DSS, BCB_CIBER] }
+
+# ---------------------------------------------------------------------
+# 3. FERRAMENTAS DE IA — o cadastro que o desafio pede no 1º bullet
+# tier:
+#   corporativa  = contrato empresarial, dados não usados em treinamento,
+#                  acesso via SSO, DPA assinado
+#   homologada   = aprovada pelo Comitê de IA com ressalvas
+#   tolerada     = uso pessoal aceito apenas para dado público/interno
+#   nao_homologada = sem contrato, sem DPA, sem controle
+# ---------------------------------------------------------------------
+ferramentas_ia:
+  - id: chatgpt_enterprise
+    nome: "ChatGPT Enterprise"
+    fornecedor: "OpenAI"
+    dominios: ["chatgpt.com", "openai.com"]
+    tier: corporativa
+    treina_com_dados: false
+    retencao_dias: 30
+    jurisdicao: "EUA"
+    fator_risco: 1.0
+
+  - id: claude_api_interna
+    nome: "Claude (API via gateway interno)"
+    fornecedor: "Anthropic"
+    dominios: ["api.anthropic.com"]
+    tier: corporativa
+    treina_com_dados: false
+    retencao_dias: 0
+    jurisdicao: "EUA"
+    fator_risco: 0.9
+
+  - id: copilot_business
+    nome: "GitHub Copilot Business"
+    fornecedor: "GitHub"
+    dominios: ["copilot-proxy.githubusercontent.com", "github.com"]
+    tier: corporativa
+    treina_com_dados: false
+    retencao_dias: 0
+    jurisdicao: "EUA"
+    fator_risco: 1.0
+
+  - id: gemini_workspace
+    nome: "Gemini for Workspace"
+    fornecedor: "Google"
+    dominios: ["gemini.google.com"]
+    tier: homologada
+    treina_com_dados: false
+    retencao_dias: 18
+    jurisdicao: "EUA"
+    fator_risco: 1.2
+
+  - id: notion_ai
+    nome: "Notion AI"
+    fornecedor: "Notion"
+    dominios: ["notion.so"]
+    tier: homologada
+    treina_com_dados: false
+    retencao_dias: 90
+    jurisdicao: "EUA"
+    fator_risco: 1.3
+
+  - id: chatgpt_free
+    nome: "ChatGPT (conta pessoal / gratuita)"
+    fornecedor: "OpenAI"
+    dominios: ["chat.openai.com"]
+    tier: tolerada
+    treina_com_dados: true
+    retencao_dias: null
+    jurisdicao: "EUA"
+    fator_risco: 2.2
+
+  - id: perplexity
+    nome: "Perplexity"
+    fornecedor: "Perplexity AI"
+    dominios: ["perplexity.ai"]
+    tier: tolerada
+    treina_com_dados: true
+    retencao_dias: null
+    jurisdicao: "EUA"
+    fator_risco: 2.0
+
+  - id: deepseek
+    nome: "DeepSeek"
+    fornecedor: "DeepSeek"
+    dominios: ["deepseek.com", "chat.deepseek.com"]
+    tier: nao_homologada
+    treina_com_dados: true
+    retencao_dias: null
+    jurisdicao: "China"
+    fator_risco: 3.5
+    observacao: "Transferência internacional para jurisdição sem decisão de adequação. Bloqueio recomendado."
+
+  - id: cursor_pessoal
+    nome: "Cursor (licença pessoal)"
+    fornecedor: "Anysphere"
+    dominios: ["cursor.sh", "cursor.com"]
+    tier: nao_homologada
+    treina_com_dados: true
+    retencao_dias: null
+    jurisdicao: "EUA"
+    fator_risco: 2.6
+    observacao: "Indexa o repositório inteiro, não apenas o arquivo aberto."
+
+  - id: tradutor_ia
+    nome: "TradutorIA Grátis"
+    fornecedor: "desconhecido"
+    dominios: ["traduzir-ia.app"]
+    tier: nao_homologada
+    treina_com_dados: true
+    retencao_dias: null
+    jurisdicao: "desconhecida"
+    fator_risco: 3.0
+    observacao: "Fornecedor sem CNPJ identificável, sem política de privacidade publicada."
+
+  - id: resumidor_pdf
+    nome: "PDF Summarizer AI"
+    fornecedor: "desconhecido"
+    dominios: ["pdfsummarizer.ai"]
+    tier: nao_homologada
+    treina_com_dados: true
+    retencao_dias: null
+    jurisdicao: "desconhecida"
+    fator_risco: 3.2
+
+# ---------------------------------------------------------------------
+# 4. MOTOR DE RISCO
+# Score = (peso_classificacao × fator_ferramenta) × Π(multiplicadores)
+#         + Σ(agravantes fixos)
+# Tudo explícito, auditável e ajustável pelo time de Compliance.
+# ---------------------------------------------------------------------
+motor_risco:
+  multiplicadores:
+    treina_com_dados: 1.6          # o dado vira peso do modelo de terceiro
+    jurisdicao_sem_adequacao: 1.5  # transferência internacional
+    fora_horario: 1.25             # 22h-06h ou fim de semana
+    canal_nao_gerenciado: 1.35     # capturado pela extensão, fora do gateway
+    volume_alto: 1.3               # > 8.000 caracteres no prompt
+    reincidencia: 1.4              # 3+ eventos similares do mesmo usuário em 7 dias
+    sem_finalidade_declarada: 1.15
+
+  agravantes:
+    pii_em_volume: 8       # 20+ identificadores pessoais no mesmo prompt
+    dado_cartao: 15        # padrão de PAN detectado (escopo PCI)
+    credencial: 20         # chave de API, token, senha
+    multiplos_ativos_criticos: 10
+
+  atenuantes:
+    mascaramento_aceito: -12   # o colaborador aceitou enviar versão anonimizada
+    finalidade_aprovada: -4    # caso de uso pré-aprovado pelo Comitê de IA
+
+  niveis:
+    - { nivel: critico, min: 90, rotulo: "Crítico",  acao: "Bloquear, notificar CISO e DPO, abrir investigação" }
+    - { nivel: alto,    min: 38, rotulo: "Alto",     acao: "Alertar gestor e Segurança da Informação em até 4h" }
+    - { nivel: medio,   min: 12, rotulo: "Médio",    acao: "Registrar e revisar no comitê semanal" }
+    - { nivel: baixo,   min: 0,  rotulo: "Baixo",    acao: "Somente registro para indicadores" }
+
+# ---------------------------------------------------------------------
+# 5. CASAMENTO DE ATIVOS (fingerprint)
+# ---------------------------------------------------------------------
+fingerprint:
+  tamanho_shingle: 5          # n-gramas de palavras
+  permutacoes_minhash: 128
+  limiar_correspondencia: 0.18   # Jaccard mínimo para declarar correspondência
+  limiar_alta_confianca: 0.45
+
+# ---------------------------------------------------------------------
+# 6. PRIVACIDADE DA PRÓPRIA FERRAMENTA
+# Uma solução que lê tudo que o colaborador digita é, ela mesma, risco.
+# ---------------------------------------------------------------------
+privacidade:
+  armazenar_conteudo_bruto: false     # só assinatura + metadados
+  retencao_assinaturas_dias: 400
+  retencao_trechos_evidencia_dias: 30
+  exige_dupla_aprovacao_para_identificar: true
+  campos_pseudonimizados_por_padrao: ["colaborador_nome", "colaborador_email"]

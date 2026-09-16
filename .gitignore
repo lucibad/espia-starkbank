@@ -1,0 +1,13 @@
+# Gerados
+__pycache__/
+*.pyc
+dados/*.db
+
+# Nunca, em hipótese alguma
+implantacao/.env
+implantacao/.env.dmz
+implantacao/segredos/*
+!implantacao/segredos/.gitkeep
+implantacao/certs/*
+!implantacao/certs/LEIA-ME.md
+*.anterior.*

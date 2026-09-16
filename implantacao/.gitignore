@@ -1,0 +1,8 @@
+# Nada daqui entra em repositório. Nunca.
+.env
+.env.dmz
+segredos/
+certs/*.key
+certs/*.crt
+!certs/LEIA-ME.md
+*.anterior.*

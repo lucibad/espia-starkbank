@@ -1,0 +1,65 @@
+# EspIA — gateway de notificação, DMZ.
+#
+# Roda em OUTRO host, em outra zona. É a única peça do sistema com saída para a
+# internet, e por isso é a menor de todas.
+#
+# O que ela NÃO tem, de propósito:
+#   · acesso ao PostgreSQL       — recebe a mensagem já montada, pela fila
+#   · acesso ao MinIO            — não guarda nada
+#   · conteúdo de evento         — a mensagem carrega ID, severidade e link
+#
+# Se este host for comprometido, o atacante ganha uma fila de identificadores e
+# três webhooks. Não ganha um único dado do banco. Esse é o desenho.
+#
+#   docker compose -f docker-compose.dmz.yml --env-file .env.dmz up -d
+
+name: espia-dmz
+
+secrets:
+  telegram_token:  { file: ./segredos/telegram_token }
+  slack_webhook:   { file: ./segredos/slack_webhook }
+  whatsapp_token:  { file: ./segredos/whatsapp_token }
+  fila_senha:      { file: ./segredos/fila_senha }
+
+services:
+  gateway-notificacao:
+    image: ${REGISTRO}/espia-notificacao:${TAG}
+    restart: unless-stopped
+    init: true
+    read_only: true
+    tmpfs: ["/tmp:size=32m"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    logging:
+      driver: "json-file"
+      options: { max-size: "50m", max-file: "5" }
+    environment:
+      TZ: ${TZ:-America/Sao_Paulo}
+
+      # A fila fica na VLAN de Segurança. O gateway CONSOME dela; não escreve.
+      ESPIA_FILA_URL: rediss://${REDIS_HOST}:6379/1
+      ESPIA_FILA_SENHA_FILE: /run/secrets/fila_senha
+      ESPIA_FILA_SOMENTE_LEITURA: "true"
+
+      # Todo tráfego de saída passa pelo proxy da DMZ, que tem allowlist.
+      HTTPS_PROXY: ${PROXY_SAIDA}
+      HTTP_PROXY: ${PROXY_SAIDA}
+      NO_PROXY: ${REDIS_HOST},localhost,127.0.0.1
+
+      ESPIA_CANAIS: ${CANAIS:-slack,email}
+      ESPIA_LINK_BASE: ${LINK_BASE}          # https://espia.interno/alertas/
+      ESPIA_WHATSAPP_BSP: ${WHATSAPP_BSP:-}
+      ESPIA_WHATSAPP_TEMPLATE: ${WHATSAPP_TEMPLATE:-espia_alerta_critico}
+      ESPIA_SMTP_HOST: ${SMTP_HOST:-}
+      ESPIA_MAX_TENTATIVAS: "5"
+      ESPIA_DLQ: "notificacao:dlq"
+    secrets: [telegram_token, slack_webhook, whatsapp_token, fila_senha]
+    volumes: ["./certs/ca-interna.crt:/certs/ca-interna.crt:ro"]
+    healthcheck:
+      test: ["CMD", "/app/saude.sh"]
+      interval: 30s
+      timeout: 5s
+      retries: 4
+    deploy:
+      resources:
+        limits: { cpus: "2", memory: 2G }
