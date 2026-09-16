@@ -19,6 +19,7 @@ Base oficial do Desafio 2 · Stark Bank.
 
     python3 run.py classificar "<texto>"    # demonstra fingerprint + detectores
     python3 run.py sintetico                # gerador sintético (demo da camada de captura)
+    python3 run.py coletor                  # ingestão do espia-borda: capturas + legado num painel só
 """
 
 from __future__ import annotations
@@ -182,6 +183,10 @@ def main() -> None:
             print('Uso: python3 run.py classificar "texto que iria para a IA"')
             sys.exit(1)
         _classificar(args[1])
+
+    elif comando == "coletor":
+        from espia import coletor
+        coletor.main()
 
     elif comando == "sintetico":
         from espia import pipeline

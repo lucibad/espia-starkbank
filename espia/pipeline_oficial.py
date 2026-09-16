@@ -28,6 +28,7 @@ from . import auditoria as au
 from . import base_oficial as bo
 from . import regras as rg
 from . import validacao as vl
+from . import captura as cp
 
 RAIZ = Path(__file__).resolve().parent.parent
 DIR_DADOS = RAIZ / "dados"
@@ -106,6 +107,17 @@ def executar(caminho_base: Path | None = None, verboso: bool = True) -> dict:
               f"{len(base.ferramentas)} ferramentas · {len(base.usuarios)} usuários "
               f"· {len(base.regras)} regras   [{base.leitor}]")
 
+    # O Excel é a CARGA LEGADA. As capturas do espia-borda já persistidas em
+    # `capturas` são o PRESENTE e entram na MESMA base, para o motor avaliar
+    # legado e presente com a mesma régua. Nada da base legada é alterado.
+    DIR_DADOS.mkdir(exist_ok=True)
+    caminho_db = DIR_DADOS / "espia.db"
+    con = sqlite3.connect(caminho_db, timeout=10)
+    cp.garantir_esquema(con)
+    n_capturas = cp.anexar_a_base(con, base)
+    if verboso and n_capturas:
+        print(f"   + {n_capturas} evento(s) capturados ao vivo (espia-borda) anexados à base")
+
     if verboso:
         print("→ aplicando as regras R01–R14…")
     motor = rg.MotorRegras(base)
@@ -116,12 +128,15 @@ def executar(caminho_base: Path | None = None, verboso: bool = True) -> dict:
         e.risco_espia = av.nivel
         e.regra_espia = av.regra_principal
 
-    concord_nivel = sum(1 for e in base.eventos if e.risco_espia == e.risco_declarado)
-    concord_regra = sum(1 for e in base.eventos if e.regra_espia == e.regra_declarada)
+    # Concordância e auditoria são sobre a base LEGADA: captura não tem risco
+    # declarado para divergir, e os indicadores declarados são da planilha.
+    legado = [e for e in base.eventos if e.origem_registro != cp.ORIGEM_CAPTURA]
+    concord_nivel = sum(1 for e in legado if e.risco_espia == e.risco_declarado)
+    concord_regra = sum(1 for e in legado if e.regra_espia == e.regra_declarada)
 
     if verboso:
-        n = len(base.eventos)
-        print(f"   concordância de nível com a base: {concord_nivel}/{n} "
+        n = len(legado)
+        print(f"   concordância de nível com a base legada: {concord_nivel}/{n} "
               f"({100*concord_nivel/n:.1f}%)")
 
     if verboso:
@@ -134,7 +149,8 @@ def executar(caminho_base: Path | None = None, verboso: bool = True) -> dict:
 
     if verboso:
         print("→ auditando a base…")
-    audit = au.Auditoria(base)
+    import dataclasses as _dc
+    audit = au.Auditoria(_dc.replace(base, eventos=legado))
     indicadores = audit.indicadores()
     achados = audit.achados()
     if verboso:
@@ -144,11 +160,8 @@ def executar(caminho_base: Path | None = None, verboso: bool = True) -> dict:
 
     if verboso:
         print("→ gravando SQLite…")
-    DIR_DADOS.mkdir(exist_ok=True)
-    caminho_db = DIR_DADOS / "espia.db"
-    if caminho_db.exists():
-        caminho_db.unlink()
-    con = sqlite3.connect(caminho_db)
+    # Não apaga mais o arquivo: o ESQUEMA recria só as tabelas derivadas.
+    # A tabela `capturas` (o presente) sobrevive ao `gerar`.
     con.executescript(ESQUEMA)
     _gravar(con, base, avaliacoes, resumo_val, indicadores, achados)
     con.commit()
@@ -297,11 +310,15 @@ def _payload(base, avaliacoes, resumo_val, indicadores, achados,
             "periodo": {"inicio": base.periodo[0], "fim": base.periodo[1]},
             "totais": {
                 "eventos": len(base.eventos), "alertas": len(base.alertas),
+                "legado": sum(1 for e in base.eventos if e.origem_registro != cp.ORIGEM_CAPTURA),
+                "capturas": sum(1 for e in base.eventos if e.origem_registro == cp.ORIGEM_CAPTURA),
                 "usuarios": len(base.usuarios), "ferramentas": len(base.ferramentas),
                 "tipos": len(base.tipos), "regras": len(base.regras), "areas": len(base.areas),
             },
             "concordancia": {
-                "nivel": concord_nivel, "regra": concord_regra, "total": len(base.eventos),
+                # numerador e denominador sobre a MESMA base: a legada
+                "nivel": concord_nivel, "regra": concord_regra,
+                "total": sum(1 for e in base.eventos if e.origem_registro != cp.ORIGEM_CAPTURA),
             },
         },
         "politica": {
