@@ -12,8 +12,8 @@ publicado não consegue:
     nunca vê a chave.
 
 Uso:
-    python3 app/agente.py            # http://127.0.0.1:8765
-    RASTRO_PORTA=9000 python3 app/agente.py
+    python3 borda/estacao/agente.py            # http://127.0.0.1:8765
+    RASTRO_PORTA=9000 python3 borda/estacao/agente.py
 
 Variáveis:
     ANTHROPIC_API_KEY   chave da API. Sem ela, identidade e trilha funcionam
@@ -374,7 +374,7 @@ def identidade_endpoint(corpo, remoto):
     A identidade vem então do endpoint: o host de mensagens nativas do
     Windows informa %USERNAME% (fonte 'nativo', não editável pela página);
     sem ele, a extensão manda um nome declarado (fonte 'declarado',
-    falsificável — só para teste). Ver docs/EXTENSAO.md.
+    falsificável — só para teste). Ver borda/EXTENSAO.md.
     """
     if not remoto:
         return ANALISTA, "so-local"

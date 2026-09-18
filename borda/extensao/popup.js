@@ -18,7 +18,7 @@ async function carregar() {
       $("hint").textContent =
         f === "agente-local" ? "Modo estação: identidade lida do Windows pelo agente local, que a carimba em cada evento. Host nativo não é necessário."
         : f === "nativo"     ? "Identidade lida do Windows pelo host nativo — não falsificável pela página."
-        : "Agente remoto sem host nativo: identidade é o nome declarado abaixo (falsificável, só teste). Instale o host nativo (docs/EXTENSAO.md).";
+        : "Agente remoto sem host nativo: identidade é o nome declarado abaixo (falsificável, só teste). Instale o host nativo (borda/EXTENSAO.md).";
     }
     if (r.saude && r.saude.ok) {
       $("saude").textContent = "conectado";
