@@ -142,6 +142,17 @@ O `index.html` ao lado **não é o painel** — é o corpo da versão publicada 
 **Sete vistas:** Panorama · Rastrear (a busca reversa) · Alertas (com cadeia de evidências) ·
 **Auditoria** · **Validação** · Política · Inventário.
 
+**Vista Captura** (só servida pelo coletor, `run.py coletor`) — o painel de administração da
+captura ao vivo: **Usuário × IA × tipo de alerta** (cada captura avaliada pelo motor, com a
+identidade marcada como verificada ou não), o pivot **Quem usou o quê** (contagem e pior risco por
+par usuário/ferramenta) e o **Inventário das IAs monitoradas**, editável só na máquina do coletor.
+Cadastrar um domínio ou mudar seu status (Aprovada / condicional / só conteúdo público / Não
+aprovada) **reclassifica as capturas daquela ferramenta pelo mesmo motor** na regeneração seguinte —
+aprovar o ChatGPT leva suas capturas de “Crítico R02” a “Alto R10”, pela própria precedência do EspIA.
+O inventário é a autoridade sobre nome e status das ferramentas que a planilha não lista (o
+`dominios_monitorados_url` da política de GPO); as oito da planilha aparecem ao lado, somente leitura.
+Aberto como arquivo, sem coletor, a vista explica como subir o servidor e aponta para Alertas.
+
 **Recorte compartilhado** — no Panorama e em Alertas há filtros de **risco (criticidade), área,
 usuário e período** (De/Até). É um só estado: o que se filtra numa vista vale na outra. No Panorama, todos os
 blocos recalculam sobre o recorte — KPIs, série diária (montada no navegador a partir dos

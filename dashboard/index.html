@@ -324,6 +324,7 @@ svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
       <button class="navbtn" data-vista="panorama">Panorama<span class="n" id="n-panorama"></span></button>
       <button class="navbtn" data-vista="rastrear">Rastrear<span class="n">⌕</span></button>
       <button class="navbtn" data-vista="alertas">Alertas<span class="n" id="n-alertas"></span></button>
+      <button class="navbtn" data-vista="captura">Captura<span class="n" id="n-captura"></span></button>
     </div>
 
     <div class="navgroup">
@@ -1081,6 +1082,177 @@ python3 run.py painel</div>
   }
 
   // ============================================================
+  // CAPTURA — inventário das IAs monitoradas + usos capturados ao vivo
+  // Só funciona servido pelo coletor (run.py coletor): lê e grava via /api.
+  // ============================================================
+
+  const API = s => fetch(s, { cache: "no-store" }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+  let INV = null;   // inventário em edição {dominio: {nome, status}}
+
+  function vistaCaptura() {
+    const caps = D.eventos.filter(e => e.id.startsWith("CAP-"));
+    document.getElementById("main").innerHTML = `
+      <div class="pagehead">
+        <h2>Captura ao vivo</h2>
+        <p>O que o coletor de borda (<span class="mono">espia-borda</span>) está registrando nas estações,
+        e o inventário das IAs externas que ele reconhece. A planilha continua sendo a carga legada;
+        aqui é o presente. Aprovar ou reprovar uma ferramenta reclassifica as capturas dela pelo mesmo motor.</p>
+      </div>
+      <div id="cap-status"><p class="nota">Conectando ao coletor…</p></div>
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(380px,1fr));align-items:start" id="cap-grid" hidden>
+        <div class="panel" style="grid-column:1/-1">
+          <div class="panel-h"><h3>Usuário × IA × tipo de alerta</h3><span class="hint" id="cap-usos-hint">capturas avaliadas pelo motor</span></div>
+          <div class="tw" style="max-height:52vh;overflow-y:auto" id="cap-usos"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><h3>Quem usou o quê</h3><span class="hint">contagem · pior risco na célula</span></div>
+          <div class="panel-b" id="cap-pivot"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><h3>Inventário das IAs monitoradas</h3><span class="hint" id="cap-inv-hint"></span></div>
+          <div class="panel-b" id="cap-inv"></div>
+        </div>
+      </div>`;
+
+    API("/api/saude").then(s => {
+      document.getElementById("cap-status").innerHTML = `<p class="nota" style="margin:0 0 14px">
+        Coletor <strong>${esc(s.papel)}</strong> · ${num(s.capturas)} captura(s) persistidas ·
+        ${num(caps.length)} já avaliadas neste painel · operador local: <span class="mono">${esc(s.analista_local)}</span>.</p>`;
+      document.getElementById("cap-grid").hidden = false;
+      return Promise.all([API("/api/eventos"), API("/api/inventario")]);
+    }).then(([ev, inv]) => {
+      renderCapUsos(ev.itens || []);
+      renderCapPivot(ev.itens || []);
+      INV = Object.fromEntries((inv.itens || []).map(i => [i.dominio, { nome: i.nome, status: i.status }]));
+      renderCapInv(inv.status_validos || [], !!inv.editavel);
+    }).catch(() => {
+      document.getElementById("cap-status").innerHTML = `
+        <div class="panel"><div class="panel-b" style="display:flex;flex-direction:column;gap:10px">
+          <p class="nota" style="margin:0"><strong>Esta vista precisa do coletor.</strong> O painel foi aberto como
+          arquivo, sem servidor por trás — então não há de onde ler as capturas ao vivo nem onde gravar o inventário.</p>
+          <div class="formula">cd caminho/da/pasta/espia
+ESPIA_BIND=0.0.0.0 python3 run.py coletor
+# depois abra  http://127.0.0.1:8765/</div>
+          <p class="nota" style="margin:0">As ${num(caps.length)} capturas já incorporadas continuam visíveis em
+          <strong>Alertas</strong> e <strong>Panorama</strong> (origem “Captura ao vivo”).</p>
+        </div></div>`;
+    });
+  }
+
+  function renderCapUsos(itens) {
+    const alvo = document.getElementById("cap-usos");
+    document.getElementById("cap-usos-hint").textContent = `${itens.length} captura(s) · mais recentes primeiro`;
+    if (!itens.length) { alvo.innerHTML = `<p class="vazio">Nenhuma captura ainda. Use uma IA numa estação com a extensão.</p>`; return; }
+    const fonteChip = f => (f === "so-local" || f === "agente-local" || f === "nativo")
+      ? `<span class="pill-ok" title="identidade lida do sistema operacional (${esc(f)})">✓ verificada</span>`
+      : `<span class="pill-nao" title="identidade ${esc(f || "ausente")}: declarada ou ausente">⚠ não verificada</span>`;
+    alvo.innerHTML = `<table>
+      <thead><tr><th>Quando</th><th>Usuário</th><th>IA</th><th>Informação</th><th>Tipo de alerta</th><th>Identidade</th></tr></thead>
+      <tbody>${itens.map(e => {
+        const u = userPorId[e.usuario_id];
+        return `<tr class="clicavel" data-evt-ir="${esc(e.id)}">
+          <td class="mono nowrap dim" style="font-size:12px">${dataHora(e.ts)}</td>
+          <td>${esc(u ? u.nome : e.usuario)}<br><span class="dim" style="font-size:11.5px">${esc(e.area || "")}${e.maquina ? " · " + esc(e.maquina) : ""}</span></td>
+          <td>${esc(e.ferramenta)}<br><span class="dim mono" style="font-size:11px">${esc(e.dominio || "")}</span></td>
+          <td>${esc(e.informacao)}<br>${chipCls(e.sensibilidade)}</td>
+          <td class="nowrap">${e.risco && e.risco !== "(aguardando gerar)" ? chipSev(e.risco) : `<span class="dim">${esc(e.risco || "")}</span>`} ${chipRegra(e.regra)}</td>
+          <td>${fonteChip(e.fonte)}</td>
+        </tr>`;
+      }).join("")}</tbody></table>`;
+  }
+
+  function renderCapPivot(itens) {
+    const alvo = document.getElementById("cap-pivot");
+    const validos = itens.filter(e => e.risco && e.risco !== "(aguardando gerar)");
+    if (!validos.length) { alvo.innerHTML = `<p class="vazio">Sem dados.</p>`; return; }
+    const users = [...new Set(validos.map(e => e.usuario))].sort();
+    const ferrs = [...new Set(validos.map(e => e.ferramenta))].sort();
+    const cel = {};
+    for (const e of validos) {
+      const k = e.usuario + "|" + e.ferramenta;
+      const c = cel[k] ||= { n: 0, pior: "Baixo" };
+      c.n++;
+      if (ORDEM_RISCO[e.risco] < ORDEM_RISCO[c.pior]) c.pior = e.risco;
+    }
+    alvo.innerHTML = `<div class="tw"><table>
+      <thead><tr><th>Usuário</th>${ferrs.map(f => `<th class="num">${esc(f)}</th>`).join("")}<th class="num">Total</th></tr></thead>
+      <tbody>${users.map(u => {
+        let tot = 0;
+        const cols = ferrs.map(f => {
+          const c = cel[u + "|" + f]; if (!c) return `<td class="num dim">·</td>`;
+          tot += c.n;
+          return `<td class="num"><span class="sev sev-${c.pior === "REVISAR" ? "Revisar" : slug(c.pior)}" title="pior risco: ${esc(c.pior)}">${c.n}</span></td>`;
+        }).join("");
+        return `<tr><td>${esc(u)}</td>${cols}<td class="num"><strong>${tot}</strong></td></tr>`;
+      }).join("")}</tbody></table></div>
+      <p class="nota" style="margin:10px 0 0;font-size:12px">A cor da célula é o pior risco entre os usos daquele par; o número, quantas vezes ocorreu.</p>`;
+  }
+
+  function renderCapInv(statusValidos, editavel) {
+    const alvo = document.getElementById("cap-inv");
+    document.getElementById("cap-inv-hint").textContent = editavel ? "editável — você está na máquina do coletor" : "somente leitura neste acesso";
+    const doms = Object.keys(INV).sort();
+    const sel = (d, atual) => `<select data-inv-status="${esc(d)}" ${editavel ? "" : "disabled"} style="width:100%;min-width:0;box-sizing:border-box">
+      ${statusValidos.map(s => `<option ${s === atual ? "selected" : ""}>${esc(s)}</option>`).join("")}</select>`;
+    const tagDe = s => { const f = { status: s, aprovada: s.toLowerCase().startsWith("aprovada") }; return chipStatusFerr(f); };
+    alvo.innerHTML = `
+      <div class="tw" style="max-height:48vh;overflow-y:auto"><table style="table-layout:fixed;min-width:520px">
+        <colgroup><col style="width:34%"><col style="width:34%"><col style="width:26%"><col style="width:6%"></colgroup>
+        <thead><tr><th>Domínio</th><th>Nome</th><th>Status</th><th></th></tr></thead>
+        <tbody>${doms.map(d => `
+          <tr>
+            <td class="mono" style="font-size:12px;word-break:break-all">${esc(d)}</td>
+            <td><input type="text" data-inv-nome="${esc(d)}" value="${esc(INV[d].nome)}" ${editavel ? "" : "disabled"}
+                 style="font:inherit;font-size:12.5px;width:100%;min-width:0;box-sizing:border-box;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:3px 6px"></td>
+            <td>${sel(d, INV[d].status)}<div style="margin-top:3px">${tagDe(INV[d].status)}</div></td>
+            <td>${editavel ? `<button class="sug" data-inv-del="${esc(d)}" title="remover" style="padding:2px 8px">×</button>` : ""}</td>
+          </tr>`).join("")}</tbody>
+      </table></div>
+      ${editavel ? `
+      <div class="filtros" style="margin:12px 0 0">
+        <input type="search" id="inv-dom" placeholder="dominio.com" style="min-width:180px">
+        <input type="search" id="inv-nome" placeholder="nome da IA" style="min-width:180px">
+        <button class="sug" id="inv-add">+ cadastrar</button>
+        <span style="flex:1"></span>
+        <button class="sug" id="inv-salvar" style="background:var(--accent);color:var(--surface);border-color:var(--accent);font-weight:600">Salvar inventário</button>
+      </div>
+      <p class="nota" id="inv-msg" style="margin:10px 0 0;font-size:12px">Salvar regenera o painel: as capturas das ferramentas alteradas são reclassificadas pelo motor (ex.: aprovar uma IA pública leva “Crítico R02” a “Alto R10”). A página recarrega sozinha.</p>`
+      : `<p class="nota" style="margin:10px 0 0;font-size:12px">O inventário só é editável na máquina onde o coletor roda — um endpoint remoto recebe 403.</p>`}
+      <div class="eyebrow" style="margin:16px 0 6px">Ferramentas da planilha (carga legada, somente leitura)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">${D.ferramentas.filter(f => !f.id.startsWith("IA-EXT-")).map(f =>
+        `<span class="tag" title="${esc(f.status)}">${esc(f.nome)} · ${esc(f.status)}</span>`).join("")}</div>`;
+
+    if (!editavel) return;
+    alvo.querySelectorAll("[data-inv-status]").forEach(s => s.addEventListener("change", () => {
+      INV[s.dataset.invStatus].status = s.value; renderCapInv(statusValidos, editavel);
+    }));
+    alvo.querySelectorAll("[data-inv-nome]").forEach(i => i.addEventListener("input", () => { INV[i.dataset.invNome].nome = i.value; }));
+    alvo.querySelectorAll("[data-inv-del]").forEach(b => b.addEventListener("click", () => {
+      delete INV[b.dataset.invDel]; renderCapInv(statusValidos, editavel);
+    }));
+    document.getElementById("inv-add").addEventListener("click", () => {
+      const d = document.getElementById("inv-dom").value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+      const n = document.getElementById("inv-nome").value.trim();
+      if (!d) return;
+      INV[d] = { nome: n || d, status: "Não aprovada" };
+      renderCapInv(statusValidos, editavel);
+    });
+    document.getElementById("inv-salvar").addEventListener("click", async () => {
+      const msg = document.getElementById("inv-msg");
+      msg.textContent = "Salvando e regenerando o painel…";
+      try {
+        const r = await fetch("/api/inventario", { method: "POST", headers: { "Content-Type": "application/json" },
+                                                    body: JSON.stringify({ inventario: INV }) });
+        if (!r.ok) throw new Error(r.status);
+        msg.textContent = "Salvo. Recarregando com as capturas reclassificadas…";
+        setTimeout(() => location.reload(), 2500);
+      } catch (e) {
+        msg.textContent = "Falha ao salvar (" + e.message + "). Só a máquina do coletor pode editar o inventário.";
+      }
+    });
+  }
+
+  // ============================================================
   // AUDITORIA
   // ============================================================
 
@@ -1411,7 +1583,7 @@ python3 run.py painel</div>
   // ============================================================
 
   const VISTAS = {
-    panorama: vistaPanorama, rastrear: vistaRastrear, alertas: vistaAlertas,
+    panorama: vistaPanorama, rastrear: vistaRastrear, alertas: vistaAlertas, captura: vistaCaptura,
     auditoria: vistaAuditoria, validacao: vistaValidacao, politica: vistaPolitica,
     inventario: vistaInventario
   };
@@ -1484,6 +1656,7 @@ python3 run.py painel</div>
   // contadores do rail
   document.getElementById("n-panorama").textContent = num(D.meta.totais.eventos);
   document.getElementById("n-alertas").textContent = num(D.alertas.length);
+  document.getElementById("n-captura").textContent = num(D.eventos.filter(e => e.id.startsWith("CAP-")).length);
   document.getElementById("n-auditoria").textContent = D.auditoria.length;
   document.getElementById("n-validacao").textContent =
     D.validacao.filter(v => v.passou).length + "/" + D.validacao.length;

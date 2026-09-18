@@ -54,7 +54,67 @@ CREATE TABLE IF NOT EXISTS capturas (
   titulo           TEXT NOT NULL,
   modo             TEXT NOT NULL    -- observacao | mascaramento | bloqueio
 );
+-- Inventário das IAs externas monitoradas: o admin cadastra e decide o status.
+-- É a autoridade sobre nome e aprovação das ferramentas que a planilha não
+-- lista (o `dominios_monitorados_url` da política de GPO do espia-borda).
+CREATE TABLE IF NOT EXISTS inventario_dominios (
+  dominio TEXT PRIMARY KEY,
+  nome    TEXT NOT NULL,
+  status  TEXT NOT NULL
+);
 """
+
+STATUS_VALIDOS = ("Aprovada", "Aprovada condicional",
+                  "Aprovada apenas para conteúdo público", "Não aprovada")
+
+# Semente do inventário na primeira execução. Reproduz o que o admin tinha no
+# protótipo anterior: só o Copilot (tenant corporativo) nasce aprovado.
+INVENTARIO_SEMENTE = {
+    "chatgpt.com": ("ChatGPT (OpenAI)", "Não aprovada"),
+    "chat.openai.com": ("ChatGPT (OpenAI)", "Não aprovada"),
+    "claude.ai": ("Claude (Anthropic)", "Não aprovada"),
+    "gemini.google.com": ("Gemini (Google)", "Não aprovada"),
+    "copilot.microsoft.com": ("Copilot (Microsoft)", "Aprovada"),
+    "m365.cloud.microsoft": ("Copilot (Microsoft)", "Aprovada"),
+    "chat.deepseek.com": ("DeepSeek", "Não aprovada"),
+    "perplexity.ai": ("Perplexity", "Não aprovada"),
+    "www.perplexity.ai": ("Perplexity", "Não aprovada"),
+    "poe.com": ("Poe", "Não aprovada"),
+    "huggingface.co": ("HuggingChat", "Não aprovada"),
+    "meta.ai": ("Meta AI", "Não aprovada"),
+    "www.meta.ai": ("Meta AI", "Não aprovada"),
+    "grok.com": ("Grok (xAI)", "Não aprovada"),
+    "x.com": ("Grok (xAI)", "Não aprovada"),
+}
+
+
+def inventario(con: sqlite3.Connection) -> dict:
+    """{dominio: {nome, status}}. Semeia na primeira vez."""
+    rows = con.execute("SELECT dominio, nome, status FROM inventario_dominios").fetchall()
+    if not rows:
+        con.executemany("INSERT INTO inventario_dominios VALUES (?,?,?)",
+                        [(d, n, s) for d, (n, s) in INVENTARIO_SEMENTE.items()])
+        con.commit()
+        rows = con.execute("SELECT dominio, nome, status FROM inventario_dominios").fetchall()
+    return {d: {"nome": n, "status": s} for d, n, s in rows}
+
+
+def gravar_inventario(con: sqlite3.Connection, inv: dict) -> dict:
+    """Substitui o inventário inteiro pelo que o admin enviou (saneado)."""
+    limpo = {}
+    for dom, meta in (inv or {}).items():
+        if not isinstance(meta, dict):
+            continue
+        d = str(dom).strip().lower().replace("https://", "").replace("http://", "").split("/")[0][:120]
+        if not d:
+            continue
+        status = meta.get("status") if meta.get("status") in STATUS_VALIDOS else "Não aprovada"
+        limpo[d] = {"nome": str(meta.get("nome") or d)[:80], "status": status}
+    with con:
+        con.execute("DELETE FROM inventario_dominios")
+        con.executemany("INSERT INTO inventario_dominios VALUES (?,?,?)",
+                        [(d, m["nome"], m["status"]) for d, m in limpo.items()])
+    return limpo
 
 
 def garantir_esquema(con: sqlite3.Connection) -> None:
@@ -148,20 +208,7 @@ def _usuario(base: bo.Base, nome: str) -> bo.Usuario:
     return u
 
 
-# Nome de exibição por domínio. A extensão manda "ChatGPT", o agente de estação
-# mandava "ChatGPT (OpenAI)": sem um nome canônico, a mesma ferramenta apareceria
-# com dois rótulos na tabela de auditoria, dependendo de quem capturou.
-NOMES_CANONICOS = {
-    "chatgpt.com": "ChatGPT (OpenAI)", "chat.openai.com": "ChatGPT (OpenAI)",
-    "claude.ai": "Claude (Anthropic)", "gemini.google.com": "Gemini (Google)",
-    "copilot.microsoft.com": "Copilot (Microsoft)", "m365.cloud.microsoft": "Copilot (Microsoft)",
-    "chat.deepseek.com": "DeepSeek", "perplexity.ai": "Perplexity", "www.perplexity.ai": "Perplexity",
-    "poe.com": "Poe", "huggingface.co": "HuggingChat", "meta.ai": "Meta AI", "www.meta.ai": "Meta AI",
-    "grok.com": "Grok (xAI)", "x.com": "Grok (xAI)",
-}
-
-
-def _ferramenta(base: bo.Base, nome: str, dominio: str, status_fer: str) -> bo.Ferramenta:
+def _ferramenta(base: bo.Base, nome: str, dominio: str, status_fer: str, inv: dict) -> bo.Ferramenta:
     # 1) ferramenta da planilha, pelo nome (legado)
     alvo = (nome or "").strip().lower()
     for f in base.ferramentas.values():
@@ -172,12 +219,15 @@ def _ferramenta(base: bo.Base, nome: str, dominio: str, status_fer: str) -> bo.F
     fid = f"IA-EXT-{_slug(dominio or nome)}"
     if fid in base.ferramentas:
         return base.ferramentas[fid]
-    # 3) ferramenta real que a planilha não lista. O que a estação informou vale;
-    #    sem informação, a postura conservadora: pública e não aprovada.
-    status = status_fer or "Não aprovada"
+    # 3) ferramenta real que a planilha não lista. O INVENTÁRIO do admin é a
+    #    autoridade sobre nome e status; sem cadastro, vale o que a estação
+    #    informou; sem nada, a postura conservadora: pública e não aprovada.
+    cad = inv.get((dominio or "").lower())
+    status = (cad["status"] if cad else None) or status_fer or "Não aprovada"
+    nome_exib = (cad["nome"] if cad else None) or nome or dominio
     aprovada = status.lower().startswith("aprovada")
     f = bo.Ferramenta(
-        id=fid, nome=NOMES_CANONICOS.get((dominio or "").lower(), nome or dominio),
+        id=fid, nome=nome_exib,
         tipo="Corporativa" if aprovada else "Pública", status=status,
         uso_principal="Detectada pela borda",
         logs="Sim" if aprovada else "Não",
@@ -234,6 +284,7 @@ def anexar_a_base(con: sqlite3.Connection, base: bo.Base) -> int:
     except sqlite3.OperationalError:
         return 0
 
+    inv = inventario(con)
     n = 0
     for (cap_id, ts, usuario, fonte, dominio, ferramenta, status_fer, forma, qtd,
          tipo, sens, finalidade, deteccoes_json, previa) in rows:
@@ -242,7 +293,7 @@ def anexar_a_base(con: sqlite3.Connection, base: bo.Base) -> int:
         except json.JSONDecodeError:
             deteccoes = []
         u = _usuario(base, usuario)
-        f = _ferramenta(base, ferramenta, dominio, status_fer)
+        f = _ferramenta(base, ferramenta, dominio, status_fer, inv)
         t = _tipo(base, tipo, sens, deteccoes)
         base.eventos.append(bo.Evento(
             id=cap_id, ts=_parse_ts(ts), ts_bruto=ts,

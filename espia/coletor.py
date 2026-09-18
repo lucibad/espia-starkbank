@@ -149,6 +149,13 @@ class Coletor(BaseHTTPRequestHandler):
                                "capturas": n, "painel": str(po.DIR_PAINEL / "painel.html")})
         if rota == "/api/eventos":
             return self._json({"itens": _eventos_recentes()})
+        if rota == "/api/inventario":
+            con = _conectar()
+            inv = cp.inventario(con)
+            con.close()
+            return self._json({"itens": [{"dominio": d, **m} for d, m in sorted(inv.items())],
+                               "status_validos": list(cp.STATUS_VALIDOS),
+                               "editavel": not self._remoto()})
         if rota in ("/", "/painel", "/painel.html"):
             painel = po.DIR_PAINEL / "painel.html"
             if not painel.exists():
@@ -165,6 +172,20 @@ class Coletor(BaseHTTPRequestHandler):
 
     def do_POST(self):
         rota = self.path.split("?")[0]
+        if rota == "/api/inventario":
+            # Só o admin, na máquina do coletor, muda o que é aprovado.
+            if self._remoto():
+                return self._json({"code": "somente_local",
+                                   "message": "inventário só é editável na máquina do coletor"}, 403)
+            corpo = self._corpo()
+            try:
+                con = _conectar()
+                inv = cp.gravar_inventario(con, corpo.get("inventario", {}))
+                con.close()
+            except Exception as e:
+                return self._json({"code": "erro_inventario", "message": str(e)[:160]}, 400)
+            _agendar_regeneracao(0.5)   # o status novo reclassifica as capturas
+            return self._json({"ok": True, "itens": len(inv), "painel_em": "~1s"})
         if rota not in ("/eventos", "/api/ingest"):
             return self._json({"code": "not_found"}, 404)
         corpo = self._corpo()
