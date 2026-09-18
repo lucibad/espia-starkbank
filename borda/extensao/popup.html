@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+  :root { color-scheme: light dark; }
+  body { width: 300px; margin: 0; font: 13px -apple-system, "Segoe UI", sans-serif;
+         background: #fff; color: #121820; }
+  @media (prefers-color-scheme: dark){ body{ background:#171c24; color:#eef1f6; } }
+  header { padding: 12px 14px; border-bottom: 1px solid #dde2e9; }
+  @media (prefers-color-scheme: dark){ header{ border-color:#293039; } }
+  h1 { margin: 0; font-size: 14px; }
+  h1 span { color: #1c4f9c; }
+  @media (prefers-color-scheme: dark){ h1 span{ color:#79aaf0; } }
+  .sub { margin: 2px 0 0; font-size: 11px; color: #8b94a1; }
+  main { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .linha { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .rot { font-size: 11px; color: #8b94a1; text-transform: uppercase; letter-spacing: .05em; }
+  .val { font-family: ui-monospace, Menlo, monospace; font-size: 12px; text-align: right; }
+  .ok { color: #0ca30c; } .off { color: #d03b3b; }
+  label { font-size: 11px; color: #8b94a1; display: block; margin-bottom: 3px; }
+  input { width: 100%; box-sizing: border-box; font-family: ui-monospace, Menlo, monospace;
+          font-size: 12px; padding: 6px 8px; border: 1px solid #dde2e9; border-radius: 4px;
+          background: #fafbfc; color: inherit; }
+  @media (prefers-color-scheme: dark){ input{ background:#1c222b; border-color:#293039; } }
+  button { width: 100%; padding: 8px; border: 0; border-radius: 4px; background: #1c4f9c;
+           color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; }
+  .hint { font-size: 11px; color: #8b94a1; line-height: 1.4; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>EspIA<span> · borda</span></h1>
+    <p class="sub">observando o uso de IA · conteúdo não sai da máquina</p>
+  </header>
+  <main>
+    <div class="linha"><span class="rot">Agente</span><span class="val" id="saude">verificando…</span></div>
+    <div class="linha"><span class="rot">Usuário</span><span class="val" id="usuario">—</span></div>
+    <div class="linha"><span class="rot">Enviados</span><span class="val" id="enviados">0</span></div>
+    <div>
+      <label for="url">Endereço do agente (127.0.0.1 = estação · IP do Mac = central)</label>
+      <input id="url" type="text" placeholder="http://10.211.55.2:8765">
+    </div>
+    <div id="campoDecl" hidden>
+      <label for="decl">Seu nome (só se o host nativo não estiver instalado)</label>
+      <input id="decl" type="text" placeholder="usuario.declarado">
+    </div>
+    <button id="salvar">Salvar</button>
+    <p class="hint" id="hint"></p>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

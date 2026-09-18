@@ -1,0 +1,66 @@
+{
+  "manifest_version": 3,
+  "name": "EspIA · borda",
+  "version": "0.2.0",
+  "description": "Coletor de borda do EspIA: registra, para governança, quando o usuário interage com ferramentas de IA. Detectores e fingerprint rodam localmente; o conteúdo não sai da máquina.",
+  "icons": {
+    "16": "icones/rastro-16.png",
+    "48": "icones/rastro-48.png",
+    "128": "icones/rastro-128.png"
+  },
+  "permissions": [
+    "storage",
+    "nativeMessaging",
+    "tabs"
+  ],
+  "host_permissions": [
+    "http://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "https://claude.ai/*",
+        "https://gemini.google.com/*",
+        "https://copilot.microsoft.com/*",
+        "https://m365.cloud.microsoft/*",
+        "https://chat.deepseek.com/*",
+        "https://www.perplexity.ai/*",
+        "https://perplexity.ai/*",
+        "https://poe.com/*",
+        "https://huggingface.co/chat/*",
+        "https://www.meta.ai/*",
+        "https://meta.ai/*",
+        "https://grok.com/*"
+      ],
+      "js": [
+        "config.js",
+        "detectores.js",
+        "fingerprint.js",
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icones/rastro-16.png",
+      "48": "icones/rastro-48.png"
+    }
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "rastro@starkbank.desafio2",
+      "strict_min_version": "121.0"
+    }
+  }
+}

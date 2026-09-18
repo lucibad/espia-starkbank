@@ -249,6 +249,14 @@ espia/
   detectores.py          CPF/CNPJ/Luhn/credencial e mascaramento.   │ demonstrada por
   acervo.py, simulador.py, shadow.py, motor_risco.py, pipeline.py   ┘ run.py classificar
 
+borda/                   O coletor de borda espia-borda — o que toca a estação do usuário.
+  extensao/              Extensão Chrome/Edge/Firefox (MV3): observa o envio de prompts,
+                         roda detectores + fingerprint localmente, reporta ao coletor.
+                         Conteúdo nunca sai da máquina. nativo-windows/ = host de identidade.
+  estacao/               Agente de estação (Windows): lê o usuário do SO, classifica local e
+                         encaminha ao coletor. Instalador PowerShell com autostart por usuário.
+  LEIA-ME.md             Como instalar nas estações e ligar ao `run.py coletor`.
+
 run.py                   CLI.
 testes.py                37 verificações de sanidade.
 testes_paridade.py       Paridade entre o motor Python e o do navegador.

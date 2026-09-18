@@ -1,0 +1,61 @@
+RASTRO — PACOTE DE INSTALAÇÃO (Windows)
+=======================================
+
+Este zip traz tudo que roda na máquina Windows, nos dois modos.
+
+Conteúdo
+--------
+  instalar.ps1        instalador raiz (escolhe o modo)
+  agente\             o agente de estação (agente.py + scripts)
+  extensao\           a extensão de navegador (+ host de identidade nativo)
+  LEIA-PRIMEIRO.txt   este arquivo
+
+Pré-requisitos
+--------------
+1. Python no Windows (https://www.python.org — marque "Add to PATH").
+2. O coletor central (o Mac) no ar e alcançável:
+       No Mac:  RASTRO_BIND=0.0.0.0 python3 app/agente.py
+       Teste do Windows:  abra http://10.211.55.2:8765/api/saude
+
+Escolha o modo
+--------------
+MODO ESTAÇÃO (recomendado — "um agente por máquina")
+  O agente roda aqui, lê o seu usuário do Windows sozinho, classifica local e
+  encaminha ao Mac. Dispensa o host de identidade nativo.
+  No PowerShell, nesta pasta, logado como o usuário de teste:
+
+      .\instalar.ps1 -Modo estacao
+
+  Depois, no popup da extensão, aponte o agente para http://127.0.0.1:8765
+
+MODO EXTENSÃO (Mac central)
+  Só a extensão + host de identidade; o cérebro fica no Mac. Precisa do ID da
+  extensão (aparece em chrome://extensions após carregá-la).
+
+      .\instalar.ps1 -Modo extensao -ChromiumIds "COLE_O_ID_AQUI"
+
+  Depois, no popup, aponte o agente para http://10.211.55.2:8765
+
+Carregar a extensão (manual, nos dois modos)
+--------------------------------------------
+Os navegadores não deixam um script instalar extensão fora da loja. O
+instalador imprime os passos; em resumo:
+  Chrome/Edge: chrome://extensions -> Modo do desenvolvedor ->
+               Carregar sem compactação -> pasta "extensao"
+  Firefox:     about:debugging -> Carregar complemento temporário ->
+               extensao\manifest.json
+
+Vários usuários do Windows
+--------------------------
+Rode o instalar.ps1 uma vez logado como CADA usuário de teste. No modo estação,
+cada usuário inicia o próprio agente no login e os eventos chegam ao Mac já com
+o usuário certo. (Um usuário por vez — a porta local 8765 é compartilhada.)
+
+Se algo falhar
+--------------
+- http://127.0.0.1:8765/api/saude não responde: o agente não subiu (Python?).
+- http://10.211.55.2:8765/api/saude não responde do Windows: o Mac não está com
+  RASTRO_BIND=0.0.0.0, ou o Firewall do macOS está bloqueando o Python.
+- PowerShell recusa rodar o .ps1: rode uma vez
+      Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+  e chame o script de novo.

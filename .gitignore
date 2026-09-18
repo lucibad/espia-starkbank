@@ -11,3 +11,6 @@ implantacao/segredos/*
 implantacao/certs/*
 !implantacao/certs/LEIA-ME.md
 *.anterior.*
+
+# macOS
+.DS_Store

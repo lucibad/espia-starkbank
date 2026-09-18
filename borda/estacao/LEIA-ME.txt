@@ -1,0 +1,51 @@
+RASTRO — AGENTE DE ESTAÇÃO (Windows)
+====================================
+
+O que é
+-------
+O mesmo agente do Rastro, rodando NESTA máquina Windows. Ele lê o seu usuário
+do Windows direto do sistema (identidade confiável, sem host nativo), roda a
+camada 1 aqui, guarda uma cópia local e ENCAMINHA cada evento ao coletor
+central (o Mac).
+
+É a diferença para o outro modo:
+  - Modo "Mac central": a extensão fala direto com o Mac; a identidade vem do
+    host de mensagens nativas (extensao/nativo-windows).
+  - Modo "agente na estação" (ESTE): a extensão fala com o agente LOCAL em
+    127.0.0.1; o agente lê o usuário do Windows sozinho e repassa ao Mac.
+
+Pré-requisitos
+--------------
+1. Python instalado no Windows (https://www.python.org — marque "Add to PATH").
+2. O coletor central (o Mac) no ar, aberto à rede:
+       RASTRO_BIND=0.0.0.0 python3 app/agente.py
+   e alcançável em http://10.211.55.2:8765 de dentro do Windows.
+
+Instalar (logado como o usuário que vai testar)
+-----------------------------------------------
+No PowerShell, dentro desta pasta:
+
+    .\instalar-agente.ps1
+
+ou com endereço/porta explícitos:
+
+    .\instalar-agente.ps1 -Coletor "http://10.211.55.2:8765" -Porta 8765
+
+Isso: gera o lançador, cria um atalho na Inicialização (roda a cada login) e
+inicia o agente agora. Confira em http://127.0.0.1:8765/api/saude.
+
+Extensão, neste modo
+--------------------
+Aponte a extensão deste PC para  http://127.0.0.1:8765  (o agente local),
+não para o Mac. Não precisa instalar o host de identidade nativo — o agente
+já sabe quem é o usuário.
+
+Vários usuários do Windows
+--------------------------
+Rode o instalar-agente.ps1 uma vez logado como CADA usuário de teste. Cada um
+inicia o próprio agente no login e, por isso, os eventos chegam ao Mac com o
+usuário certo. (Rode um usuário por vez — todos usam a porta 8765 local.)
+
+Remover
+-------
+    .\desinstalar-agente.ps1
