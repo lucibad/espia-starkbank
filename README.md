@@ -142,8 +142,8 @@ O `index.html` ao lado **não é o painel** — é o corpo da versão publicada 
 **Sete vistas:** Panorama · Rastrear (a busca reversa) · Alertas (com cadeia de evidências) ·
 **Auditoria** · **Validação** · Política · Inventário.
 
-**Recorte compartilhado** — no Panorama e em Alertas há filtros de **área, usuário e período**
-(De/Até). É um só estado: o que se filtra numa vista vale na outra. No Panorama, todos os
+**Recorte compartilhado** — no Panorama e em Alertas há filtros de **risco (criticidade), área,
+usuário e período** (De/Até). É um só estado: o que se filtra numa vista vale na outra. No Panorama, todos os
 blocos recalculam sobre o recorte — KPIs, série diária (montada no navegador a partir dos
 eventos filtrados), área × sensibilidade, ferramentas e alertas por situação. Concordância
 com a base e validação seguem globais, porque são medidas da base legada, não do recorte.

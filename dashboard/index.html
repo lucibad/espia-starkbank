@@ -456,7 +456,8 @@ python3 run.py painel</div>
   function recorte() {
     const { de, ate } = periodoNormalizado();
     return D.eventos.filter(e =>
-      (!estado.fArea || e.area === estado.fArea)
+      (!estado.fRisco || e.risco === estado.fRisco)
+      && (!estado.fArea || e.area === estado.fArea)
       && (!estado.fUsuario || e.usuario_id === estado.fUsuario)
       && (!de || e.data >= de) && (!ate || e.data <= ate));
   }
@@ -472,6 +473,7 @@ python3 run.py painel</div>
   }
   function partesRecorte() {
     const { de, ate } = periodoNormalizado(), p = [];
+    if (estado.fRisco) p.push(`risco ${estado.fRisco.toLowerCase()}`);
     if (estado.fArea) p.push(estado.fArea);
     if (estado.fUsuario && userPorId[estado.fUsuario]) p.push(userPorId[estado.fUsuario].nome);
     if (de || ate) p.push((de ? dataBR(de) : "início") + " a " + (ate ? dataBR(ate) : "fim"));
@@ -481,6 +483,8 @@ python3 run.py painel</div>
     const { de, ate } = periodoNormalizado();
     return `
       <div class="filtros">
+        <label>Risco <select id="${pref}-risco"><option value="">todos</option>
+          ${NIVEIS.map(n => `<option value="${n}" ${estado.fRisco === n ? "selected" : ""}>${n}</option>`).join("")}</select></label>
         <label>Área <select id="${pref}-area"><option value="">todas</option>
           ${areas.map(a => `<option value="${esc(a)}" ${estado.fArea === a ? "selected" : ""}>${esc(a)}</option>`).join("")}</select></label>
         <label>Usuário <select id="${pref}-usuario"><option value="">todos</option>
@@ -492,7 +496,7 @@ python3 run.py painel</div>
       </div>`;
   }
   function ligarRecorte(pref, aoMudar) {
-    for (const [suf, campo] of [["area", "fArea"], ["usuario", "fUsuario"], ["de", "fDe"], ["ate", "fAte"]]) {
+    for (const [suf, campo] of [["risco", "fRisco"], ["area", "fArea"], ["usuario", "fUsuario"], ["de", "fDe"], ["ate", "fAte"]]) {
       const el = document.getElementById(`${pref}-${suf}`);
       if (!el) continue;
       el.addEventListener("change", ev => {
