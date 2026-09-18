@@ -27,7 +27,7 @@ chamado `espia-borda` — mas o código desse coletor não existia. Esta extens�
 **Por que um protótipo de laptop?** A ingestão de produção do EspIA é um stack
 Docker (Postgres, Redis, MinIO, `espia-ingestao:8443`) com imagens de um
 registro interno do banco e certificados da PKI interna. Ela **não roda fora
-do ambiente do banco**. O coletor `app/agente.py` é a versão de laptop que
+do ambiente do banco**. O coletor `borda/estacao/agente.py` é a versão de laptop que
 prova o `espia-borda` funcionando — mesma espec, mesmos detectores, mesmo
 fingerprint — para a demonstração no Parallels.
 
@@ -61,7 +61,7 @@ e para onde a extensão aponta.
 O modo estação é o da doc de arquitetura: o agente classifica localmente, guarda
 uma cópia e encaminha ao coletor central. É também o mais limpo para identidade —
 como o agente roda na sessão do usuário, `getpass.getuser()` já é o usuário certo,
-sem host nativo. Instalação em `app/windows/` (pacote `rastro-agente-win.zip`);
+sem host nativo. Instalação em `borda/estacao/` (pacote `rastro-agente-win.zip`);
 passo a passo no `LEIA-ME.txt` de lá.
 
 ## A topologia deste teste (modo Mac central)
@@ -69,7 +69,7 @@ passo a passo no `LEIA-ME.txt` de lá.
 ```
    MacBook (host)                         Windows no Parallels
 ┌────────────────────┐   HTTP /api/ingest   ┌─────────────────────────┐
-│ app/agente.py      │◀─────────────────────│ Chrome / Edge / Firefox │
+│ borda/estacao/agente.py      │◀─────────────────────│ Chrome / Edge / Firefox │
 │ RASTRO_BIND=0.0.0.0│   10.211.55.2:8765   │  + extensão Rastro       │
 │ SQLite, IA, config │                      │  + host de identidade    │
 │ console + admin    │─────────────────────▶│  (vários usuários Win)   │
@@ -99,17 +99,17 @@ dentro do Windows, que `http://10.211.55.2:8765/api/saude` responde. Se não
 responder, veja **Rede** abaixo. O painel unificado (legado + capturas) fica em
 `http://127.0.0.1:8765/` no Mac — o mesmo de `python3 run.py painel`.
 
-> O `app/agente.py` deste repositório também sabe ser coletor central
+> O `borda/estacao/agente.py` deste repositório também sabe ser coletor central
 > (`RASTRO_BIND=0.0.0.0`), mas ele grava num banco próprio, separado do EspIA.
 > Use-o no Mac só se quiser o console de protótipo em vez do painel oficial.
 
 ### 2. No Windows — instalar a extensão (uma vez por navegador)
 
-Copie a pasta `extensao/` para o Windows (pasta compartilhada do Parallels serve).
+Copie a pasta `borda/extensao/` para o Windows (pasta compartilhada do Parallels serve).
 
 - **Chrome / Edge:** abra `chrome://extensions` (ou `edge://extensions`), ligue
   o **Modo do desenvolvedor**, clique **Carregar sem compactação** e aponte para
-  a pasta `extensao/`. Anote o **ID** que aparece.
+  a pasta `borda/extensao/`. Anote o **ID** que aparece.
 - **Firefox:** abra `about:debugging#/runtime/this-firefox` → **Carregar
   complemento temporário** → selecione `extensao/manifest.json`.
 

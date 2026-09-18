@@ -18,7 +18,7 @@ Pré-requisitos
 --------------
 1. Python instalado no Windows (https://www.python.org — marque "Add to PATH").
 2. O coletor central (o Mac) no ar, aberto à rede:
-       RASTRO_BIND=0.0.0.0 python3 app/agente.py
+       ESPIA_BIND=0.0.0.0 python3 run.py coletor
    e alcançável em http://10.211.55.2:8765 de dentro do Windows.
 
 Instalar (logado como o usuário que vai testar)

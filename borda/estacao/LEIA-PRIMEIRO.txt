@@ -6,15 +6,15 @@ Este zip traz tudo que roda na máquina Windows, nos dois modos.
 Conteúdo
 --------
   instalar.ps1        instalador raiz (escolhe o modo)
-  agente\             o agente de estação (agente.py + scripts)
-  extensao\           a extensão de navegador (+ host de identidade nativo)
+  estacao\            o agente de estação (agente.py + scripts) — neste repositório: borda\estacao
+  extensao\           a extensão de navegador (+ host de identidade nativo) — neste repositório: borda\extensao
   LEIA-PRIMEIRO.txt   este arquivo
 
 Pré-requisitos
 --------------
 1. Python no Windows (https://www.python.org — marque "Add to PATH").
 2. O coletor central (o Mac) no ar e alcançável:
-       No Mac:  RASTRO_BIND=0.0.0.0 python3 app/agente.py
+       No Mac:  ESPIA_BIND=0.0.0.0 python3 run.py coletor
        Teste do Windows:  abra http://10.211.55.2:8765/api/saude
 
 Escolha o modo
