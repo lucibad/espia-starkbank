@@ -148,17 +148,36 @@ def _usuario(base: bo.Base, nome: str) -> bo.Usuario:
     return u
 
 
+# Nome de exibição por domínio. A extensão manda "ChatGPT", o agente de estação
+# mandava "ChatGPT (OpenAI)": sem um nome canônico, a mesma ferramenta apareceria
+# com dois rótulos na tabela de auditoria, dependendo de quem capturou.
+NOMES_CANONICOS = {
+    "chatgpt.com": "ChatGPT (OpenAI)", "chat.openai.com": "ChatGPT (OpenAI)",
+    "claude.ai": "Claude (Anthropic)", "gemini.google.com": "Gemini (Google)",
+    "copilot.microsoft.com": "Copilot (Microsoft)", "m365.cloud.microsoft": "Copilot (Microsoft)",
+    "chat.deepseek.com": "DeepSeek", "perplexity.ai": "Perplexity", "www.perplexity.ai": "Perplexity",
+    "poe.com": "Poe", "huggingface.co": "HuggingChat", "meta.ai": "Meta AI", "www.meta.ai": "Meta AI",
+    "grok.com": "Grok (xAI)", "x.com": "Grok (xAI)",
+}
+
+
 def _ferramenta(base: bo.Base, nome: str, dominio: str, status_fer: str) -> bo.Ferramenta:
+    # 1) ferramenta da planilha, pelo nome (legado)
     alvo = (nome or "").strip().lower()
     for f in base.ferramentas.values():
         if f.nome.strip().lower() == alvo:
             return f
-    # Ferramenta real que a planilha não lista. O que a estação informou vale;
-    # sem informação, a postura conservadora: pública e não aprovada.
+    # 2) ferramenta já registrada por captura anterior do MESMO domínio: o id é
+    #    derivado do domínio, então é estável — independe do nome que veio.
+    fid = f"IA-EXT-{_slug(dominio or nome)}"
+    if fid in base.ferramentas:
+        return base.ferramentas[fid]
+    # 3) ferramenta real que a planilha não lista. O que a estação informou vale;
+    #    sem informação, a postura conservadora: pública e não aprovada.
     status = status_fer or "Não aprovada"
     aprovada = status.lower().startswith("aprovada")
     f = bo.Ferramenta(
-        id=f"IA-EXT-{_slug(dominio or nome)}", nome=nome or dominio,
+        id=fid, nome=NOMES_CANONICOS.get((dominio or "").lower(), nome or dominio),
         tipo="Corporativa" if aprovada else "Pública", status=status,
         uso_principal="Detectada pela borda",
         logs="Sim" if aprovada else "Não",
