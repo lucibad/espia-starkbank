@@ -1136,8 +1136,9 @@ python3 run.py painel</div>
     }).catch(() => {
       document.getElementById("cap-status").innerHTML = `
         <div class="panel"><div class="panel-b" style="display:flex;flex-direction:column;gap:10px">
-          <p class="nota" style="margin:0"><strong>Esta vista precisa do coletor.</strong> O painel foi aberto como
-          arquivo, sem servidor por trás — então não há de onde ler as capturas ao vivo nem onde gravar o inventário.</p>
+          <p class="nota" style="margin:0"><strong>Esta vista precisa do coletor.</strong> Este painel está sendo exibido sem o
+          coletor por trás — como arquivo local ou numa publicação estática (GitHub Pages) — então não há de onde
+          ler as capturas ao vivo nem onde gravar o inventário. As capturas já incorporadas estão abaixo e nas outras vistas.</p>
           <div class="formula">cd caminho/da/pasta/espia
 ESPIA_BIND=0.0.0.0 python3 run.py coletor
 # depois abra  http://127.0.0.1:8765/</div>
