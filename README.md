@@ -130,6 +130,20 @@ Windows informou (`agente-local` / `nativo`); um nome só declarado fica marcado
 Concordância e auditoria continuam medidas **só sobre o legado** — captura não tem risco
 declarado para divergir, e os indicadores declarados são da planilha.
 
+### Dois sensores na borda, um coletor
+
+A borda tem **duas fontes**, complementares, e nenhuma lê tráfego cifrado:
+
+- **Extensão de navegador** (`borda/extensao/`) — vê o **conteúdo** que o usuário digita
+  numa IA no navegador, roda detectores + fingerprint localmente e reporta o **metadado**
+  ao coletor. O conteúdo não sai da máquina. Empacote com `bash borda/empacotar.sh`.
+- **Sensor de rede** (`borda/estacao/sensor.py`) — vê que a **máquina** abriu conexão com
+  uma IA, **de qualquer programa** (app de desktop, Cursor, um script, o Copilot do Windows),
+  casando conexões contra um índice de IPs de IA + o cache de DNS do Windows + o processo dono.
+  Registra **metadado, nunca conteúdo** (o tráfego é TLS; ler o texto exigiria MITM, que não
+  fazemos). Instala-se como **Serviço do Windows** que sobe no boot e **exige senha** para ser
+  pausado ou desinstalado — `borda/estacao/servico/`.
+
 ### O painel
 
 # ┌──────────────────────────────────────────────────────────┐
@@ -255,6 +269,12 @@ borda/                   O coletor de borda espia-borda — o que toca a estaç�
                          Conteúdo nunca sai da máquina. nativo-windows/ = host de identidade.
   estacao/               Agente de estação (Windows): lê o usuário do SO, classifica local e
                          encaminha ao coletor. Instalador PowerShell com autostart por usuário.
+    sensor.py            Sensor de rede: registra que a MÁQUINA falou com uma IA — de
+                         qualquer app, não só do navegador (metadado, nunca conteúdo).
+    servico/             Empacota o sensor como Serviço do Windows (pywin32): sobe no
+                         boot, reinicia se cair, e exige SENHA para pausar/desinstalar.
+  pacotes/               Extensões empacotadas (.zip) por `empacotar.sh` — Chrome/Edge e Firefox.
+  empacotar.sh           Gera os .zip da extensão a partir de extensao/.
   LEIA-ME.md             Como instalar nas estações e ligar ao `run.py coletor`.
 
 run.py                   CLI.
@@ -315,6 +335,11 @@ Diga estes na apresentação, antes que perguntem.
   vira índice LSH por bandas. A matemática é a mesma.
 - **Paráfrase não é detectada.** O fingerprint pega recorte, reformatação e colagem — não pega
   quem reescreve o documento com as próprias palavras.
+- **O sensor de rede vê conexão, não conteúdo.** Ele prova que a máquina falou com uma IA
+  e por qual processo — não o que foi enviado (TLS). Um IP de CDN compartilhado pode gerar
+  falso-positivo; por isso cada evento carrega o sinal que o gerou (`via`). A trava de senha
+  do serviço barra usuários comuns e o admin casual; contra um admin determinado, blindagem
+  absoluta exige MDM/EDR — dito no LEIA-ME do serviço.
 - **R10 é aplicada como a base a aplica**, não como o texto dela diz. O texto fala em finalidade
   incompatível; a base usa a regra para informação crítica em ambiente aprovado. Mantivemos o
   comportamento da base e registramos a divergência no achado A-04.
