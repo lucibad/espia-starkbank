@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-EspIA — interface de linha de comando.
+GerencIA — interface de linha de comando.
 
 Base oficial do Desafio 2 · Stark Bank.
 
@@ -29,7 +29,7 @@ from pathlib import Path
 
 if sys.version_info < (3, 9):
     sys.exit(
-        f"EspIA precisa de Python 3.9 ou superior (encontrado {sys.version.split()[0]}).\n"
+        f"GerencIA precisa de Python 3.9 ou superior (encontrado {sys.version.split()[0]}).\n"
         "No macOS: brew install python@3.12 — ou rode com o python3 mais novo que você tiver."
     )
 
@@ -86,7 +86,7 @@ def main() -> None:
         print(f"Em ferramenta não aprovada ................... {_n(p['nao_aprovadas'])}"
               f"  ({100*p['nao_aprovadas']/p['eventos']:.1f}%)")
         print()
-        print("Risco apurado pela EspIA        Risco declarado na base")
+        print("Risco apurado pela GerencIA        Risco declarado na base")
         for nivel in ("Crítico", "Alto", "Médio", "Baixo", "REVISAR"):
             a = p["por_risco"].get(nivel, 0)
             b = p["por_risco_base"].get(nivel, 0)

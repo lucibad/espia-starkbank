@@ -1,5 +1,5 @@
 """
-EspIA — Acervo sintético de informação corporativa.
+GerencIA — Acervo sintético de informação corporativa.
 
 ATENÇÃO: todo o conteúdo deste módulo é FICTÍCIO, gerado para demonstração
 do Desafio 2 da Stark Bank. Nomes de pessoas, clientes, valores, números de

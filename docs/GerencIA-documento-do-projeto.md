@@ -1,4 +1,4 @@
-# EspIA — Documento do Projeto
+# GerencIA — Documento do Projeto
 
 **Desafio 2 · Stark Bank — Rastreabilidade e Governança de Informações em IA**
 
@@ -35,7 +35,7 @@ Versão de 16/09/2026.
 
 ## 1. Resumo executivo
 
-A EspIA lê a base oficial do desafio — 650 eventos de uso de IA, 160 alertas, 8 ferramentas,
+A GerencIA lê a base oficial do desafio — 650 eventos de uso de IA, 160 alertas, 8 ferramentas,
 20 tipos de informação, 72 usuários e 14 regras —, reaplica a política do zero, torna a
 informação rastreável pelo nome do documento e **audita a rotulagem que recebeu**.
 
@@ -99,7 +99,7 @@ Período: **01/06 a 08/09/2026**, 100 dias.
 
 **1. A planilha é a saída de uma camada que já existe.** As colunas `Tipo informação` e
 `Sensibilidade` chegam preenchidas, e o dicionário de dados diz que a origem delas é
-*"Classificador/DLP"*. A EspIA consome essa saída, aplica as regras, audita e torna
+*"Classificador/DLP"*. A GerencIA consome essa saída, aplica as regras, audita e torna
 consultável.
 
 **2. A captura já é híbrida na prática.** Os 650 eventos vieram de quatro caminhos:
@@ -124,7 +124,7 @@ própria casa.
 | | |
 |---|---|
 | **O que quase todos vão fazer** | "O usuário X acessou a ferramenta Y às 14h" |
-| **O que a EspIA faz** | *"Chave/API secret apareceu em 5 ferramentas, com 11 pessoas, 35 vezes — 3 delas em IA pública"* |
+| **O que a GerencIA faz** | *"Chave/API secret apareceu em 5 ferramentas, com 11 pessoas, 35 vezes — 3 delas em IA pública"* |
 
 A primeira frase é log de atividade. A segunda é **linhagem de dado**. A busca começa pelo
 documento, não pelo funcionário — que é como a pergunta norteadora está escrita.
@@ -138,7 +138,7 @@ documento, não pelo funcionário — que é como a pergunta norteadora está es
 Esta é a tese que a base oficial tornou demonstrável, e é o que separa uma ferramenta de
 governança de um painel bonito.
 
-A base já traz uma coluna `Risco` preenchida por um motor de regras. A EspIA **reaplica as
+A base já traz uma coluna `Risco` preenchida por um motor de regras. A GerencIA **reaplica as
 catorze regras do zero**, compara com o que está lá, recalcula os dez indicadores declarados e
 procura defeitos na rotulagem.
 
@@ -154,7 +154,7 @@ As catorze regras vêm da planilha e **não estão reescritas no código** — o
 são lidos da aba `Regras_Risco`. Se Compliance editar a planilha e rodar `python3 run.py gerar`,
 o motor muda de comportamento sem uma linha de código tocada.
 
-O que a EspIA acrescenta é a **ordem de precedência**, porque política escrita em linguagem
+O que a GerencIA acrescenta é a **ordem de precedência**, porque política escrita em linguagem
 natural se sobrepõe e se contradiz — e é essa ordem que uma auditoria questiona.
 
 ```
@@ -323,7 +323,7 @@ dos 6,8% declarados**. Um indicador ambíguo é um indicador que ninguém conseg
 
 ### Risco
 
-| Nível | EspIA | Base |
+| Nível | GerencIA | Base |
 |---|---|---|
 | Crítico | 74 | 74 |
 | Alto | **94** | 86 |
@@ -624,7 +624,7 @@ testes.py                37 verificações.
 ## 14-A. A arquitetura de implantação
 
 Este documento descreve o protótipo. O documento irmão —
-**`EspIA-arquitetura.md`** — descreve o sistema de produção que ele antecipa:
+**`GerencIA-arquitetura.md`** — descreve o sistema de produção que ele antecipa:
 
 - **On-premise total.** A VLAN de segurança não tem rota para a internet; a única saída é um
   proxy na DMZ com allowlist de três domínios.
@@ -647,7 +647,7 @@ Este documento descreve o protótipo. O documento irmão —
 ## 14-B. A instalação no ambiente
 
 Arquitetura responde *como o sistema é*. A pergunta seguinte é sempre *como isso entra aqui* —
-e essa é a que trava projeto. O terceiro documento, **`EspIA-implantacao.md`**, é o runbook,
+e essa é a que trava projeto. O terceiro documento, **`GerencIA-implantacao.md`**, é o runbook,
 e `implantacao/` é o pacote que o executa:
 
 ```bash
@@ -706,8 +706,8 @@ Em ordem de retorno sobre esforço:
 | **13/09/2026** | Primeira versão. Conceito, arquitetura de captura híbrida, motor de risco com score ponderado e cadeia de evidências, sobre uma base sintética de 90 dias gerada por código |
 | **15/09/2026** | **Reconstrução sobre a base oficial do desafio.** Importador das 12 abas, motor das 14 regras com precedência declarada, validação contra os 15 casos do gabarito, auditoria com recálculo dos indicadores e seis achados de rotulagem. Painel refeito com sete vistas |
 | **16/09/2026** | Correções de entrega: o pacote passou a incluir o `dados.js`, e o `index.html` ganhou aviso e link para o `painel.html` quando aberto sem dados |
-| **16/09/2026** | **Console de políticas e arquitetura de implantação.** Precedência corrigida para citar a regra específica antes da genérica (o defeito que o achado A-02 aponta), motor portado para o navegador com teste de paridade, console com simulação e trava no gabarito, e o documento `EspIA-arquitetura.md` com os quatro modelos de IA clássica e a topologia on-premise |
-| **16/09/2026** | **Pacote de implantação.** `EspIA-implantacao.md` (runbook de 16 seções) e `implantacao/`: preflight do ambiente, instalação idempotente por onda, verificação de fluxo e de isolamento, esquema PostgreSQL de produção com trilha append-only e política versionada, RBAC com Row Level Security, 18 regras de firewall, configuração dos quatro coletores, backup com teste de restauração e a alternativa por systemd |
+| **16/09/2026** | **Console de políticas e arquitetura de implantação.** Precedência corrigida para citar a regra específica antes da genérica (o defeito que o achado A-02 aponta), motor portado para o navegador com teste de paridade, console com simulação e trava no gabarito, e o documento `GerencIA-arquitetura.md` com os quatro modelos de IA clássica e a topologia on-premise |
+| **16/09/2026** | **Pacote de implantação.** `GerencIA-implantacao.md` (runbook de 16 seções) e `implantacao/`: preflight do ambiente, instalação idempotente por onda, verificação de fluxo e de isolamento, esquema PostgreSQL de produção com trilha append-only e política versionada, RBAC com Row Level Security, 18 regras de firewall, configuração dos quatro coletores, backup com teste de restauração e a alternativa por systemd |
 
 ---
 

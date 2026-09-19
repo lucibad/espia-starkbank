@@ -1,4 +1,4 @@
-// EspIA — Detectores de conteúdo sensível na borda.
+// GerencIA — Detectores de conteúdo sensível na borda.
 //
 // Porte fiel de espia/detectores.py. Rodam no cliente e devolvem apenas
 // CONTAGENS e tipos, nunca os valores encontrados. É a diferença entre um

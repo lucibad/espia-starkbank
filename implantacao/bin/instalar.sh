@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# EspIA — instalação.
+# GerencIA — instalação.
 #
 #   ./instalar.sh --perfil piloto --onda 0
 #   ./instalar.sh --perfil corporativo --onda 2

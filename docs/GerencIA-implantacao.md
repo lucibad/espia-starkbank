@@ -1,9 +1,9 @@
-# EspIA — Implantação
+# GerencIA — Implantação
 
 **Como isso é instalado no ambiente do banco.**
 Desafio 2 · Stark Bank · Rastreabilidade e Governança de Informações em IA
 
-> Documento operacional. A arquitetura está em `EspIA-arquitetura.md`; aqui
+> Documento operacional. A arquitetura está em `GerencIA-arquitetura.md`; aqui
 > está a sequência de instalação, os chamados que precisam ser abertos e o
 > critério de aceite de cada etapa.
 
@@ -251,7 +251,7 @@ não tem acesso ao armazenamento de objeto, e a mensagem que ele envia carrega
 > Se esse host for comprometido, o atacante ganha uma fila de identificadores e
 > três webhooks. Não ganha um único dado do banco.
 
-Por isso o alerta chega assim: *"EspIA · Crítico · ALT-0421 · abrir"*. O que
+Por isso o alerta chega assim: *"GerencIA · Crítico · ALT-0421 · abrir"*. O que
 aconteceu está no console, atrás do SSO. **O alerta não pode virar o vazamento.**
 
 Sobre o WhatsApp, que é a integração que mais atrasa projeto: **somente Meta
@@ -283,7 +283,7 @@ coletor, em nenhuma onda, em nenhuma circunstância.
 Duas notas que economizam retrabalho:
 
 - **O mapeamento de rótulos do DLP é decisão de Compliance, não de
-  infraestrutura.** O DLP classifica *arquivo*; o EspIA raciocina sobre
+  infraestrutura.** O DLP classifica *arquivo*; o GerencIA raciocina sobre
   *informação*. O bloco `mapeamento:` do `dlp-conector.yaml` é onde essa
   tradução vive, e errá-la contamina tudo que vem depois.
 - **O coletor de SWG é o que descobre shadow AI.** Ele gera evento para domínio
@@ -494,5 +494,5 @@ ter preenchido um formulário.
 
 ---
 
-*Documento operacional do projeto EspIA. Todos os dados usados em laboratório
+*Documento operacional do projeto GerencIA. Todos os dados usados em laboratório
 e homologação são fictícios, conforme declarado na planilha oficial do desafio.*

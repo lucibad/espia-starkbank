@@ -1,5 +1,5 @@
 """
-EspIA — Coletor de ingestão do espia-borda.
+GerencIA — Coletor de ingestão do espia-borda.
 
 Recebe os eventos que a extensão (ou o agente de estação) envia, resolve a
 identidade, grava em `capturas` e regenera o painel — que passa a mostrar a
@@ -235,7 +235,7 @@ def main() -> None:
     n = cp.contar(con)
     con.close()
     srv = ThreadingHTTPServer((BIND, PORTA), Coletor)
-    print(f"EspIA · coletor ouvindo em {BIND}:{PORTA}")
+    print(f"GerencIA · coletor ouvindo em {BIND}:{PORTA}")
     print(f"  painel:  http://127.0.0.1:{PORTA}/   (o mesmo de `run.py painel`, regenerado a cada captura)")
     if BIND == "0.0.0.0":
         for ip, rot in _enderecos():

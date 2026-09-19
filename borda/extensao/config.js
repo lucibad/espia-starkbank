@@ -1,4 +1,4 @@
-// Configuração do EspIA · borda (coletor de borda do EspIA).
+// Configuração do GerencIA · borda (coletor de borda do GerencIA).
 //
 // AGENTE_PADRAO: onde o coletor escuta, visto de dentro do Windows.
 // Na rede compartilhada do Parallels o Mac host é 10.211.55.2 e o coletor

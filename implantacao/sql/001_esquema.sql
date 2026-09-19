@@ -1,4 +1,4 @@
--- EspIA — esquema PostgreSQL.
+-- GerencIA — esquema PostgreSQL.
 --
 -- Roda uma vez, no primeiro `up`, pelo docker-entrypoint-initdb.d.
 -- É a versão de produção do esquema que o protótipo cria em SQLite: as mesmas

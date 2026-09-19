@@ -1,6 +1,6 @@
-// EspIA — Fingerprint de informação, na borda.
+// GerencIA — Fingerprint de informação, na borda.
 //
-// Porte de espia/fingerprint.py. A ideia central do EspIA: para saber QUAL
+// Porte de espia/fingerprint.py. A ideia central do GerencIA: para saber QUAL
 // informação da empresa foi para dentro de uma IA não é preciso guardar o
 // que o colaborador digitou — basta a ASSINATURA. O texto vira shingles
 // (n-gramas de 5 palavras), os shingles viram MinHash (Jaccard) e SimHash
@@ -11,7 +11,7 @@
 //
 // Hash: FNV-1a 64 bits sobre UTF-8, em BigInt. Não é o blake2b do Python —
 // o lado servidor que fizer o casamento precisa usar ESTE mesmo hash para as
-// assinaturas serem comparáveis (ver docs). O algoritmo é o do EspIA.
+// assinaturas serem comparáveis (ver docs). O algoritmo é o do GerencIA.
 
 (function () {
   var MASCARA_64 = (1n << 64n) - 1n;

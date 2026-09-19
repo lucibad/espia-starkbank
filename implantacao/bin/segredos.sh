@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# EspIA — geração dos segredos locais.
+# GerencIA — geração dos segredos locais.
 #
 # Cria segredos/ com um arquivo por segredo, modo 600. É esse diretório que o
 # compose monta em /run/secrets. Nada de senha em variável de ambiente: variável

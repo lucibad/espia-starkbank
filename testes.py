@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-EspIA — testes de sanidade.
+GerencIA — testes de sanidade.
 
 Não é uma suíte completa; é o conjunto mínimo que prova, na frente da banca,
 que as três afirmações centrais do projeto são verdadeiras:

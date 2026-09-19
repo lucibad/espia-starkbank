@@ -1,4 +1,4 @@
-# EspIA — núcleo, VLAN de Segurança.
+# GerencIA — núcleo, VLAN de Segurança.
 #
 # Esta zona NÃO tem rota para a internet. Todas as imagens vêm do registro
 # interno do banco (${REGISTRO}), carregadas por `docker load` a partir do
@@ -257,7 +257,7 @@ services:
         limits: { cpus: "2", memory: 4G }
 
   # ── saída para o SIEM ──────────────────────────────────────────────────────
-  # Uma direção só: o EspIA escreve, o SIEM lê. Não há caminho de volta.
+  # Uma direção só: o GerencIA escreve, o SIEM lê. Não há caminho de volta.
   encaminhador-siem:
     <<: *comum
     image: ${REGISTRO}/espia-siem:${TAG}

@@ -1,5 +1,5 @@
 """
-EspIA — validação contra os casos oficiais do desafio.
+GerencIA — validação contra os casos oficiais do desafio.
 
 A aba `Casos_Validacao` da planilha traz quinze situações com o resultado que a
 Stark Bank espera de qualquer solução: CRÍTICO, ALTO, MÉDIO, BAIXO ou REVISAR.

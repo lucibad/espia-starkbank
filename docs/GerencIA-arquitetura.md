@@ -1,4 +1,4 @@
-# EspIA — Arquitetura de Implantação
+# GerencIA — Arquitetura de Implantação
 
 **Monitoramento de uso de IA com regras determinísticas e aprendizado de máquina clássico,
 em servidor dentro da rede.**
@@ -6,7 +6,7 @@ em servidor dentro da rede.**
 Desafio 2 · Stark Bank · versão de 16/09/2026.
 
 > Esta é a arquitetura de produção. O protótipo documentado em
-> `EspIA-documento-do-projeto.md` implementa a espinha dorsal dela — importação, motor de
+> `GerencIA-documento-do-projeto.md` implementa a espinha dorsal dela — importação, motor de
 > regras, auditoria e console — sobre a base oficial do desafio.
 
 ---
@@ -83,7 +83,7 @@ graph TB
         AUD[Auditoria interna<br/>e externa]
     end
 
-    PROV[("EspIA<br/>—<br/>rastreabilidade e<br/>governança de IA")]
+    PROV[("GerencIA<br/>—<br/>rastreabilidade e<br/>governança de IA")]
 
     subgraph fontes["Sistemas que alimentam"]
         DLP[DLP]
@@ -112,7 +112,7 @@ graph TB
     PROV -->|trilha e evidência| AUD
 ```
 
-O colaborador não interage com a EspIA — exceto por um ponto: a extensão de navegador, que
+O colaborador não interage com a GerencIA — exceto por um ponto: a extensão de navegador, que
 oferece o mascaramento no momento do colar. Esse é o único contato, e é deliberadamente uma
 ajuda, não um bloqueio.
 
@@ -656,7 +656,7 @@ da empresa. Sete controles:
 | **Sem conteúdo no núcleo** | Classificação na borda; só metadado, assinatura e contagem trafegam |
 | **Pseudonimização por padrão** | O console mostra `USR-0064`. Ver o nome exige justificativa registrada e **dupla aprovação** |
 | **Segregação de funções** | Quem edita a política não aprova; quem investiga não edita; quem administra a infra não lê alerta |
-| **Trilha da própria ferramenta** | Todo acesso ao console é registrado. A EspIA audita quem usa a EspIA |
+| **Trilha da própria ferramenta** | Todo acesso ao console é registrado. A GerencIA audita quem usa a GerencIA |
 | **Cifragem** | TLS mútuo entre serviços; disco cifrado; segredos em cofre (Vault ou equivalente do banco) |
 | **Retenção diferenciada** | Trecho de evidência 30 dias; assinatura 400 dias; metadado 5 anos |
 | **Mínimo privilégio nos coletores** | O agente de borda só envia; não lê o banco, não recebe comando |

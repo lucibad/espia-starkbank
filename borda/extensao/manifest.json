@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "EspIA · borda",
+  "name": "GerencIA · borda",
   "version": "0.2.0",
-  "description": "Coletor de borda do EspIA: registra, para governança, quando o usuário interage com ferramentas de IA. Detectores e fingerprint rodam localmente; o conteúdo não sai da máquina.",
+  "description": "Coletor de borda do GerencIA: registra, para governança, quando o usuário interage com ferramentas de IA. Detectores e fingerprint rodam localmente; o conteúdo não sai da máquina.",
   "icons": {
     "16": "icones/rastro-16.png",
     "48": "icones/rastro-48.png",

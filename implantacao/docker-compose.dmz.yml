@@ -1,4 +1,4 @@
-# EspIA — gateway de notificação, DMZ.
+# GerencIA — gateway de notificação, DMZ.
 #
 # Roda em OUTRO host, em outra zona. É a única peça do sistema com saída para a
 # internet, e por isso é a menor de todas.

@@ -1,5 +1,5 @@
 """
-EspIA — Captura ao vivo (espia-borda) unificada com a base legada.
+GerencIA — Captura ao vivo (espia-borda) unificada com a base legada.
 
 O Excel da Starkbank é a CARGA LEGADA: o que a empresa já tinha registrado.
 As capturas do espia-borda são o PRESENTE: o que acontece agora, nas estações.
@@ -10,7 +10,7 @@ Este módulo é a ponte entre os dois mundos:
 
   ingerir()          grava uma captura crua (contrato do espia-borda) em `capturas`,
                      tabela que SOBREVIVE ao `gerar` (não está no DROP do esquema).
-  anexar_a_base()    lê as capturas e as anexa à Base como `Evento` do EspIA,
+  anexar_a_base()    lê as capturas e as anexa à Base como `Evento` do GerencIA,
                      enriquecendo o inventário com o que a borda encontrou e a
                      planilha não conhecia (ferramentas reais, tipos detectados,
                      usuários do Windows). O motor avalia tudo com a mesma régua.
@@ -302,7 +302,7 @@ def anexar_a_base(con: sqlite3.Connection, base: bo.Base) -> int:
             informacao_id=t.id, informacao_nome=t.nome,
             sensibilidade=sens, forma_uso=forma, qtd_itens=int(qtd or 1),
             finalidade=finalidade,
-            # Captura não tem risco DECLARADO: ela nasce avaliada pelo EspIA.
+            # Captura não tem risco DECLARADO: ela nasce avaliada pelo GerencIA.
             risco_declarado="", regra_declarada="",
             evidencias_declaradas=_evidencia(deteccoes, fonte, previa),
             acao_sugerida="",

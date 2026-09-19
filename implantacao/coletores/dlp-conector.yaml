@@ -1,4 +1,4 @@
-# EspIA — conector DLP.
+# GerencIA — conector DLP.
 # Onda 0. Roda no servidor de DLP, como serviço. Não toca em estação nenhuma.
 
 destino:
@@ -17,7 +17,7 @@ origem:
   formato: cef
 
 # Só entra evento cuja política do DLP envolva ferramenta de IA. O resto do
-# tráfego de DLP continua onde sempre esteve; o EspIA não é um segundo DLP.
+# tráfego de DLP continua onde sempre esteve; o GerencIA não é um segundo DLP.
 filtro:
   politicas:
     - "IA-Generativa-Upload"

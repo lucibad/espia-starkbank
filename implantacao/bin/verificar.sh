@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# EspIA — verificação pós-instalação.
+# GerencIA — verificação pós-instalação.
 #
 #   ./verificar.sh                # saúde dos serviços
 #   ./verificar.sh --fluxo        # injeta um evento de teste e segue o caminho dele

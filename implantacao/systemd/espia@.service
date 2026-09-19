@@ -1,8 +1,8 @@
-# EspIA — unidade de serviço, instanciada por componente.
+# GerencIA — unidade de serviço, instanciada por componente.
 #   systemctl enable --now espia@ingestao espia@nucleo espia@api
 [Unit]
-Description=EspIA — %i
-Documentation=file:///opt/espia/docs/EspIA-arquitetura.md
+Description=GerencIA — %i
+Documentation=file:///opt/espia/docs/GerencIA-arquitetura.md
 After=network-online.target
 Wants=network-online.target
 PartOf=espia.target

@@ -1,5 +1,5 @@
 """
-EspIA — importador da base oficial do desafio.
+GerencIA — importador da base oficial do desafio.
 
 Lê `base/Base_de_Dados_Starkbank_apurada_15-09.xlsx` — a planilha fornecida
 pela Stark Bank — para o modelo interno da ferramenta.
@@ -12,7 +12,7 @@ validação, indicadores declarados e a apuração que a própria planilha fez.
 Uma observação que vale para a leitura de todo o resto do projeto: as colunas
 `Tipo informação` e `Sensibilidade` já vêm preenchidas, e o dicionário de dados
 diz que a origem delas é "Classificador/DLP". Ou seja, a planilha é a **saída**
-de uma camada de captura e classificação que já existe. A EspIA consome essa
+de uma camada de captura e classificação que já existe. A GerencIA consome essa
 saída, aplica as regras, audita o resultado e o torna consultável — e os módulos
 `fingerprint.py` e `detectores.py` mostram como essas duas colunas seriam
 preenchidas automaticamente, que hoje depende de DLP e de registro manual.

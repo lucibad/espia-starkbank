@@ -1,4 +1,4 @@
-# EspIA
+# GerencIA
 
 **Rastreabilidade e governança de informações em ferramentas de IA.**
 Desafio 2 · Stark Bank.
@@ -26,7 +26,7 @@ O terceiro é o que a empresa precisa saber.
 ## A tese
 
 Quase toda solução para este problema rastreia **usos de IA** — "o usuário X acessou a
-ferramenta Y às 14h". A EspIA rastreia **informação**: *"Chave/API secret apareceu em
+ferramenta Y às 14h". A GerencIA rastreia **informação**: *"Chave/API secret apareceu em
 5 ferramentas, com 30 pessoas, 35 vezes — e 3 delas em IA pública"*.
 
 Isso é linhagem de dado, não log de atividade. A busca começa pelo documento, não pelo
@@ -48,14 +48,14 @@ descritos abaixo.
 | **A-03** | 8 eventos usaram o Gerador de Imagens com conteúdo Interno ou Confidencial | A ferramenta é "Aprovada apenas para conteúdo público". Deveriam ser Alto por R10 e virar alerta. Não viraram |
 | **A-04** | 6 das 14 regras nunca são acionadas | A política aparenta ter catorze controles e opera com oito |
 | **A-05** | 47 alertas marcados "Tratado", nenhum com data de tratamento | O indicador de SLA de 24h não é apurável a partir da base |
-| **A-06** | 38 eventos numa combinação que nenhuma regra cobre (Interna/Pública em ferramenta não aprovada) | Lacuna de política. A EspIA propõe R15 para fechá-la |
+| **A-06** | 38 eventos numa combinação que nenhuma regra cobre (Interna/Pública em ferramenta não aprovada) | Lacuna de política. A GerencIA propõe R15 para fechá-la |
 
 ---
 
 ## Como o motor decide
 
 As catorze regras vêm da planilha e não estão reescritas no código — os níveis e as ações
-são lidos da aba `Regras_Risco`. O que a EspIA acrescenta é a **ordem de precedência**,
+são lidos da aba `Regras_Risco`. O que a GerencIA acrescenta é a **ordem de precedência**,
 porque política escrita em linguagem natural se sobrepõe, e é essa ordem que Compliance audita.
 
 ```
@@ -148,7 +148,7 @@ identidade marcada como verificada ou não), o pivot **Quem usou o quê** (conta
 par usuário/ferramenta) e o **Inventário das IAs monitoradas**, editável só na máquina do coletor.
 Cadastrar um domínio ou mudar seu status (Aprovada / condicional / só conteúdo público / Não
 aprovada) **reclassifica as capturas daquela ferramenta pelo mesmo motor** na regeneração seguinte —
-aprovar o ChatGPT leva suas capturas de “Crítico R02” a “Alto R10”, pela própria precedência do EspIA.
+aprovar o ChatGPT leva suas capturas de “Crítico R02” a “Alto R10”, pela própria precedência do GerencIA.
 O inventário é a autoridade sobre nome e status das ferramentas que a planilha não lista (o
 `dominios_monitorados_url` da política de GPO); as oito da planilha aparecem ao lado, somente leitura.
 Aberto como arquivo, sem coletor, a vista explica como subir o servidor e aponta para Alertas.
@@ -188,7 +188,7 @@ make lint                                 # verifica os próprios artefatos
 
 Três servidores, um PostgreSQL, uma VLAN sem saída para a internet e um host
 pequeno na DMZ que manda as notificações. Nenhuma GPU, nenhuma nuvem. O runbook
-inteiro está em `docs/EspIA-implantacao.md`; o pacote executável, em
+inteiro está em `docs/GerencIA-implantacao.md`; o pacote executável, em
 `implantacao/`.
 
 Duas travas que valem citar na apresentação:
@@ -266,9 +266,9 @@ dashboard/
   motor.js               O motor de regras portado para o navegador.
   index.html, dados.js   Corpo e dados da versão publicada na web.
 docs/
-  EspIA-documento-do-projeto.md   O projeto.
-  EspIA-arquitetura.md            A arquitetura de implantação on-premise.
-  EspIA-implantacao.md            Como isso é instalado no ambiente do banco.
+  GerencIA-documento-do-projeto.md   O projeto.
+  GerencIA-arquitetura.md            A arquitetura de implantação on-premise.
+  GerencIA-implantacao.md            Como isso é instalado no ambiente do banco.
 
 implantacao/
   bin/preflight.sh       26+ verificações do ambiente. Roda antes de tudo.

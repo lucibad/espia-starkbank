@@ -1,7 +1,7 @@
 # implantacao/
 
-O que instala o EspIA no ambiente do banco. O runbook completo está em
-`docs/EspIA-implantacao.md`; aqui está o mapa dos arquivos.
+O que instala o GerencIA no ambiente do banco. O runbook completo está em
+`docs/GerencIA-implantacao.md`; aqui está o mapa dos arquivos.
 
 ```bash
 ./bin/preflight.sh --perfil piloto        # o ambiente está pronto?

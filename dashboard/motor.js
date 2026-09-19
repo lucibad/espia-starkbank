@@ -1,5 +1,5 @@
 /* =====================================================================
-   EspIA — motor de regras no navegador.
+   GerencIA — motor de regras no navegador.
 
    Porte fiel de `espia/regras.py`. Existe por um motivo só: o console de
    políticas precisa mostrar o impacto de uma mudança ANTES de publicá-la, e

@@ -1,5 +1,5 @@
 """
-EspIA — Simulador da rede corporativa.
+GerencIA — Simulador da rede corporativa.
 
 Gera 90 dias de atividade de IA numa instituição financeira fictícia, com
 os três canais de captura da arquitetura híbrida:

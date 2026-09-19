@@ -1,5 +1,5 @@
 """
-EspIA — Motor de fingerprint de informação.
+GerencIA — Motor de fingerprint de informação.
 
 A ideia central do projeto: para saber QUAL informação da empresa foi
 para dentro de uma IA, não é preciso guardar o que o colaborador digitou.
@@ -17,7 +17,7 @@ Como funciona:
        - SimHash  -> detecta quase-duplicata e reordenação
   4. O documento original é descartado. Fica só a assinatura.
 
-Consequência prática: o banco de dados da EspIA não contém informação
+Consequência prática: o banco de dados da GerencIA não contém informação
 confidencial da empresa. Ele contém números que só fazem sentido quando
 comparados com outros números.
 

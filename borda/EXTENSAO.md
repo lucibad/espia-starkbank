@@ -8,14 +8,14 @@ identifica o usuário, classifica pela cascata e grava.
 É o que fecha os 22,8% de registro manual da base: em produção, o uso é
 capturado no momento em que acontece, não declarado depois.
 
-## Esta extensão é o `espia-borda` do EspIA
+## Esta extensão é o `espia-borda` do GerencIA
 
-O projeto oficial é o **EspIA** (`~/Downloads/espia`). A política de GPO dele
+O projeto oficial é o **GerencIA** (`~/Downloads/espia`). A política de GPO dele
 (`implantacao/coletores/extensao-gpo.json`) especifica um coletor de borda
 chamado `espia-borda` — mas o código desse coletor não existia. Esta extensão
 **é** esse coletor, implementado fielmente ao contrato:
 
-| Item do contrato do EspIA | Aqui |
+| Item do contrato do GerencIA | Aqui |
 |---|---|
 | `enviar_conteudo: false` | o texto nunca sai da máquina; vão só metadados e assinaturas |
 | `detectores: cpf, cnpj, cartao_luhn, credencial` | `detectores.js` — porte de `espia/detectores.py`, **com validação de dígito e Luhn** |
@@ -24,7 +24,7 @@ chamado `espia-borda` — mas o código desse coletor não existia. Esta extens�
 | `ingestao_url …/eventos` | o coletor recebe `POST /eventos` |
 | `aviso_ao_usuario` / mascarar | `mascarar()` portado ("negocie, não bloqueie") — a oferta ao usuário é o próximo passo |
 
-**Por que um protótipo de laptop?** A ingestão de produção do EspIA é um stack
+**Por que um protótipo de laptop?** A ingestão de produção do GerencIA é um stack
 Docker (Postgres, Redis, MinIO, `espia-ingestao:8443`) com imagens de um
 registro interno do banco e certificados da PKI interna. Ela **não roda fora
 do ambiente do banco**. O coletor `borda/estacao/agente.py` é a versão de laptop que
@@ -37,12 +37,12 @@ O que o fingerprint promete de fato é responder *"de qual documento da
 empresa isto veio?"*: o servidor compara a assinatura do prompt com as do
 acervo catalogado (`espia/fingerprint.py: casar()`, por Jaccard/containment).
 Isso ainda **não** está no coletor de laptop, e tem um detalhe técnico que
-decide se vai funcionar: **paridade de hash**. O EspIA em Python usa
+decide se vai funcionar: **paridade de hash**. O GerencIA em Python usa
 `blake2b`; a borda em JS usa FNV-1a 64 bits (o navegador não tem blake2b
 síncrono). Assinaturas só são comparáveis se os dois lados usarem o **mesmo**
 hash — então o catálogo do acervo para o coletor de laptop precisa ser gerado
 com o mesmo FNV-1a da extensão (ou a extensão ganhar um blake2b em JS). O
-algoritmo é o do EspIA; só a função de hash precisa ser unificada.
+algoritmo é o do GerencIA; só a função de hash precisa ser unificada.
 
 ## Dois modos de implantação
 
@@ -84,10 +84,10 @@ passo a passo no `LEIA-ME.txt` de lá.
 
 ## Passo a passo
 
-### 1. No Mac — subir o coletor do EspIA aberto à rede do Parallels
+### 1. No Mac — subir o coletor do GerencIA aberto à rede do Parallels
 
-O coletor central é o do **EspIA** (projeto oficial): ele grava as capturas na
-mesma base da planilha e regenera o painel do EspIA a cada evento.
+O coletor central é o do **GerencIA** (projeto oficial): ele grava as capturas na
+mesma base da planilha e regenera o painel do GerencIA a cada evento.
 
 ```bash
 cd ~/Downloads/espia
@@ -100,7 +100,7 @@ responder, veja **Rede** abaixo. O painel unificado (legado + capturas) fica em
 `http://127.0.0.1:8765/` no Mac — o mesmo de `python3 run.py painel`.
 
 > O `borda/estacao/agente.py` deste repositório também sabe ser coletor central
-> (`RASTRO_BIND=0.0.0.0`), mas ele grava num banco próprio, separado do EspIA.
+> (`RASTRO_BIND=0.0.0.0`), mas ele grava num banco próprio, separado do GerencIA.
 > Use-o no Mac só se quiser o console de protótipo em vez do painel oficial.
 
 ### 2. No Windows — instalar a extensão (uma vez por navegador)

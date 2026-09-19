@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-EspIA — carga inicial do piloto.
+GerencIA — carga inicial do piloto.
 
 Converte o SQLite que `run.py gerar` produz num arquivo SQL que o PostgreSQL de
 produção engole direto. É o que faz o piloto nascer com os 650 eventos da base
@@ -77,7 +77,7 @@ def main() -> int:
         return mapa.get(valor)
 
     linhas.append(
-        "-- EspIA — carga inicial do piloto.\n"
+        "-- GerencIA — carga inicial do piloto.\n"
         f"-- Gerado em {datetime.now():%d/%m/%Y %H:%M} a partir de {args.banco.name}.\n"
         "--\n"
         "-- Todos os dados são fictícios, conforme declarado na própria planilha do\n"
@@ -121,7 +121,7 @@ def main() -> int:
     linhas.append(
         "INSERT INTO politica_versoes (autor,nota,conteudo,hash,vigente) VALUES ("
         f"{lit('carga inicial')},"
-        f"{lit('Política oficial, lida da planilha. A precedência é o que a EspIA acrescenta.')},"
+        f"{lit('Política oficial, lida da planilha. A precedência é o que a GerencIA acrescenta.')},"
         f"{lit(json.dumps(conteudo, ensure_ascii=False))}::jsonb,"
         f"{lit(hashlib.sha256(json.dumps(conteudo, sort_keys=True, ensure_ascii=False).encode()).hexdigest())},true);")
 

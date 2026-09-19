@@ -1,5 +1,5 @@
 """
-EspIA — motor das regras oficiais R01 a R14.
+GerencIA — motor das regras oficiais R01 a R14.
 
 As catorze regras vêm da aba `Regras_Risco` da planilha do desafio. Elas são
 declarativas e, como toda política escrita em linguagem natural, **se sobrepõem

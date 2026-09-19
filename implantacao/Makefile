@@ -1,4 +1,4 @@
-# EspIA — implantação.
+# GerencIA — implantação.
 #
 #   make preflight      verifica o ambiente antes de qualquer coisa
 #   make instalar       instala a onda 0

@@ -1,4 +1,4 @@
-// EspIA · borda — background (service worker no Chrome/Edge, event page no Firefox).
+// GerencIA · borda — background (service worker no Chrome/Edge, event page no Firefox).
 //
 // Recebe eventos do content script, descobre o usuário do Windows via host de
 // mensagens nativas e envia ao coletor. A identidade é resolvida aqui, não na

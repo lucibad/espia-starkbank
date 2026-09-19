@@ -1,5 +1,5 @@
 """
-EspIA — leitor mínimo de YAML, sem dependências.
+GerencIA — leitor mínimo de YAML, sem dependências.
 
 Por que isto existe: `config/politica.yaml` é o coração do projeto — é onde a
 empresa declara sua taxonomia e suas regras de risco. Amarrar a leitura desse

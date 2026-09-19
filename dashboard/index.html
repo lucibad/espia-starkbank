@@ -1,10 +1,10 @@
 <meta charset="utf-8">
-<title>EspIA</title>
+<title>GerencIA</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 
 <style>
 /* ==================================================================
-   EspIA — console de rastreabilidade e governança de IA
+   GerencIA — console de rastreabilidade e governança de IA
    Base oficial do Desafio 2 · Stark Bank
 
    Cor = risco.  Densidade de tinta = classificação da informação.
@@ -315,7 +315,7 @@ svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
 <div class="shell">
   <nav class="rail">
     <div class="brand">
-      <h1>EspIA</h1>
+      <h1>GerencIA</h1>
       <span class="sub">Rastreabilidade e governança<br>de informações em IA</span>
     </div>
 
@@ -1265,7 +1265,7 @@ ESPIA_BIND=0.0.0.0 python3 run.py coletor
     document.getElementById("main").innerHTML = `
       <div class="pagehead">
         <h2>Auditoria da base</h2>
-        <p>A EspIA não confia na classificação que recebeu. Ela recalcula os indicadores a partir
+        <p>A GerencIA não confia na classificação que recebeu. Ela recalcula os indicadores a partir
         dos fatos, compara com o que a organização declara, e procura defeitos na própria rotulagem.
         Cada achado traz os eventos afetados — dá para conferir um a um.</p>
       </div>
@@ -1284,7 +1284,7 @@ ESPIA_BIND=0.0.0.0 python3 run.py coletor
         <div class="panel-h"><h3>Indicadores: o que a empresa declara × o que a base diz</h3>
           <span class="hint">a coluna da direita é o que a própria planilha apurou</span></div>
         <div class="tw"><table>
-          <thead><tr><th>Indicador</th><th>Declarado</th><th>Apurado pela EspIA</th>
+          <thead><tr><th>Indicador</th><th>Declarado</th><th>Apurado pela GerencIA</th>
             <th>Apurado na planilha</th><th>Confere?</th><th>Observação</th></tr></thead>
           <tbody>${ind.map(i => `
             <tr>
@@ -1414,7 +1414,7 @@ ESPIA_BIND=0.0.0.0 python3 run.py coletor
       <div class="pagehead">
         <h2>Política vigente</h2>
         <p>As catorze regras vêm da aba <span class="mono">Regras_Risco</span> da planilha. Nenhuma
-        está reescrita: o que a EspIA acrescenta é a <strong>ordem de precedência</strong>, porque
+        está reescrita: o que a GerencIA acrescenta é a <strong>ordem de precedência</strong>, porque
         política escrita em linguagem natural se sobrepõe — e é essa ordem que Compliance audita.</p>
       </div>
 

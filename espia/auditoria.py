@@ -1,5 +1,5 @@
 """
-EspIA — auditoria da base.
+GerencIA — auditoria da base.
 
 Este módulo faz o que diferencia uma ferramenta de governança de um painel:
 ele **não confia na classificação que recebeu**. Recalcula os indicadores a
@@ -291,7 +291,7 @@ class Auditoria:
                     "O caso CV14 confirma que informação Pública nessa situação fica em Baixo, "
                     "então o nível está certo. Para informação Interna não há gabarito: a "
                     "política diz apenas 'preferir ferramentas corporativas aprovadas', sem "
-                    "consequência definida. A EspIA propõe a regra R15 para fechar a lacuna."
+                    "consequência definida. A GerencIA propõe a regra R15 para fechar a lacuna."
                 ),
                 evidencia="Regras_Risco (ausência) × Classificacao_Informacao (regra geral de Interna)",
                 eventos=[e.id for e in internas_fora],

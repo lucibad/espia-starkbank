@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# EspIA — backup.
+# GerencIA — backup.
 #
 #   ./backup.sh                 # dump completo, cifrado, para o destino do banco
 #   ./backup.sh --verificar     # restaura o último dump num banco descartável

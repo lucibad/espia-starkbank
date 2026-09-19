@@ -1,4 +1,4 @@
-// EspIA · borda — content script.
+// GerencIA · borda — content script.
 //
 // Observa o envio de prompts nas ferramentas de IA e reporta ao background.
 // Modo "observacao": só governança, não bloqueia nada. Roda detectores e

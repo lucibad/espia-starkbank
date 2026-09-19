@@ -1,5 +1,5 @@
 """
-EspIA — consultas de linhagem sobre a base oficial.
+GerencIA — consultas de linhagem sobre a base oficial.
 
 A pergunta norteadora do desafio é:
 

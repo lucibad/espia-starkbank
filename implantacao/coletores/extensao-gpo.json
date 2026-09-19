@@ -1,6 +1,6 @@
 {
   "_comentario": [
-    "EspIA — política de instalação da extensão por GPO (Edge e Chrome).",
+    "GerencIA — política de instalação da extensão por GPO (Edge e Chrome).",
     "Onda 2. É o único componente que toca a estação.",
     "Instale em modo somente observação por 15 dias antes de ligar a oferta",
     "de mascaramento: a primeira impressão que a ferramenta deixa nos",
@@ -28,7 +28,7 @@
         "fingerprint_local": true,
         "detectores": ["cpf", "cnpj", "cartao_luhn", "credencial"],
         "aviso_ao_usuario": true,
-        "texto_aviso": "Este conteúdo parece conter dado sensível. A EspIA pode mascarar antes de você colar.",
+        "texto_aviso": "Este conteúdo parece conter dado sensível. A GerencIA pode mascarar antes de você colar.",
         "dominios_monitorados_url": "https://api.espia.interno:8083/ferramentas/dominios",
         "intervalo_atualizacao_h": 6,
         "modo_privado": "desligado"

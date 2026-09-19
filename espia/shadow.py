@@ -1,5 +1,5 @@
 """
-EspIA — Descoberta de Shadow AI.
+GerencIA — Descoberta de Shadow AI.
 
 O primeiro requisito do desafio é "registrar quais ferramentas ou aplicações
 de IA estão sendo utilizadas". Um formulário responde a pergunta errada:

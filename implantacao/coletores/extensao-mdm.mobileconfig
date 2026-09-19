@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- EspIA — perfil de configuração para macOS (Jamf, Intune ou Workspace ONE).
+<!-- GerencIA — perfil de configuração para macOS (Jamf, Intune ou Workspace ONE).
      Mesmo conteúdo do extensao-gpo.json, no formato que o MDM da Apple lê.
      Onda 2. Assine este perfil com o certificado de MDM do banco antes de distribuir. -->
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -7,7 +7,7 @@
 <dict>
   <key>PayloadType</key>            <string>Configuration</string>
   <key>PayloadIdentifier</key>      <string>banco.interno.espia.borda</string>
-  <key>PayloadDisplayName</key>     <string>EspIA — coletor de borda</string>
+  <key>PayloadDisplayName</key>     <string>GerencIA — coletor de borda</string>
   <key>PayloadDescription</key>
   <string>Classifica localmente o conteúdo enviado a ferramentas de IA. Nenhum texto sai da estação.</string>
   <key>PayloadVersion</key>         <integer>1</integer>

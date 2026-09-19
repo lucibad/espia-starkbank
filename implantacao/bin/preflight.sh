@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# EspIA — verificação de pré-requisitos do ambiente.
+# GerencIA — verificação de pré-requisitos do ambiente.
 #
 # Roda ANTES de instalar qualquer coisa, no servidor de destino, e responde a
 # uma pergunta só: este ambiente está pronto?
@@ -123,7 +123,7 @@ fi
 if command -v lsblk >/dev/null 2>&1 && lsblk -dno ROTA "$(df --output=source "$PONTO" 2>/dev/null | tail -1)" 2>/dev/null | grep -q '^0$'; then
   registrar ok "armazenamento" "SSD/NVMe"
 else
-  registrar aviso "armazenamento" "não confirmado como SSD — o PostgreSQL do EspIA pede SSD"
+  registrar aviso "armazenamento" "não confirmado como SSD — o PostgreSQL do GerencIA pede SSD"
 fi
 
 # ── 3. runtime de contêiner ──────────────────────────────────────────────────

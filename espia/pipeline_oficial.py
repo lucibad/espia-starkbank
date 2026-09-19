@@ -1,5 +1,5 @@
 """
-EspIA — pipeline sobre a base oficial do desafio.
+GerencIA — pipeline sobre a base oficial do desafio.
 
 Percurso:
 
@@ -8,7 +8,7 @@ Percurso:
         ▼  importador (openpyxl ou leitor embutido)
     650 eventos · 160 alertas · 8 ferramentas · 20 tipos · 72 usuários · 14 regras
         │
-        ├──► motor de regras R01–R14  ──► risco EspIA + cadeia de evidências
+        ├──► motor de regras R01–R14  ──► risco GerencIA + cadeia de evidências
         ├──► validador                ──► os 15 casos oficiais
         └──► auditoria                ──► indicadores recalculados + defeitos de rotulagem
         │

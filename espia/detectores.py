@@ -1,5 +1,5 @@
 """
-EspIA — Detectores de conteúdo sensível sem correspondência de acervo.
+GerencIA — Detectores de conteúdo sensível sem correspondência de acervo.
 
 O fingerprint responde "de qual documento da empresa isso veio?".
 Estes detectores respondem a outra pergunta: "isso é sensível mesmo que

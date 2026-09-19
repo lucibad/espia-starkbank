@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-EspIA — teste de paridade entre o motor Python e o motor JavaScript.
+GerencIA — teste de paridade entre o motor Python e o motor JavaScript.
 
 O console de políticas simula o impacto de uma mudança reavaliando os 650
 eventos no navegador. Se o motor JavaScript divergir do Python nem que seja em

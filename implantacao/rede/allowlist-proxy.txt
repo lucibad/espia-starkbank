@@ -1,4 +1,4 @@
-# EspIA — allowlist do proxy de saída da DMZ.
+# GerencIA — allowlist do proxy de saída da DMZ.
 #
 # Três domínios. Só o gateway de notificação usa este proxy, e ele só carrega
 # identificador, severidade e link interno — nunca conteúdo de evento.

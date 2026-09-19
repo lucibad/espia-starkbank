@@ -1,7 +1,7 @@
 # Instalação sem contêiner
 
 Alguns bancos não permitem contêiner em determinadas camadas, ou a área de
-infraestrutura padroniza pacote e systemd. O EspIA roda dos dois jeitos: o
+infraestrutura padroniza pacote e systemd. O GerencIA roda dos dois jeitos: o
 núcleo é Python puro e não depende de nada que o contêiner forneça.
 
 A diferença prática é só onde ficam as dependências:

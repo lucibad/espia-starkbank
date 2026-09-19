@@ -1,5 +1,5 @@
 """
-EspIA — leitor mínimo de XLSX, sem dependências.
+GerencIA — leitor mínimo de XLSX, sem dependências.
 
 Mesma razão do `yaml_min.py`: a base oficial do desafio chega como planilha, e
 amarrar a leitura dela a um `pip install openpyxl` significa que o protótipo não

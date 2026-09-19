@@ -1,5 +1,5 @@
 """
-EspIA — Pipeline de ingestão e enriquecimento.
+GerencIA — Pipeline de ingestão e enriquecimento.
 
 Percurso de um evento:
 

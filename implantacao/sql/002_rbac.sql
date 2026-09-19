@@ -1,4 +1,4 @@
--- EspIA — papéis e acesso.
+-- GerencIA — papéis e acesso.
 --
 -- O paradoxo do projeto: a ferramenta que vigia o vazamento de informação
 -- sensível é, ela própria, um repositório de informação sensível. O acesso a

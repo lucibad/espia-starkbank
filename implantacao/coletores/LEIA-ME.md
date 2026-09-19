@@ -23,9 +23,9 @@ atravessa a rede é o resultado dela.
 ## 1. Conector DLP
 
 O DLP já classifica. O conector traduz o evento dele para o contrato do
-EspIA e entrega por mTLS. Arquivo: `dlp-conector.yaml`.
+GerencIA e entrega por mTLS. Arquivo: `dlp-conector.yaml`.
 
-Ponto de atenção: o DLP classifica **arquivo**; o EspIA raciocina sobre
+Ponto de atenção: o DLP classifica **arquivo**; o GerencIA raciocina sobre
 **informação**. O mapeamento entre o rótulo do DLP e os 20 tipos da planilha é
 a única parte que exige decisão humana, e está no bloco `mapeamento:`. Faça-o
 com Compliance, não com a infraestrutura.

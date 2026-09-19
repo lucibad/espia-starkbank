@@ -1,4 +1,4 @@
-# A EspIA roda sem instalar nada: só Python 3.9 ou superior.
+# A GerencIA roda sem instalar nada: só Python 3.9 ou superior.
 # Se PyYAML estiver presente, ele é usado para ler config/politica.yaml;
 # se não estiver, espia/yaml_min.py assume o lugar sem diferença de resultado.
 #

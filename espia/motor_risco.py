@@ -1,5 +1,5 @@
 """
-EspIA — Motor de risco com cadeia de evidências.
+GerencIA — Motor de risco com cadeia de evidências.
 
 O último requisito do desafio é o mais exigente: "disponibilizar evidências
 que permitam compreender por que determinada utilização foi classificada
