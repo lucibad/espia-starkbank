@@ -1,0 +1,234 @@
+<title>GerencIA · Manual da Estação</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+  :root{
+    --paper:#f6f7f4; --surface:#fff; --ink:#16211c; --muted:#59685f; --line:#dde3db;
+    --green:#1c6b4d; --forest:#0f3b2c; --wash:#e8f1ea; --amber:#a9660f; --awash:#f7efe0;
+    --red:#a3312a; --rwash:#f6e9e7; --term:#0f1a15; --termink:#cfe6d8;
+    --serif:"Fraunces",Georgia,serif; --sans:"Inter",system-ui,sans-serif; --mono:"JetBrains Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#e7eae5;color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5}
+  .page{width:210mm;min-height:296mm;background:var(--paper);margin:16px auto;padding:20mm 18mm;
+        position:relative;box-shadow:0 2px 14px rgba(0,0,0,.08)}
+  .top{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--forest);
+       padding-bottom:10px;margin-bottom:22px}
+  .top .b{font-family:var(--serif);font-weight:600;font-size:17px;letter-spacing:-.01em}
+  .top .b small{font-family:var(--mono);font-weight:500;font-size:9px;letter-spacing:.14em;color:var(--muted);
+                display:block;margin-top:2px;text-transform:uppercase}
+  .top .pg{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em}
+  h1{font-family:var(--serif);font-weight:500;font-size:37px;line-height:1.05;letter-spacing:-.015em;margin:6px 0 4px}
+  h2{font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.01em;margin:24px 0 10px;
+     padding-top:14px;border-top:1px solid var(--line)}
+  h2.first{border-top:none;padding-top:0;margin-top:0}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+           color:var(--green);font-weight:500;margin:0 0 8px}
+  p{margin:0 0 11px;max-width:64ch} .lead{font-size:16px;color:var(--muted);max-width:60ch}
+  b{font-weight:600}
+  code{font-family:var(--mono);font-size:12.5px;background:#eaeee8;border:1px solid var(--line);
+       border-radius:5px;padding:1px 5px}
+  .step{display:grid;grid-template-columns:34px 1fr;gap:14px;margin:16px 0;align-items:start}
+  .step .n{font-family:var(--serif);font-weight:500;font-size:22px;color:#fff;background:var(--green);
+           width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .step h3{margin:4px 0 6px;font-size:16px;font-weight:600}
+  .step p{margin:0 0 8px}
+  .term{background:var(--term);border-radius:9px;padding:8px 16px 14px;font-family:var(--mono);font-size:12px;
+        color:var(--termink);line-height:1.6;margin:10px 0;overflow-x:auto;white-space:pre-wrap}
+  .term .c{color:#7fd0a6} .term .p{color:#6f8a7d} .term .w{color:#e8c07a} .term .g{color:#8fe3b4}
+  .term .head{color:#6f8a7d;display:block;margin:0 0 6px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+  .uac{background:#2b2b2e;border-radius:9px;color:#e8e8ea;max-width:360px;margin:10px 0;overflow:hidden;
+       font-size:12.5px;border:1px solid #000}
+  .uac .h{background:#0b64c2;color:#fff;padding:10px 14px;font-weight:500}
+  .uac .bd{padding:14px}
+  .uac .row{display:flex;gap:10px;align-items:center;margin:6px 0}
+  .uac .ic{width:26px;height:26px;border-radius:5px;background:#f7c948;color:#3a2c00;display:flex;
+           align-items:center;justify-content:center;font-weight:700;flex:none}
+  .uac .btns{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
+  .uac .btns span{border:1px solid #555;border-radius:5px;padding:5px 14px;font-size:12px}
+  .uac .btns .y{background:#0b64c2;border-color:#0b64c2}
+  .svc{background:#fff;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin:10px 0;font-size:12.5px}
+  .svc .bar{background:#f0f2ee;padding:8px 12px;font-weight:600;border-bottom:1px solid var(--line);
+            font-size:11px;letter-spacing:.05em;color:var(--muted);text-transform:uppercase}
+  .svc table{width:100%;border-collapse:collapse}
+  .svc td,.svc th{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line)}
+  .svc th{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:500}
+  .svc tr.hl td{background:var(--wash)}
+  .svc .run{color:var(--forest);font-weight:600}
+  .note{border-left:3px solid var(--green);background:var(--wash);border-radius:0 8px 8px 0;
+        padding:12px 16px;margin:14px 0;font-size:13.5px}
+  .note.warn{border-color:var(--amber);background:var(--awash)}
+  .note b{color:var(--forest)} .note.warn b{color:var(--amber)}
+  .tbl{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+  .tbl th{background:var(--forest);color:#eaf3ee;text-align:left;padding:9px 12px;font-weight:500;font-size:12px}
+  .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  .tbl tr:nth-child(even) td{background:#fbfcfa}
+  .pill{font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:999px;font-weight:500;white-space:nowrap}
+  .p-g{background:var(--wash);color:var(--forest)} .p-a{background:var(--awash);color:var(--amber)}
+  ul{margin:6px 0 12px;padding-left:20px} li{margin:5px 0}
+  .foot{position:absolute;bottom:12mm;left:18mm;right:18mm;display:flex;justify-content:space-between;
+        font-family:var(--mono);font-size:9.5px;color:var(--muted);letter-spacing:.06em;
+        border-top:1px solid var(--line);padding-top:8px}
+  @media print{
+    @page{size:A4;margin:0}
+    body{background:#fff}
+    .page{margin:0;box-shadow:none;width:210mm;height:297mm;min-height:0;overflow:hidden;
+          padding:16mm 18mm;page-break-after:always;break-after:page;
+          -webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .page:last-child{page-break-after:auto;break-after:auto}
+    .foot{bottom:8mm}
+  }
+</style>
+
+<div class="page">
+  <div class="top"><div class="b">GerencIA<small>Stark Bank · Desafio 2</small></div><div class="pg">Manual da estação · 1 / 4</div></div>
+  <p class="eyebrow">Guia de instalação · máquina do usuário (cliente)</p>
+  <h1>Agente de estação<br>como serviço do Windows</h1>
+  <p class="lead">Como instalar o sensor de rede do GerencIA numa máquina de usuário para que ele
+    suba automaticamente com o Windows, reinicie sozinho se cair e só possa ser pausado ou
+    desinstalado com senha.</p>
+
+  <h2>O que o agente faz</h2>
+  <p>O agente registra, para governança, <b>quando a máquina fala com uma ferramenta de IA</b> — de
+    qualquer programa, não só do navegador (app de desktop, Cursor, um script, o Copilot do Windows).
+    Ele soma três sinais, nenhum deles intercepta tráfego: um índice dos IPs das IAs, o cache de DNS
+    do Windows e o processo dono da conexão.</p>
+  <table class="tbl">
+    <tr><th style="width:50%">O que ele vê</th><th>O que ele NÃO vê</th></tr>
+    <tr><td>Que a máquina abriu conexão com um endpoint de IA, e qual ferramenta.</td>
+        <td>O <b>conteúdo</b> — o tráfego é TLS (cifrado).</td></tr>
+    <tr><td>Qual <b>processo</b> abriu (ex.: <code>cursor.exe</code>, <code>chrome.exe</code>).</td>
+        <td>O texto do prompt ou a resposta da IA.</td></tr>
+    <tr><td>O <b>usuário logado</b> no Windows e o nome da máquina.</td>
+        <td>Ler o conteúdo exigiria interceptação (MITM) — este agente não faz.</td></tr>
+  </table>
+  <div class="note"><b>Complementar à extensão.</b> A extensão de navegador vê o <b>conteúdo</b> digitado
+    numa IA no navegador; o agente de rede vê a <b>conexão</b> de qualquer aplicativo. Juntos cobrem o
+    que cada um sozinho não alcança.</div>
+
+  <h2>Antes de começar</h2>
+  <ul>
+    <li><b>Windows 10 ou 11</b>, com acesso de <b>administrador</b> para instalar.</li>
+    <li><b>Python 3.9 ou superior</b> instalado (o instalador cuida do <code>pywin32</code> e do <code>psutil</code>).</li>
+    <li>A <b>URL do coletor central</b> — o servidor que recebe os eventos (ex.: <code>http://10.211.55.2:8765</code>).</li>
+    <li>Uma <b>senha</b> que você vai definir para proteger a pausa e a desinstalação do serviço.</li>
+  </ul>
+  <p><b>Conteúdo do pacote</b> <code>GerencIA-Agente-Estacao.zip</code>:</p>
+  <div class="svc"><div class="bar">GerencIA-Agente-Estacao\</div>
+   <table>
+    <tr><td style="width:38%"><code>INSTALAR.bat</code></td><td>Instalador de duplo-clique (pede elevação sozinho).</td></tr>
+    <tr><td><code>DESINSTALAR.bat</code></td><td>Remove o serviço (pede a senha).</td></tr>
+    <tr><td><code>sensor.py</code></td><td>O agente — o sensor de rede em si.</td></tr>
+    <tr><td><code>servico\</code></td><td>Serviço do Windows: instalador, gerenciador e o núcleo (pywin32).</td></tr>
+    <tr><td><code>LEIA-PRIMEIRO.txt</code></td><td>Resumo rápido.</td></tr>
+   </table>
+  </div>
+  <div class="foot"><span>GerencIA · rastreabilidade e governança de IA</span><span>Manual da estação · pág. 1</span></div>
+</div>
+
+<div class="page">
+  <div class="top"><div class="b">GerencIA<small>Stark Bank · Desafio 2</small></div><div class="pg">Manual da estação · 2 / 4</div></div>
+  <h2 class="first">Instalação em três passos</h2>
+
+  <div class="step"><div class="n">1</div><div>
+    <h3>Copie a pasta para a máquina</h3>
+    <p>Extraia o ZIP e copie a pasta <code>GerencIA-Agente-Estacao</code> para um local fixo, por
+      exemplo <code>C:\GerencIA</code>. <b>Não mova a pasta depois de instalar</b> — o serviço aponta para este caminho.</p>
+  </div></div>
+
+  <div class="step"><div class="n">2</div><div>
+    <h3>Execute o instalador como administrador</h3>
+    <p>Dê dois cliques em <code>INSTALAR.bat</code>. O Windows vai pedir elevação — clique <b>Sim</b>.</p>
+    <div class="uac">
+      <div class="h">Controle de Conta de Usuário</div>
+      <div class="bd">
+        <p style="margin:0 0 8px">Deseja permitir que este aplicativo faça alterações no dispositivo?</p>
+        <div class="row"><div class="ic">!</div><div><b>Windows Command Processor</b><br><span style="color:#9a9aa0">INSTALAR.bat</span></div></div>
+        <div class="btns"><span class="y">Sim</span><span>Não</span></div>
+      </div>
+    </div>
+  </div></div>
+
+  <div class="step"><div class="n">3</div><div>
+    <h3>Informe o coletor e defina a senha</h3>
+    <p>O instalador pergunta a URL do coletor e, em seguida, a senha de proteção. Ele instala as
+      dependências, registra o serviço e o inicia.</p>
+    <div class="term"><span class="head">Prompt de Comando / PowerShell (elevado)</span><span class="p">URL do coletor central (ex.: http://10.211.55.2:8765):</span> <span class="w">http://10.211.55.2:8765</span>
+<span class="p">Defina a SENHA para pausar/desinstalar o servico:</span> <span class="w">********</span>
+<span class="c">Python: py -3</span>
+<span class="c">Instalando o servico GerenciaSensor ...</span>
+<span class="g">OK. Servico 'GerenciaSensor' instalado e rodando.</span>
+  Coletor:   http://10.211.55.2:8765
+  Estado:    Running</div>
+  </div></div>
+
+  <div class="note warn"><b>Guarde a senha.</b> É ela que libera pausar, parar ou desinstalar o
+    serviço. Sem ela, nem o administrador consegue pelo caminho normal. Ela é gravada apenas como
+    hash (PBKDF2-SHA256) no registro, legível só por SYSTEM e administradores.</div>
+  <div class="foot"><span>GerencIA · rastreabilidade e governança de IA</span><span>Manual da estação · pág. 2</span></div>
+</div>
+
+<div class="page">
+  <div class="top"><div class="b">GerencIA<small>Stark Bank · Desafio 2</small></div><div class="pg">Manual da estação · 3 / 4</div></div>
+  <h2 class="first">Confirme que subiu como serviço</h2>
+  <p>Abra <code>services.msc</code> (Serviços) e procure por <b>GerencIA · Sensor de Rede</b>. Ele deve
+    estar <b>Em execução</b> e com inicialização <b>Automática</b>.</p>
+  <div class="svc"><div class="bar">Serviços (services.msc)</div>
+   <table>
+    <tr><th>Nome</th><th>Status</th><th>Inicialização</th><th>Logon</th></tr>
+    <tr class="hl"><td>GerencIA · Sensor de Rede</td><td class="run">Em execução</td><td>Automático</td><td>Sistema Local</td></tr>
+    <tr><td>Gerenciador de contas de segurança</td><td class="run">Em execução</td><td>Automático</td><td>Sistema Local</td></tr>
+   </table>
+  </div>
+  <p>Ou, pelo PowerShell, dentro da pasta <code>servico</code>:</p>
+  <div class="term"><span class="head">PowerShell</span><span class="p">PS C:\GerencIA\GerencIA-Agente-Estacao\servico&gt;</span> <span class="w">.\gerenciar-servico.ps1 -Acao status</span>
+Servico:  GerencIA · Sensor de Rede
+Estado:   <span class="g">Running</span>
+Inicio:   Auto
+Coletor:  http://10.211.55.2:8765</div>
+
+  <h2>Operar o serviço</h2>
+  <p>Sempre num <b>PowerShell como administrador</b>, dentro da pasta <code>servico</code>. O
+    <code>status</code> é livre; pausar, parar e desinstalar <b>exigem a senha</b>.</p>
+  <table class="tbl">
+    <tr><th style="width:34%">Ação</th><th>Comando</th></tr>
+    <tr><td>Ver situação <span class="pill p-g">sem senha</span></td><td><code>.\gerenciar-servico.ps1 -Acao status</code></td></tr>
+    <tr><td>Pausar <span class="pill p-a">senha</span></td><td><code>.\gerenciar-servico.ps1 -Acao pausar -Senha ****</code></td></tr>
+    <tr><td>Retomar <span class="pill p-a">senha</span></td><td><code>.\gerenciar-servico.ps1 -Acao continuar -Senha ****</code></td></tr>
+    <tr><td>Parar <span class="pill p-a">senha</span></td><td><code>.\gerenciar-servico.ps1 -Acao parar -Senha ****</code></td></tr>
+    <tr><td>Desinstalar <span class="pill p-a">senha</span></td><td><code>.\gerenciar-servico.ps1 -Acao desinstalar -Senha ****</code> &nbsp;/&nbsp; <code>DESINSTALAR.bat</code></td></tr>
+  </table>
+  <div class="note"><b>Sem instalar serviço (para testar).</b> Na pasta do agente:
+    <code>python sensor.py testar</code> faz uma varredura e imprime o que casou;
+    <code>python sensor.py rodar</code> roda em primeiro plano (Ctrl+C encerra).</div>
+  <div class="foot"><span>GerencIA · rastreabilidade e governança de IA</span><span>Manual da estação · pág. 3</span></div>
+</div>
+
+<div class="page">
+  <div class="top"><div class="b">GerencIA<small>Stark Bank · Desafio 2</small></div><div class="pg">Manual da estação · 4 / 4</div></div>
+  <h2 class="first">Até onde a senha protege</h2>
+  <p>Honestidade importa numa entrega de governança. A trava tem camadas:</p>
+  <ul>
+    <li><b>Usuário comum:</b> a ACL do serviço não permite parar nem pausar. Sem chance.</li>
+    <li><b>Administrador casual:</b> o caminho sancionado é o <code>gerenciar-servico.ps1</code>, que exige a senha.</li>
+    <li><b>Administrador determinado</b> (com SYSTEM, safe mode): ainda consegue remover. Blindagem
+      absoluta contra o próprio admin da máquina exige MDM/EDR com proteção em kernel — fora do
+      escopo deste protótipo. A trava eleva de “qualquer um desliga” para “só quem tem a senha”.</li>
+  </ul>
+
+  <h2>Problemas comuns</h2>
+  <table class="tbl">
+    <tr><th style="width:42%">Sintoma</th><th>O que fazer</th></tr>
+    <tr><td>“Python não é reconhecido”</td><td>Instale o Python 3.9+ (marque “Add to PATH”) e rode o <code>INSTALAR.bat</code> de novo.</td></tr>
+    <tr><td>Serviço não inicia (erro 1053)</td><td>Confirme que o <code>pywin32</code> foi instalado; rode <code>py -3 -m pywin32_postinstall -install</code> como admin.</td></tr>
+    <tr><td>Status “Running”, mas nada no painel</td><td>Confira a URL do coletor e se o servidor está no ar (<code>-Acao status</code> mostra a URL gravada).</td></tr>
+    <tr><td>Esqueci a senha</td><td>Como admin, pare pelo SCM e reinstale definindo nova senha. (Registrada só como hash — não há como recuperá-la.)</td></tr>
+  </table>
+  <div class="note"><b>Detalhes técnicos completos</b> — sinais de detecção, limites e arquitetura —
+    estão em <code>servico\LEIA-ME.md</code>, dentro do pacote.</div>
+
+  <h2>Em uma linha</h2>
+  <p>Copie a pasta → rode <code>INSTALAR.bat</code> como administrador → informe coletor e senha.
+    O serviço <b>GerencIA · Sensor de Rede</b> passa a subir com o Windows e a reportar o uso de IA
+    da máquina, sem ler conteúdo, e só sai do ar com a senha.</p>
+  <div class="foot"><span>GerencIA · rastreabilidade e governança de IA</span><span>Manual da estação · pág. 4</span></div>
+</div>

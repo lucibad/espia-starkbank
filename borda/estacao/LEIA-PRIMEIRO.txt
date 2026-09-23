@@ -1,61 +1,32 @@
-RASTRO — PACOTE DE INSTALAÇÃO (Windows)
-=======================================
+GerencIA - Agente de Estacao (Sensor de Rede)
+=============================================
 
-Este zip traz tudo que roda na máquina Windows, nos dois modos.
+O QUE E
+  Um agente que fica na maquina do usuario e registra, para governanca,
+  QUANDO a maquina fala com uma ferramenta de IA - de qualquer programa,
+  nao so do navegador. Sobe como SERVICO DO WINDOWS: inicia no boot,
+  reinicia se cair, e exige SENHA para ser pausado ou desinstalado.
 
-Conteúdo
---------
-  instalar.ps1        instalador raiz (escolhe o modo)
-  estacao\            o agente de estação (agente.py + scripts) — neste repositório: borda\estacao
-  extensao\           a extensão de navegador (+ host de identidade nativo) — neste repositório: borda\extensao
-  LEIA-PRIMEIRO.txt   este arquivo
+  Registra METADADO (qual ferramenta, qual processo, qual usuario) - NUNCA
+  o conteudo. O trafego e cifrado (TLS); ler o texto exigiria interceptacao
+  na maquina, o que este agente NAO faz.
 
-Pré-requisitos
---------------
-1. Python no Windows (https://www.python.org — marque "Add to PATH").
-2. O coletor central (o Mac) no ar e alcançável:
-       No Mac:  ESPIA_BIND=0.0.0.0 python3 run.py coletor
-       Teste do Windows:  abra http://10.211.55.2:8765/api/saude
+INSTALACAO RAPIDA (como administrador)
+  1. Copie a pasta GerencIA-Agente-Estacao para a maquina (ex.: C:\GerencIA).
+  2. Clique com o botao direito em INSTALAR.bat > "Executar como administrador"
+     (ou apenas dois cliques - ele pede a elevacao sozinho).
+  3. Informe a URL do coletor central e defina uma SENHA quando pedido.
+  Pronto. O servico "GerencIA - Sensor de Rede" fica rodando.
 
-Escolha o modo
---------------
-MODO ESTAÇÃO (recomendado — "um agente por máquina")
-  O agente roda aqui, lê o seu usuário do Windows sozinho, classifica local e
-  encaminha ao Mac. Dispensa o host de identidade nativo.
-  No PowerShell, nesta pasta, logado como o usuário de teste:
+OPERAR (PowerShell como administrador, dentro da pasta servico)
+  .\gerenciar-servico.ps1 -Acao status                    (livre)
+  .\gerenciar-servico.ps1 -Acao pausar      -Senha ****   (exige senha)
+  .\gerenciar-servico.ps1 -Acao parar       -Senha ****
+  .\gerenciar-servico.ps1 -Acao desinstalar -Senha ****   (ou DESINSTALAR.bat)
 
-      .\instalar.ps1 -Modo estacao
+REQUISITOS
+  - Windows 10/11 com Python 3.9+ (o instalador instala pywin32 e psutil).
+  - Acesso de administrador para instalar.
 
-  Depois, no popup da extensão, aponte o agente para http://127.0.0.1:8765
-
-MODO EXTENSÃO (Mac central)
-  Só a extensão + host de identidade; o cérebro fica no Mac. Precisa do ID da
-  extensão (aparece em chrome://extensions após carregá-la).
-
-      .\instalar.ps1 -Modo extensao -ChromiumIds "COLE_O_ID_AQUI"
-
-  Depois, no popup, aponte o agente para http://10.211.55.2:8765
-
-Carregar a extensão (manual, nos dois modos)
---------------------------------------------
-Os navegadores não deixam um script instalar extensão fora da loja. O
-instalador imprime os passos; em resumo:
-  Chrome/Edge: chrome://extensions -> Modo do desenvolvedor ->
-               Carregar sem compactação -> pasta "extensao"
-  Firefox:     about:debugging -> Carregar complemento temporário ->
-               extensao\manifest.json
-
-Vários usuários do Windows
---------------------------
-Rode o instalar.ps1 uma vez logado como CADA usuário de teste. No modo estação,
-cada usuário inicia o próprio agente no login e os eventos chegam ao Mac já com
-o usuário certo. (Um usuário por vez — a porta local 8765 é compartilhada.)
-
-Se algo falhar
---------------
-- http://127.0.0.1:8765/api/saude não responde: o agente não subiu (Python?).
-- http://10.211.55.2:8765/api/saude não responde do Windows: o Mac não está com
-  RASTRO_BIND=0.0.0.0, ou o Firewall do macOS está bloqueando o Python.
-- PowerShell recusa rodar o .ps1: rode uma vez
-      Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-  e chame o script de novo.
+O manual completo com telas esta em: Manual-Instalacao-Estacao.pdf
+Detalhes tecnicos e limites: servico\LEIA-ME.md
