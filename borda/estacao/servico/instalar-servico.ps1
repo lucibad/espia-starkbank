@@ -12,6 +12,9 @@
 param(
   [string]$Coletor = "",
   [string]$Senha   = "",
+  [string]$SenhaHashB64 = "",   # modo silencioso (GPO/Intune): senha ja hasheada
+  [string]$SaltB64 = "",
+  [int]$IterParam = 0,
   [int]$Intervalo  = 15
 )
 $ErrorActionPreference = "Stop"
@@ -20,7 +23,8 @@ $Aqui = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Servico = Join-Path $Aqui "servico_win.py"
 
 function Admin? { ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator) }
-if (-not (Admin?)) { Write-Host "Precisa ser Administrador. Reabra o PowerShell como administrador." -ForegroundColor Red; exit 1 }
+$souSystem = [Security.Principal.WindowsIdentity]::GetCurrent().IsSystem
+if (-not (Admin?) -and -not $souSystem) { Write-Host "Precisa ser Administrador (ou SYSTEM via GPO/Intune)." -ForegroundColor Red; exit 1 }
 
 # --- Python ---
 $py = (Get-Command py -ErrorAction SilentlyContinue) ; if ($py) { $Py="py"; $PyArgs=@("-3") } else { $Py="python"; $PyArgs=@() }
@@ -31,20 +35,26 @@ $post = & $Py @PyArgs -c "import pywin32_system32,os,pywin32_postinstall,inspect
 try { & $Py @PyArgs -m pywin32_postinstall -install | Out-Null } catch {}
 
 # --- Senha (PBKDF2-SHA256) ---
-if (-not $Senha) {
-  $s1 = Read-Host "Defina a SENHA para pausar/desinstalar o servico" -AsSecureString
-  $Senha = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($s1))
+if ($SenhaHashB64 -and $SaltB64) {
+  # Modo silencioso (GPO/Intune): a senha ja veio hasheada - o texto nunca trafega.
+  $saltB64 = $SaltB64; $hashB64 = $SenhaHashB64
+  $iter = if ($IterParam -gt 0) { $IterParam } else { 120000 }
+} else {
+  if (-not $Senha) {
+    $s1 = Read-Host "Defina a SENHA para pausar/desinstalar o servico" -AsSecureString
+    $Senha = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($s1))
+  }
+  if ($Senha.Length -lt 6) { Write-Host "Senha muito curta (minimo 6)." -ForegroundColor Red; exit 1 }
+  $salt = New-Object byte[] 16
+  [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($salt)
+  $iter = 120000
+  $k = New-Object Security.Cryptography.Rfc2898DeriveBytes($Senha,$salt,$iter,[Security.Cryptography.HashAlgorithmName]::SHA256)
+  $saltB64 = [Convert]::ToBase64String($salt); $hashB64 = [Convert]::ToBase64String($k.GetBytes(32))
 }
-if ($Senha.Length -lt 6) { Write-Host "Senha muito curta (minimo 6)." -ForegroundColor Red; exit 1 }
-$salt = New-Object byte[] 16
-[Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($salt)
-$iter = 120000
-$k = New-Object Security.Cryptography.Rfc2898DeriveBytes($Senha,$salt,$iter,[Security.Cryptography.HashAlgorithmName]::SHA256)
-$hash = $k.GetBytes(32)
 $reg = "HKLM:\SOFTWARE\GerencIA"
 New-Item -Path $reg -Force | Out-Null
-Set-ItemProperty $reg -Name "SensorSalt" -Value ([Convert]::ToBase64String($salt))
-Set-ItemProperty $reg -Name "SensorHash" -Value ([Convert]::ToBase64String($hash))
+Set-ItemProperty $reg -Name "SensorSalt" -Value $saltB64
+Set-ItemProperty $reg -Name "SensorHash" -Value $hashB64
 Set-ItemProperty $reg -Name "SensorIter" -Value $iter
 # So SYSTEM e Administradores leem o hash.
 $acl = Get-Acl $reg

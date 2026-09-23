@@ -26,6 +26,7 @@ cp "$E/sensor.py" "$E/INSTALAR.bat" "$E/DESINSTALAR.bat" "$E/LEIA-PRIMEIRO.txt" 
 cp "$E/servico/servico_win.py" "$E/servico/instalar-servico.ps1" \
    "$E/servico/gerenciar-servico.ps1" "$E/servico/LEIA-ME.md" "$STAGE/servico/"
 [ -f "$E/manual/Manual-Instalacao-Estacao.pdf" ] && cp "$E/manual/Manual-Instalacao-Estacao.pdf" "$STAGE/"
+mkdir -p "$STAGE/deploy"; cp "$E"/deploy/*.ps1 "$E"/deploy/LEIA-DEPLOY.md "$STAGE/deploy/"  # GPO/Intune
 z="$OUT/GerencIA-Agente-Estacao.zip"; rm -f "$z"
 ( cd "$OUT/.stage-estacao" && zip -qr -X "../GerencIA-Agente-Estacao.zip" "GerencIA-Agente-Estacao" -x '*.DS_Store' )
 rm -rf "$OUT/.stage-estacao"
