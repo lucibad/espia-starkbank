@@ -44,20 +44,42 @@ function Resolve-Python {
   }
   return $null
 }
+function Atualiza-Path {
+  $env:Path = [Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [Environment]::GetEnvironmentVariable("Path","User")
+}
+function Install-Python {
+  # 1) winget forcando a fonte 'winget' (o msstore costuma faltar em maquinas corporativas)
+  if (Get-Command winget -ErrorAction SilentlyContinue) {
+    Write-Host "Tentando via winget (fonte winget)..." -ForegroundColor Cyan
+    try { & winget install -e --id Python.Python.3.12 --source winget --scope machine --silent `
+                 --accept-package-agreements --accept-source-agreements --disable-interactivity 2>$null | Out-Null } catch {}
+    Atualiza-Path
+    if (Resolve-Python) { return }
+  }
+  # 2) download direto do python.org (nao depende de winget nem da Store)
+  $ver = "3.12.7"
+  $arch = if ($env:PROCESSOR_ARCHITECTURE -match 'ARM64') { "arm64" } else { "amd64" }
+  $url = "https://www.python.org/ftp/python/$ver/python-$ver-$arch.exe"
+  $exe = Join-Path $env:TEMP "python-$ver-$arch.exe"
+  Write-Host "Baixando o Python $ver de python.org..." -ForegroundColor Cyan
+  try {
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    Invoke-WebRequest -Uri $url -OutFile $exe -UseBasicParsing
+    Write-Host "Instalando o Python (silencioso, para todos os usuarios)..." -ForegroundColor Cyan
+    Start-Process -FilePath $exe -ArgumentList "/quiet","InstallAllUsers=1","PrependPath=1","Include_launcher=1","Include_test=0" -Wait
+    Atualiza-Path
+  } catch { Write-Host "Falha ao baixar/instalar o Python: $_" -ForegroundColor Yellow }
+}
+
 $P = Resolve-Python
 if (-not $P) {
   Write-Host "Python nao encontrado (o 'python' do sistema e apenas o atalho da Microsoft Store)." -ForegroundColor Yellow
-  if (Get-Command winget -ErrorAction SilentlyContinue) {
-    Write-Host "Instalando Python 3.12 via winget (pode demorar um pouco)..." -ForegroundColor Cyan
-    & winget install -e --id Python.Python.3.12 --scope machine --silent --accept-package-agreements --accept-source-agreements
-    $env:Path = [Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [Environment]::GetEnvironmentVariable("Path","User")
-    $P = Resolve-Python
-  }
+  Install-Python
+  $P = Resolve-Python
 }
 if (-not $P) {
-  Write-Host "Nao consegui obter o Python. Instale o Python 3.9+ e rode o INSTALAR.bat de novo:" -ForegroundColor Red
+  Write-Host "Nao consegui obter o Python automaticamente. Instale o Python 3.9+ e rode o INSTALAR.bat de novo:" -ForegroundColor Red
   Write-Host "  https://www.python.org/downloads/  (marque 'Add python.exe to PATH')" -ForegroundColor Red
-  Write-Host "  ou:  winget install -e --id Python.Python.3.12 --scope machine" -ForegroundColor Red
   Write-Host "Dica: desative o atalho falso em Configuracoes > Aplicativos > Configuracoes avancadas" -ForegroundColor Red
   Write-Host "      de aplicativo > Aliases de execucao de aplicativo (desligue os 'python.exe')." -ForegroundColor Red
   exit 3
