@@ -238,8 +238,12 @@ def main() -> None:
     print(f"GerencIA · coletor ouvindo em {BIND}:{PORTA}")
     print(f"  painel:  http://127.0.0.1:{PORTA}/   (o mesmo de `run.py painel`, regenerado a cada captura)")
     if BIND == "0.0.0.0":
+        nome = socket.gethostname()
+        if not nome.endswith(".local"):
+            nome += ".local"
+        print(f"  das estações, pelo NOME (Bonjour/mDNS): http://{nome.lower()}:{PORTA}  [recomendado — não muda com o IP]")
         for ip, rot in _enderecos():
-            print(f"  das estações, aponte para: http://{ip}:{PORTA}  [{rot}]")
+            print(f"  das estações, pelo IP:               http://{ip}:{PORTA}  [{rot}]")
     else:
         print("  (só 127.0.0.1 — para receber das estações do Parallels: ESPIA_BIND=0.0.0.0)")
     print(f"  usuário local deste coletor: {USUARIO_LOCAL}")

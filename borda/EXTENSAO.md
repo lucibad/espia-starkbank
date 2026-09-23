@@ -191,3 +191,29 @@ segredo seria mais uma cópia do segredo.
   real é por política de grupo (arquivo `.crx`/assinado), fora do escopo do teste.
 - **Não bloqueia nada.** É visibilidade e governança, não prevenção. Bloqueio
   ativo continua fora do escopo do Sprint.
+
+---
+
+## Apontar pelo NOME do servidor (em vez do IP)
+
+A extensão já vem configurada para o **nome** da máquina servidor por Bonjour/mDNS
+(`borda/extensao/config.js` → `AGENTE_PADRAO: "http://macbook-pro.local:8765"`), não
+pelo IP. Assim a URL não quebra se o IP do Mac mudar.
+
+- **Windows 10/11 resolve nomes `.local` nativamente** e a rede **Compartilhada** do
+  Parallels repassa o Bonjour do Mac host — então `http://macbook-pro.local:8765`
+  costuma funcionar direto na estação.
+- O nome exato do servidor sai no startup do coletor (`run.py coletor` com
+  `ESPIA_BIND=0.0.0.0`), na linha “das estações, pelo NOME (Bonjour/mDNS)”.
+
+**Se alguma estação não resolver o nome** (mDNS bloqueado na rede), há dois caminhos:
+
+1. Trocar a URL no popup da extensão para o IP: `http://10.211.55.2:8765`.
+2. Fixar o nome no `hosts` do Windows (PowerShell como administrador):
+   ```powershell
+   Add-Content C:\Windows\System32\drivers\etc\hosts "10.211.55.2`tmacbook-pro.local"
+   ```
+   (aponta o nome para o IP da rede Compartilhada do Parallels).
+
+Para o **agente de estação** (serviço), passe o mesmo nome no `-Coletor`:
+`http://macbook-pro.local:8765`.
