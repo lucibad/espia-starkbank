@@ -26,12 +26,46 @@ function Admin? { ([Security.Principal.WindowsPrincipal][Security.Principal.Wind
 $souSystem = [Security.Principal.WindowsIdentity]::GetCurrent().IsSystem
 if (-not (Admin?) -and -not $souSystem) { Write-Host "Precisa ser Administrador (ou SYSTEM via GPO/Intune)." -ForegroundColor Red; exit 1 }
 
-# --- Python ---
-$py = (Get-Command py -ErrorAction SilentlyContinue) ; if ($py) { $Py="py"; $PyArgs=@("-3") } else { $Py="python"; $PyArgs=@() }
+# --- Python (robusto: ignora o atalho falso da Microsoft Store; instala se faltar) ---
+function Test-Python($exe, $prefixo) {
+  try {
+    $out = & $exe @prefixo -c "import sys; print(sys.executable)" 2>$null
+    if ($LASTEXITCODE -eq 0 -and $out -and ($out -notmatch 'WindowsApps')) { return $true }
+  } catch {}
+  return $false
+}
+function Resolve-Python {
+  if (Test-Python "py" @("-3")) { return @{ Exe = "py"; Args = @("-3") } }
+  foreach ($c in @("python","python3")) {
+    foreach ($cmd in (Get-Command $c -All -ErrorAction SilentlyContinue |
+                      Where-Object { $_.Source -and ($_.Source -notmatch 'WindowsApps') })) {
+      if (Test-Python $cmd.Source @()) { return @{ Exe = $cmd.Source; Args = @() } }
+    }
+  }
+  return $null
+}
+$P = Resolve-Python
+if (-not $P) {
+  Write-Host "Python nao encontrado (o 'python' do sistema e apenas o atalho da Microsoft Store)." -ForegroundColor Yellow
+  if (Get-Command winget -ErrorAction SilentlyContinue) {
+    Write-Host "Instalando Python 3.12 via winget (pode demorar um pouco)..." -ForegroundColor Cyan
+    & winget install -e --id Python.Python.3.12 --scope machine --silent --accept-package-agreements --accept-source-agreements
+    $env:Path = [Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [Environment]::GetEnvironmentVariable("Path","User")
+    $P = Resolve-Python
+  }
+}
+if (-not $P) {
+  Write-Host "Nao consegui obter o Python. Instale o Python 3.9+ e rode o INSTALAR.bat de novo:" -ForegroundColor Red
+  Write-Host "  https://www.python.org/downloads/  (marque 'Add python.exe to PATH')" -ForegroundColor Red
+  Write-Host "  ou:  winget install -e --id Python.Python.3.12 --scope machine" -ForegroundColor Red
+  Write-Host "Dica: desative o atalho falso em Configuracoes > Aplicativos > Configuracoes avancadas" -ForegroundColor Red
+  Write-Host "      de aplicativo > Aliases de execucao de aplicativo (desligue os 'python.exe')." -ForegroundColor Red
+  exit 3
+}
+$Py = $P.Exe; $PyArgs = $P.Args
 Write-Host "Python: $Py $($PyArgs -join ' ')" -ForegroundColor Cyan
 & $Py @PyArgs -m pip install --quiet --upgrade pywin32 psutil
 # pos-instalacao do pywin32 (registra os servicos do Windows)
-$post = & $Py @PyArgs -c "import pywin32_system32,os,pywin32_postinstall,inspect;print(os.path.dirname(inspect.getfile(pywin32_postinstall)))" 2>$null
 try { & $Py @PyArgs -m pywin32_postinstall -install | Out-Null } catch {}
 
 # --- Senha (PBKDF2-SHA256) ---

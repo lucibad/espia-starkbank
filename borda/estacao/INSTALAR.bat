@@ -13,8 +13,21 @@ echo   GerencIA - Agente de Estacao (Sensor de Rede)
 echo   Instala como Servico do Windows (sobe no boot)
 echo ============================================================
 echo.
-set /p COLETOR="URL do coletor central (ex.: http://10.211.55.2:8765): "
+
+rem Se estiver rodando de um caminho de rede (\\Mac\Home, \\servidor...), copia
+rem para o disco local: o servico precisa de um caminho local para subir no boot.
+set "RUNDIR=%~dp0"
+set "PREFIXO=%RUNDIR:~0,2%"
+if "%PREFIXO%"=="\\" (
+  echo Caminho de rede detectado. Copiando para C:\GerencIA ...
+  xcopy "%~dp0*" "C:\GerencIA\GerencIA-Agente-Estacao\" /E /I /Y >nul
+  set "RUNDIR=C:\GerencIA\GerencIA-Agente-Estacao\"
+  echo.
+)
+
+set /p COLETOR="URL do coletor central (ex.: http://macbook-pro.local:8765): "
 echo.
-powershell -ExecutionPolicy Bypass -File "%~dp0servico\instalar-servico.ps1" -Coletor "%COLETOR%"
+powershell -ExecutionPolicy Bypass -File "%RUNDIR%servico\instalar-servico.ps1" -Coletor "%COLETOR%"
 echo.
+echo Instalacao concluida (ou veja as mensagens acima). Pasta local: %RUNDIR%
 pause
