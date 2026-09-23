@@ -232,10 +232,44 @@ def _enviar(evt: dict) -> bool:
     return False
 
 
+def _usuario_logado() -> str:
+    """Quem está de fato usando a máquina — não a conta do serviço.
+
+    Como serviço (LocalSystem), getpass.getuser() devolve 'SYSTEM'/conta da
+    máquina, não a pessoa logada. Descobrimos o usuário interativo real:
+      1) dono do explorer.exe (o shell da sessão logada);
+      2) `quser` (sessão ativa do console);
+      3) por último, getpass (quando rodando interativo, já é o certo).
+    """
+    # 1) dono do explorer.exe
+    try:
+        import psutil
+        for p in psutil.process_iter(["name", "username"]):
+            if (p.info.get("name") or "").lower() == "explorer.exe":
+                u = p.info.get("username") or ""
+                if u:
+                    return u.split("\\")[-1]  # tira DOMINIO\
+    except Exception:
+        pass
+    # 2) quser (sessão ativa)
+    if WIN:
+        try:
+            out = subprocess.run(["quser"], capture_output=True, text=True,
+                                 timeout=8, errors="ignore").stdout.splitlines()
+            ativa = next((l for l in out[1:] if "Ativo" in l or "Active" in l), None)
+            linha = ativa or (out[1] if len(out) > 1 else "")
+            if linha:
+                return linha.split()[0].lstrip(">").strip()
+        except Exception:
+            pass
+    # 3) fallback
+    return getpass.getuser()
+
+
 def varrer(imprimir: bool = False) -> int:
     """Casa conexões (índice de IPs) + confirma pelo cache de DNS. Emite eventos."""
     _reindexar()
-    usuario = getpass.getuser()
+    usuario = _usuario_logado()
     agora = time.time()
     cache = _cache_dns()                     # {} fora do Windows
     ferr_no_cache = set(cache.values())
@@ -282,7 +316,7 @@ def varrer(imprimir: bool = False) -> int:
 
 
 def rodar() -> None:
-    print(f"GerencIA · sensor de rede — máquina {MAQUINA}, usuário {getpass.getuser()}")
+    print(f"GerencIA · sensor de rede — máquina {MAQUINA}, usuário {_usuario_logado()}")
     print(f"  coletor: {COLETOR or '(nenhum — modo impressão)'} · intervalo {INTERVALO}s · janela {JANELA}s")
     print(f"  sinais: índice de IPs + {'cache de DNS do Windows' if WIN else 'cache de DNS (só Windows)'} + processo dono")
     print("  registra METADADO de uso de IA — nunca o conteúdo\n")
