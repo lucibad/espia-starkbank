@@ -1154,7 +1154,9 @@ ESPIA_BIND=0.0.0.0 python3 run.py coletor
       : `<span class="pill-nao" title="identidade ${esc(f || "ausente")}: declarada ou ausente">⚠ não verificada</span>`;
     const pillBase = "display:inline-flex;align-items:center;font-size:11.5px;font-weight:600;padding:1px 8px;border-radius:100px;white-space:nowrap";
     const origemChip = e => {
-      const f = e.fonte_captura || (e.fonte === "agente-local" ? "agente" : "extensao");
+      const f = e.fonte_captura || (e.fonte === "proxy" ? "mitm" : e.fonte === "agente-local" ? "agente" : "extensao");
+      if (f === "mitm")
+        return `<span style="${pillBase};background:#f3e6f6;color:#6a2a78" title="capturado pelo proxy de interceptação TLS (MITM) — conteúdo de qualquer app">Proxy</span>`;
       return f === "agente"
         ? `<span style="${pillBase};background:var(--accent-soft);color:var(--accent-ink)" title="capturado pelo agente de rede — metadado da conexão, de qualquer app">Agente</span>`
         : `<span style="${pillBase};background:var(--ok-bg);color:var(--ok)" title="capturado pela extensão do navegador — vê o conteúdo (prompt e resposta)">Extensão</span>`;

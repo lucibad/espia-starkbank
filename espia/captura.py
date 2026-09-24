@@ -163,8 +163,11 @@ def ingerir(con: sqlite3.Connection, corpo: dict, usuario: str, identidade_fonte
         qtd = 1
     deteccoes = corpo.get("deteccoes") if isinstance(corpo.get("deteccoes"), list) else []
     fingerprint = corpo.get("fingerprint") if isinstance(corpo.get("fingerprint"), dict) else {}
-    # Quem capturou: o agente de rede manda origem_sensor/via; a extensão, não.
-    fonte_captura = "agente" if (corpo.get("origem_sensor") or corpo.get("via")) else "extensao"
+    # Quem capturou: explícito (proxy MITM manda fonte_captura), senão inferido —
+    # o agente de rede manda origem_sensor/via; a extensão, não.
+    fonte_captura = corpo.get("fonte_captura")
+    if fonte_captura not in ("extensao", "agente", "mitm"):
+        fonte_captura = "agente" if (corpo.get("origem_sensor") or corpo.get("via")) else "extensao"
     agora = dt.datetime.now().replace(microsecond=0).isoformat()
     ts = _texto(corpo.get("ts"), 32) or agora
 

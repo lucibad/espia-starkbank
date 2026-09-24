@@ -70,6 +70,11 @@ def identidade(corpo: dict, remoto: bool) -> tuple[str, str]:
     'agente-local' (agente de estação) ou 'nativo' (host de mensagens nativas).
     'declarado' é falsificável e fica marcado como tal.
     """
+    # Proxy MITM: a captura é do proxy (infra confiável), não do coletor local.
+    # Não sobrescreve com o usuário do SO — usa o que o proxy resolveu (IP/máquina).
+    if corpo.get("origem_mitm") or corpo.get("fonte_captura") == "mitm":
+        u = str(corpo.get("usuario", "")).strip()[:64]
+        return (u or "(via proxy)"), "proxy"
     if not remoto:
         return USUARIO_LOCAL, "so-local"
     u = str(corpo.get("usuario", "")).strip()[:64]
