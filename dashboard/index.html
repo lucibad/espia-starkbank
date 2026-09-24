@@ -1152,14 +1152,22 @@ ESPIA_BIND=0.0.0.0 python3 run.py coletor
     const fonteChip = f => (f === "so-local" || f === "agente-local" || f === "nativo")
       ? `<span class="pill-ok" title="identidade lida do sistema operacional (${esc(f)})">✓ verificada</span>`
       : `<span class="pill-nao" title="identidade ${esc(f || "ausente")}: declarada ou ausente">⚠ não verificada</span>`;
+    const pillBase = "display:inline-flex;align-items:center;font-size:11.5px;font-weight:600;padding:1px 8px;border-radius:100px;white-space:nowrap";
+    const origemChip = e => {
+      const f = e.fonte_captura || (e.fonte === "agente-local" ? "agente" : "extensao");
+      return f === "agente"
+        ? `<span style="${pillBase};background:var(--accent-soft);color:var(--accent-ink)" title="capturado pelo agente de rede — metadado da conexão, de qualquer app">Agente</span>`
+        : `<span style="${pillBase};background:var(--ok-bg);color:var(--ok)" title="capturado pela extensão do navegador — vê o conteúdo (prompt e resposta)">Extensão</span>`;
+    };
     alvo.innerHTML = `<table>
-      <thead><tr><th>Quando</th><th>Usuário</th><th>IA</th><th>Informação</th><th>Tipo de alerta</th><th>Identidade</th></tr></thead>
+      <thead><tr><th>Quando</th><th>Usuário</th><th>IA</th><th>Origem</th><th>Informação</th><th>Tipo de alerta</th><th>Identidade</th></tr></thead>
       <tbody>${itens.map(e => {
         const u = userPorId[e.usuario_id];
         return `<tr class="clicavel" data-evt-ir="${esc(e.id)}">
           <td class="mono nowrap dim" style="font-size:12px">${dataHora(e.ts)}</td>
           <td>${esc(u ? u.nome : e.usuario)}<br><span class="dim" style="font-size:11.5px">${esc(e.area || "")}${e.maquina ? " · " + esc(e.maquina) : ""}</span></td>
           <td>${esc(e.ferramenta)}<br><span class="dim mono" style="font-size:11px">${esc(e.dominio || "")}</span></td>
+          <td class="nowrap">${origemChip(e)}</td>
           <td>${esc(e.informacao)}<br>${chipCls(e.sensibilidade)}</td>
           <td class="nowrap">${e.risco && e.risco !== "(aguardando gerar)" ? chipSev(e.risco) : `<span class="dim">${esc(e.risco || "")}</span>`} ${chipRegra(e.regra)}</td>
           <td>${fonteChip(e.fonte)}</td>

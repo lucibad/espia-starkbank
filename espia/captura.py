@@ -56,7 +56,8 @@ CREATE TABLE IF NOT EXISTS capturas (
   par_id           TEXT,            -- liga o prompt e a resposta do mesmo turno
   papel            TEXT,            -- prompt | resposta
   prompt           TEXT,            -- CONTEUDO da pesquisa (guarda de conteúdo)
-  resposta         TEXT             -- CONTEUDO do retorno da IA
+  resposta         TEXT,            -- CONTEUDO do retorno da IA
+  fonte_captura    TEXT             -- extensao | agente (quem capturou)
 );
 -- Inventário das IAs externas monitoradas: o admin cadastra e decide o status.
 -- É a autoridade sobre nome e aprovação das ferramentas que a planilha não
@@ -125,7 +126,7 @@ def garantir_esquema(con: sqlite3.Connection) -> None:
     con.executescript(ESQUEMA_CAPTURAS)
     # Migração: bancos antigos não têm as colunas de conteúdo — adiciona se faltarem.
     cols = {r[1] for r in con.execute("PRAGMA table_info(capturas)")}
-    for c in ("par_id", "papel", "prompt", "resposta"):
+    for c in ("par_id", "papel", "prompt", "resposta", "fonte_captura"):
         if c not in cols:
             con.execute(f"ALTER TABLE capturas ADD COLUMN {c} TEXT")
     con.commit()
@@ -162,14 +163,16 @@ def ingerir(con: sqlite3.Connection, corpo: dict, usuario: str, identidade_fonte
         qtd = 1
     deteccoes = corpo.get("deteccoes") if isinstance(corpo.get("deteccoes"), list) else []
     fingerprint = corpo.get("fingerprint") if isinstance(corpo.get("fingerprint"), dict) else {}
+    # Quem capturou: o agente de rede manda origem_sensor/via; a extensão, não.
+    fonte_captura = "agente" if (corpo.get("origem_sensor") or corpo.get("via")) else "extensao"
     agora = dt.datetime.now().replace(microsecond=0).isoformat()
     ts = _texto(corpo.get("ts"), 32) or agora
 
     cur = con.execute(
         """INSERT INTO capturas (ts,recebido_em,usuario,identidade_fonte,maquina,dominio,
              ferramenta,status_fer,forma,qtd,tipo,sens,finalidade,deteccoes,fingerprint,
-             previa,titulo,modo,par_id,papel,prompt,resposta)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+             previa,titulo,modo,par_id,papel,prompt,resposta,fonte_captura)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (
             ts, agora, _texto(usuario, 64) or "não identificado", _texto(identidade_fonte, 20),
             _texto(corpo.get("maquina"), 64),
@@ -188,6 +191,7 @@ def ingerir(con: sqlite3.Connection, corpo: dict, usuario: str, identidade_fonte
             _texto(corpo.get("papel"), 12),
             _texto(corpo.get("prompt"), 16000),      # CONTEUDO da pesquisa
             _texto(corpo.get("resposta"), 16000),    # CONTEUDO do retorno da IA
+            fonte_captura,
         ),
     )
     cap_id = f"CAP-{cur.lastrowid:06d}"
