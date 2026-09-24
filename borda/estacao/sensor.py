@@ -84,7 +84,8 @@ _visto: dict[tuple, float] = {}       # (usuario, processo, ferramenta) → últ
 
 
 def _agora() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+    # Hora LOCAL (como o coletor e a extensão), para não aparecer no futuro no painel.
+    return datetime.now().replace(microsecond=0).isoformat()
 
 
 def _publico(ip: str) -> bool:
@@ -279,6 +280,11 @@ def varrer(imprimir: bool = False) -> int:
     for ip, porta, pid in _conexoes():
         nome = _ip_index.get(ip)
         if not nome:
+            continue
+        # Antifalso-positivo de CDN: no Windows, quando há cache de DNS, só
+        # aceitamos a ferramenta se a máquina REALMENTE consultou o hostname dela.
+        # (Muitas IAs dividem o mesmo IP da Cloudflare; o IP sozinho engana.)
+        if WIN and ferr_no_cache and nome not in ferr_no_cache:
             continue
         proc = _processo(pid)
         chave = (usuario, proc, nome)
