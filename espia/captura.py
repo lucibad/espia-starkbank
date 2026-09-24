@@ -52,7 +52,11 @@ CREATE TABLE IF NOT EXISTS capturas (
   fingerprint      TEXT NOT NULL,   -- JSON {minhash, simhash, n_shingles, hash}
   previa           TEXT NOT NULL,   -- trecho MASCARADO; nunca o conteúdo
   titulo           TEXT NOT NULL,
-  modo             TEXT NOT NULL    -- observacao | mascaramento | bloqueio
+  modo             TEXT NOT NULL,   -- observacao | mascaramento | bloqueio
+  par_id           TEXT,            -- liga o prompt e a resposta do mesmo turno
+  papel            TEXT,            -- prompt | resposta
+  prompt           TEXT,            -- CONTEUDO da pesquisa (guarda de conteúdo)
+  resposta         TEXT             -- CONTEUDO do retorno da IA
 );
 -- Inventário das IAs externas monitoradas: o admin cadastra e decide o status.
 -- É a autoridade sobre nome e aprovação das ferramentas que a planilha não
@@ -119,6 +123,11 @@ def gravar_inventario(con: sqlite3.Connection, inv: dict) -> dict:
 
 def garantir_esquema(con: sqlite3.Connection) -> None:
     con.executescript(ESQUEMA_CAPTURAS)
+    # Migração: bancos antigos não têm as colunas de conteúdo — adiciona se faltarem.
+    cols = {r[1] for r in con.execute("PRAGMA table_info(capturas)")}
+    for c in ("par_id", "papel", "prompt", "resposta"):
+        if c not in cols:
+            con.execute(f"ALTER TABLE capturas ADD COLUMN {c} TEXT")
     con.commit()
 
 
@@ -159,8 +168,8 @@ def ingerir(con: sqlite3.Connection, corpo: dict, usuario: str, identidade_fonte
     cur = con.execute(
         """INSERT INTO capturas (ts,recebido_em,usuario,identidade_fonte,maquina,dominio,
              ferramenta,status_fer,forma,qtd,tipo,sens,finalidade,deteccoes,fingerprint,
-             previa,titulo,modo)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+             previa,titulo,modo,par_id,papel,prompt,resposta)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (
             ts, agora, _texto(usuario, 64) or "não identificado", _texto(identidade_fonte, 20),
             _texto(corpo.get("maquina"), 64),
@@ -175,6 +184,10 @@ def ingerir(con: sqlite3.Connection, corpo: dict, usuario: str, identidade_fonte
             _texto(corpo.get("previa") or corpo.get("trecho"), 200),
             _texto(corpo.get("titulo"), 200),
             _texto(corpo.get("modo") or "observacao", 20),
+            _texto(corpo.get("par_id"), 40),
+            _texto(corpo.get("papel"), 12),
+            _texto(corpo.get("prompt"), 16000),      # CONTEUDO da pesquisa
+            _texto(corpo.get("resposta"), 16000),    # CONTEUDO do retorno da IA
         ),
     )
     cap_id = f"CAP-{cur.lastrowid:06d}"

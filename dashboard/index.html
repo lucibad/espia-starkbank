@@ -1104,6 +1104,10 @@ python3 run.py painel</div>
           <div class="panel-h"><h3>Usuário × IA × tipo de alerta</h3><span class="hint" id="cap-usos-hint">capturas avaliadas pelo motor</span></div>
           <div class="tw" style="max-height:52vh;overflow-y:auto" id="cap-usos"></div>
         </div>
+        <div class="panel" style="grid-column:1/-1">
+          <div class="panel-h"><h3>Conteúdo capturado</h3><span class="hint" id="cap-cont-hint">pesquisas e respostas das IAs</span></div>
+          <div class="panel-b" style="max-height:52vh;overflow-y:auto" id="cap-conteudo"></div>
+        </div>
         <div class="panel">
           <div class="panel-h"><h3>Quem usou o quê</h3><span class="hint">contagem · pior risco na célula</span></div>
           <div class="panel-b" id="cap-pivot"></div>
@@ -1122,6 +1126,7 @@ python3 run.py painel</div>
       return Promise.all([API("/api/eventos"), API("/api/inventario")]);
     }).then(([ev, inv]) => {
       renderCapUsos(ev.itens || []);
+      renderCapConteudo(ev.itens || []);
       renderCapPivot(ev.itens || []);
       INV = Object.fromEntries((inv.itens || []).map(i => [i.dominio, { nome: i.nome, status: i.status }]));
       renderCapInv(inv.status_validos || [], !!inv.editavel);
@@ -1160,6 +1165,39 @@ ESPIA_BIND=0.0.0.0 python3 run.py coletor
           <td>${fonteChip(e.fonte)}</td>
         </tr>`;
       }).join("")}</tbody></table>`;
+  }
+
+  function renderCapConteudo(itens) {
+    const alvo = document.getElementById("cap-conteudo");
+    if (!alvo) return;
+    const comConteudo = itens.filter(e => (e.prompt && e.prompt.length) || (e.resposta && e.resposta.length));
+    const hint = document.getElementById("cap-cont-hint");
+    if (!comConteudo.length) {
+      if (hint) hint.textContent = "guarda de conteúdo";
+      alvo.innerHTML = `<p class="vazio">Nenhum conteúdo capturado ainda. Com a guarda de conteúdo ligada, as pesquisas e as respostas das IAs aparecem aqui, pareadas.</p>`;
+      return;
+    }
+    // Pareia prompt + resposta do mesmo turno (par_id).
+    const pares = {};
+    comConteudo.forEach(e => {
+      const k = e.par_id || e.id;
+      const p = pares[k] || (pares[k] = { ts: e.ts, usuario: e.usuario, ferramenta: e.ferramenta, dominio: e.dominio });
+      if (e.prompt) p.prompt = e.prompt;
+      if (e.resposta) p.resposta = e.resposta;
+      if (!p.usuario || p.usuario === "não identificado") p.usuario = e.usuario;
+      if ((e.ts || "") > (p.ts || "")) p.ts = e.ts;
+    });
+    const lista = Object.values(pares).sort((a, b) => (b.ts || "").localeCompare(a.ts || ""));
+    if (hint) hint.textContent = `${lista.length} turno(s) · mais recentes primeiro`;
+    const bloco = (rot, txt) => `<details style="margin-top:6px">
+        <summary style="cursor:pointer">${rot} <span class="dim">— ${esc(txt.slice(0, 90))}${txt.length > 90 ? "…" : ""}</span></summary>
+        <pre style="white-space:pre-wrap;word-break:break-word;font-size:12.5px;margin:6px 0 0;font-family:var(--f-mono)">${esc(txt)}</pre></details>`;
+    alvo.innerHTML = lista.map(p => `
+      <div style="border-bottom:1px solid var(--line);padding:10px 2px">
+        <div class="mono dim" style="font-size:12px">${dataHora(p.ts)} · ${esc(p.usuario || "")} · ${esc(p.ferramenta || "")}</div>
+        ${p.prompt ? bloco("<strong>Pesquisa</strong>", p.prompt) : ""}
+        ${p.resposta ? bloco("<strong>Resposta da IA</strong>", p.resposta) : `<div class="dim" style="font-size:12px;margin-top:6px">Resposta não capturada.</div>`}
+      </div>`).join("");
   }
 
   function renderCapPivot(itens) {

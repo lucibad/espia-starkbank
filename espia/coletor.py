@@ -88,18 +88,22 @@ def _eventos_recentes(limite: int = 200) -> list[dict]:
         rows = con.execute(
             """SELECT e.id, e.ts, e.hora, e.usuario_id, e.area, e.ferramenta, e.informacao,
                       e.sensibilidade, e.risco_espia, e.regra_espia, e.origem,
-                      c.usuario, c.identidade_fonte, c.dominio, c.maquina
+                      c.usuario, c.identidade_fonte, c.dominio, c.maquina,
+                      c.par_id, c.papel, c.prompt, c.resposta
                FROM eventos e JOIN capturas c ON c.cap_id = e.id
                ORDER BY e.ts DESC LIMIT ?""", (limite,)).fetchall()
         cols = ["id", "ts", "hora", "usuario_id", "area", "ferramenta", "informacao",
-                "sensibilidade", "risco", "regra", "origem", "usuario", "fonte", "dominio", "maquina"]
+                "sensibilidade", "risco", "regra", "origem", "usuario", "fonte", "dominio", "maquina",
+                "par_id", "papel", "prompt", "resposta"]
         return [dict(zip(cols, r)) for r in rows]
     except sqlite3.OperationalError:
         # ainda sem `gerar`: devolve as capturas cruas
         rows = con.execute(
-            "SELECT cap_id,ts,usuario,identidade_fonte,dominio,ferramenta,tipo,sens FROM capturas ORDER BY seq DESC LIMIT ?",
+            """SELECT cap_id,ts,usuario,identidade_fonte,dominio,ferramenta,tipo,sens,
+                      par_id,papel,prompt,resposta FROM capturas ORDER BY seq DESC LIMIT ?""",
             (limite,)).fetchall()
-        return [dict(zip(["id", "ts", "usuario", "fonte", "dominio", "ferramenta", "informacao", "sensibilidade"], r))
+        return [dict(zip(["id", "ts", "usuario", "fonte", "dominio", "ferramenta", "informacao",
+                          "sensibilidade", "par_id", "papel", "prompt", "resposta"], r))
                 | {"risco": "(aguardando gerar)", "regra": "", "origem": cp.ORIGEM_CAPTURA} for r in rows]
     finally:
         con.close()
