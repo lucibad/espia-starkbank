@@ -268,35 +268,42 @@ def _usuario_logado() -> str:
 
 
 def varrer(imprimir: bool = False) -> int:
-    """Casa conexões (índice de IPs) + confirma pelo cache de DNS. Emite eventos."""
+    """Detecta uso de IA e emite eventos.
+
+    No Windows o CACHE DE DNS é a autoridade: só reporta as ferramentas cujo
+    hostname a máquina realmente consultou (chatgpt.com, gemini.google.com…).
+    Isso elimina o falso-positivo de IP de CDN compartilhado (Cloudflare serve
+    várias IAs no mesmo IP). As conexões ativas só enriquecem com o processo.
+    Fora do Windows (sem esse cache) cai no índice de IPs, best-effort.
+    """
     _reindexar()
     usuario = _usuario_logado()
     agora = time.time()
-    cache = _cache_dns()                     # {} fora do Windows
-    ferr_no_cache = set(cache.values())
+    cache = _cache_dns()                     # {host: nome} no Windows; {} fora
     novos = 0
     achou: dict[tuple, dict] = {}
 
+    # Conexões ativas casadas por IP → uma entrada por ferramenta (para o processo).
+    conn_por_ferr: dict[str, tuple] = {}
     for ip, porta, pid in _conexoes():
         nome = _ip_index.get(ip)
-        if not nome:
-            continue
-        # Antifalso-positivo de CDN: no Windows, quando há cache de DNS, só
-        # aceitamos a ferramenta se a máquina REALMENTE consultou o hostname dela.
-        # (Muitas IAs dividem o mesmo IP da Cloudflare; o IP sozinho engana.)
-        if WIN and ferr_no_cache and nome not in ferr_no_cache:
-            continue
-        proc = _processo(pid)
-        chave = (usuario, proc, nome)
-        via = "ip+dns" if nome in ferr_no_cache else "ip"
-        achou[chave] = {"ferramenta": nome, "processo": proc, "ip": ip, "porta": porta, "via": via}
+        if nome and nome not in conn_por_ferr:
+            conn_por_ferr[nome] = (ip, porta, pid)
 
-    # Cache de DNS pode acusar consulta a IA mesmo sem conexão viva no instante.
-    for host, nome in cache.items():
-        chave = (usuario, "(dns)", nome)
-        if not any(k[2] == nome for k in achou):
-            achou.setdefault(chave, {"ferramenta": nome, "processo": "", "ip": "", "porta": 0,
-                                     "via": "dns", "host": host})
+    if WIN and cache:
+        # Autoridade: o que a máquina consultou. Sem ruído de CDN.
+        for host, nome in cache.items():
+            ip, porta, pid = conn_por_ferr.get(nome, ("", 0, 0))
+            proc = _processo(pid) if pid else ""
+            via = "ip+dns" if nome in conn_por_ferr else "dns"
+            achou[(usuario, proc, nome)] = {"ferramenta": nome, "processo": proc,
+                                            "ip": ip, "porta": porta, "via": via, "host": host}
+    else:
+        # macOS/Linux (sem cache de DNS): índice de IPs.
+        for nome, (ip, porta, pid) in conn_por_ferr.items():
+            proc = _processo(pid)
+            achou[(usuario, proc, nome)] = {"ferramenta": nome, "processo": proc,
+                                            "ip": ip, "porta": porta, "via": "ip"}
 
     for chave, d in achou.items():
         if agora - _visto.get(chave, 0) < JANELA:
