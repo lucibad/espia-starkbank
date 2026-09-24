@@ -87,8 +87,14 @@ if (-not $P) {
 $Py = $P.Exe; $PyArgs = $P.Args
 Write-Host "Python: $Py $($PyArgs -join ' ')" -ForegroundColor Cyan
 & $Py @PyArgs -m pip install --quiet --upgrade pywin32 psutil
-# pos-instalacao do pywin32 (registra os servicos do Windows)
-try { & $Py @PyArgs -m pywin32_postinstall -install | Out-Null } catch {}
+# pos-instalacao do pywin32: copia pywintypes/pythoncom p/ system32 e registra o
+# host de servico. O modulo nao e importavel por -m; achamos o script e rodamos.
+try {
+  $scriptsDir = (& $Py @PyArgs -c "import sysconfig;print(sysconfig.get_path('scripts'))").Trim()
+  $post = Join-Path $scriptsDir "pywin32_postinstall.py"
+  if (Test-Path $post) { & $Py @PyArgs $post -install -silent | Out-Null }
+  else { Write-Warning "pywin32_postinstall.py nao encontrado em $scriptsDir (o servico pode ainda assim iniciar)." }
+} catch { Write-Warning "pos-instalacao do pywin32 falhou: $_" }
 
 # --- Senha (PBKDF2-SHA256) ---
 if ($SenhaHashB64 -and $SaltB64) {
@@ -112,13 +118,23 @@ New-Item -Path $reg -Force | Out-Null
 Set-ItemProperty $reg -Name "SensorSalt" -Value $saltB64
 Set-ItemProperty $reg -Name "SensorHash" -Value $hashB64
 Set-ItemProperty $reg -Name "SensorIter" -Value $iter
-# So SYSTEM e Administradores leem o hash.
-$acl = Get-Acl $reg
-$acl.SetAccessRuleProtection($true,$false)
-foreach ($id in "NT AUTHORITY\SYSTEM","BUILTIN\Administrators") {
-  $acl.AddAccessRule((New-Object Security.AccessControl.RegistryAccessRule($id,"FullControl","ContainerInherit,ObjectInherit","None","Allow")))
+# So SYSTEM e Administradores leem o hash. Usa SIDs universais (independem do
+# idioma do Windows: 'Administradores' em pt-BR, 'Administrators' em en-US, etc.).
+# Passo de defesa em profundidade: se falhar, NAO aborta a instalacao do servico.
+try {
+  $acl = Get-Acl $reg
+  $acl.SetAccessRuleProtection($true,$false)
+  $sids = @(
+    (New-Object Security.Principal.SecurityIdentifier ([Security.Principal.WellKnownSidType]::LocalSystemSid, $null)),
+    (New-Object Security.Principal.SecurityIdentifier ([Security.Principal.WellKnownSidType]::BuiltinAdministratorsSid, $null))
+  )
+  foreach ($sid in $sids) {
+    $acl.AddAccessRule((New-Object Security.AccessControl.RegistryAccessRule($sid,"FullControl","ContainerInherit,ObjectInherit","None","Allow")))
+  }
+  Set-Acl $reg $acl
+} catch {
+  Write-Warning "Nao foi possivel endurecer a ACL do registro ($_). O servico segue instalado; a senha continua protegendo."
 }
-Set-Acl $reg $acl
 
 # --- Variaveis de ambiente da maquina (o servico as le no boot) ---
 [Environment]::SetEnvironmentVariable("GERENCIA_COLETOR",$Coletor,"Machine")
