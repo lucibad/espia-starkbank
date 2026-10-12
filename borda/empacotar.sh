@@ -23,8 +23,7 @@ E="estacao"; limpar "$E"
 STAGE="$OUT/.stage-estacao/GerencIA-Agente-Estacao"
 rm -rf "$OUT/.stage-estacao"; mkdir -p "$STAGE/servico"
 cp "$E/sensor.py" "$E/INSTALAR.bat" "$E/DESINSTALAR.bat" "$E/LEIA-PRIMEIRO.txt" "$STAGE/"
-cp "$E/servico/servico_win.py" "$E/servico/instalar-servico.ps1" \
-   "$E/servico/gerenciar-servico.ps1" "$E/servico/LEIA-ME.md" "$STAGE/servico/"
+cp "$E"/servico/*.py "$E"/servico/*.ps1 "$E"/servico/*.md "$STAGE/servico/"   # inclui resetar-senha.ps1
 [ -f "$E/manual/Manual-Instalacao-Estacao.pdf" ] && cp "$E/manual/Manual-Instalacao-Estacao.pdf" "$STAGE/"
 mkdir -p "$STAGE/deploy"; cp "$E"/deploy/*.ps1 "$E"/deploy/LEIA-DEPLOY.md "$STAGE/deploy/"  # GPO/Intune
 z="$OUT/GerencIA-Agente-Estacao.zip"; rm -f "$z"

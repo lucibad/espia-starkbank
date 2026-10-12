@@ -34,8 +34,9 @@ Uso (roda no macOS/Linux para teste e no Windows em produção):
 Variáveis de ambiente:
     GERENCIA_COLETOR   URL do coletor central (ex.: http://10.211.55.2:8765).
                        Sem ela, o sensor só imprime — não envia.
-    GERENCIA_INTERVALO segundos entre varreduras (padrão 15)
-    GERENCIA_JANELA    segundos p/ não repetir o mesmo processo+ferramenta (padrão 900)
+    GERENCIA_INTERVALO segundos entre varreduras (padrão 60)
+    GERENCIA_JANELA    janela de dedup por usuário+ferramenta, em segundos
+                       (padrão 28800 = 8h: registra o USO, não cada varredura)
 """
 from __future__ import annotations
 
@@ -52,8 +53,8 @@ import urllib.request
 from datetime import datetime, timezone
 
 COLETOR = os.environ.get("GERENCIA_COLETOR", "").strip().rstrip("/")
-INTERVALO = int(os.environ.get("GERENCIA_INTERVALO", "15"))
-JANELA = int(os.environ.get("GERENCIA_JANELA", "900"))
+INTERVALO = int(os.environ.get("GERENCIA_INTERVALO", "60"))
+JANELA = int(os.environ.get("GERENCIA_JANELA", "28800"))   # 8h: 1 registro por usuário+ferramenta/sessão
 MAQUINA = socket.gethostname()
 WIN = platform.system() == "Windows"
 
@@ -80,7 +81,7 @@ DOMINIOS_IA = {
 
 _ip_index: dict[str, str] = {}       # ip → nome da ferramenta
 _ip_index_em: float = 0.0
-_visto: dict[tuple, float] = {}       # (usuario, processo, ferramenta) → último envio
+_visto: dict[tuple, float] = {}       # (usuario, ferramenta) → último envio (dedup por USO)
 
 
 def _agora() -> str:
@@ -296,14 +297,14 @@ def varrer(imprimir: bool = False) -> int:
             ip, porta, pid = conn_por_ferr.get(nome, ("", 0, 0))
             proc = _processo(pid) if pid else ""
             via = "ip+dns" if nome in conn_por_ferr else "dns"
-            achou[(usuario, proc, nome)] = {"ferramenta": nome, "processo": proc,
-                                            "ip": ip, "porta": porta, "via": via, "host": host}
+            achou[(usuario, nome)] = {"ferramenta": nome, "processo": proc,
+                                        "ip": ip, "porta": porta, "via": via, "host": host}
     else:
         # macOS/Linux (sem cache de DNS): índice de IPs.
         for nome, (ip, porta, pid) in conn_por_ferr.items():
             proc = _processo(pid)
-            achou[(usuario, proc, nome)] = {"ferramenta": nome, "processo": proc,
-                                            "ip": ip, "porta": porta, "via": "ip"}
+            achou[(usuario, nome)] = {"ferramenta": nome, "processo": proc,
+                                        "ip": ip, "porta": porta, "via": "ip"}
 
     for chave, d in achou.items():
         if agora - _visto.get(chave, 0) < JANELA:
