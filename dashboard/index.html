@@ -1161,8 +1161,18 @@ ESPIA_BIND=0.0.0.0 python3 run.py coletor
         ? `<span style="${pillBase};background:var(--accent-soft);color:var(--accent-ink)" title="capturado pelo agente de rede — metadado da conexão, de qualquer app">Agente</span>`
         : `<span style="${pillBase};background:var(--ok-bg);color:var(--ok)" title="capturado pela extensão do navegador — vê o conteúdo (prompt e resposta)">Extensão</span>`;
     };
+    const classifChip = e => {
+      const c = e.classificado_por || "";
+      if (c === "llm-local")
+        return `<span style="${pillBase};background:var(--accent-soft);color:var(--accent-ink)" title="Nível 1 — classificado pelo LLM local (Qwen3 via llamafile), on-premise">Qwen3 local</span>`;
+      if (c === "llm-local-baixa-confianca")
+        return `<span style="${pillBase};background:#f7efe0;color:#a9660f" title="Nível 1 respondeu abaixo do limiar de confiança — candidato ao Nível 2 (nuvem)">Qwen3 · baixa conf.</span>`;
+      if (c === "borda")
+        return `<span style="${pillBase};background:var(--ok-bg);color:var(--ok)" title="Nível 0 — detectores determinísticos na borda (CPF/CNPJ/Luhn/credencial)">Detectores</span>`;
+      return `<span class="dim" title="classificação veio da planilha (legado) ou não registrada">—</span>`;
+    };
     alvo.innerHTML = `<table>
-      <thead><tr><th>Quando</th><th>Usuário</th><th>IA</th><th>Origem</th><th>Informação</th><th>Tipo de alerta</th><th>Identidade</th></tr></thead>
+      <thead><tr><th>Quando</th><th>Usuário</th><th>IA</th><th>Origem</th><th>Informação</th><th>Classificação</th><th>Tipo de alerta</th><th>Identidade</th></tr></thead>
       <tbody>${itens.map(e => {
         const u = userPorId[e.usuario_id];
         return `<tr class="clicavel" data-evt-ir="${esc(e.id)}">
@@ -1171,6 +1181,7 @@ ESPIA_BIND=0.0.0.0 python3 run.py coletor
           <td>${esc(e.ferramenta)}<br><span class="dim mono" style="font-size:11px">${esc(e.dominio || "")}</span></td>
           <td class="nowrap">${origemChip(e)}</td>
           <td>${esc(e.informacao)}<br>${chipCls(e.sensibilidade)}</td>
+          <td class="nowrap">${classifChip(e)}</td>
           <td class="nowrap">${e.risco && e.risco !== "(aguardando gerar)" ? chipSev(e.risco) : `<span class="dim">${esc(e.risco || "")}</span>`} ${chipRegra(e.regra)}</td>
           <td>${fonteChip(e.fonte)}</td>
         </tr>`;
