@@ -12,7 +12,7 @@ Cascata de classificação do conteúdo:
     Nível 2  claude-opus-5 (nuvem), só quando a confiança local é baixa
 
 Configuração (ambiente):
-    GERENCIA_LLM_LOCAL    URL do llamafile (padrão http://127.0.0.1:8080)
+    GERENCIA_LLM_LOCAL    URL do llamafile (padrão http://127.0.0.1:8090)
     GERENCIA_LLM_TIMEOUT  segundos por chamada (padrão 12)
     GERENCIA_LLM_MIN_CONF confiança mínima p/ aceitar o Nível 1 (padrão 0.55)
 
@@ -26,7 +26,7 @@ import os
 import re
 import urllib.request
 
-URL = os.environ.get("GERENCIA_LLM_LOCAL", "http://127.0.0.1:8080").rstrip("/")
+URL = os.environ.get("GERENCIA_LLM_LOCAL", "http://127.0.0.1:8090").rstrip("/")
 TIMEOUT = float(os.environ.get("GERENCIA_LLM_TIMEOUT", "12"))
 MIN_CONF = float(os.environ.get("GERENCIA_LLM_MIN_CONF", "0.55"))
 
@@ -51,9 +51,12 @@ _SISTEMA = (
     "Dado o CONTEÚDO que um funcionário enviou a uma ferramenta de IA, classifique:\n"
     "1) tipo: escolha EXATAMENTE um item da lista de tipos fornecida;\n"
     "2) sensibilidade: um de Pública, Interna, Confidencial, Crítica;\n"
-    "3) confianca: número de 0 a 1.\n"
+    "3) confianca: a SUA confiança real na classificação, número entre 0 e 1 "
+    "(ex.: 0.95 quando é evidente, 0.4 quando é ambíguo). "
+    "NUNCA devolva 0 por padrão — avalie de verdade.\n"
     "Responda SOMENTE um objeto JSON, sem comentários, no formato "
-    '{"tipo":"...","sensibilidade":"...","confianca":0.0}. Não explique.'
+    '{"tipo":<um item exato da lista>,"sensibilidade":<Pública|Interna|Confidencial|Crítica>,'
+    '"confianca":<número entre 0 e 1>}. Não explique.'
 )
 
 

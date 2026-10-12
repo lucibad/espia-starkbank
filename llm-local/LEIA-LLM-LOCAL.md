@@ -35,8 +35,8 @@ Baixa para `~/.gerencia-llm/` (fora do repositório, ~2,7 GB):
 bash llm-local/rodar-llm-local.sh
 ```
 
-Sobe uma API **compatível com OpenAI** em `127.0.0.1:8080`. Deixe rodando (é um
-serviço). Para checar: `curl http://127.0.0.1:8080/v1/models`.
+Sobe uma API **compatível com OpenAI** em `127.0.0.1:8090`. Deixe rodando (é um
+serviço). Para checar: `curl http://127.0.0.1:8090/v1/models`.
 
 ## Ligar ao GerencIA
 
@@ -44,13 +44,12 @@ O coletor já procura o LLM local automaticamente. Variáveis (opcionais):
 
 | Variável | Padrão | Para quê |
 |---|---|---|
-| `GERENCIA_LLM_LOCAL` | `http://127.0.0.1:8080` | URL do llamafile |
+| `GERENCIA_LLM_LOCAL` | `http://127.0.0.1:8090` | URL do llamafile |
 | `GERENCIA_LLM_TIMEOUT` | `12` | segundos por classificação |
 | `GERENCIA_LLM_MIN_CONF` | `0.55` | confiança mínima para aceitar o Nível 1 |
-| `GERENCIA_LLM_PORTA` | `8080` | porta do llamafile ao subir |
+| `GERENCIA_LLM_PORTA` | `8090` | porta do llamafile ao subir |
 
-> ⚠️ Se você usa o **proxy MITM**, ele também sugere a porta 8080. Suba um dos dois em
-> outra porta (ex.: `GERENCIA_LLM_PORTA=8090` e `GERENCIA_LLM_LOCAL=http://127.0.0.1:8090`).
+> O LLM local usa a **8090** de propósito: a **8080** fica livre para o proxy MITM.
 
 ## Como saber se está funcionando
 
