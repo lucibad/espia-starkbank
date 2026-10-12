@@ -1147,8 +1147,21 @@ ESPIA_BIND=0.0.0.0 python3 run.py coletor
 
   function renderCapUsos(itens) {
     const alvo = document.getElementById("cap-usos");
-    document.getElementById("cap-usos-hint").textContent = `${itens.length} captura(s) · mais recentes primeiro`;
-    if (!itens.length) { alvo.innerHTML = `<p class="vazio">Nenhuma captura ainda. Use uma IA numa estação com a extensão.</p>`; return; }
+    if (!itens.length) { document.getElementById("cap-usos-hint").textContent = "0 busca(s)"; alvo.innerHTML = `<p class="vazio">Nenhuma captura ainda. Use uma IA numa estação com a extensão.</p>`; return; }
+    // Vínculo: prompt + resposta da MESMA busca (par_id) viram uma interação única.
+    const mapa = {}, buscas = [];
+    itens.forEach(e => {
+      const temP = e.papel === "prompt" || !!(e.prompt && e.prompt.length);
+      const temR = e.papel === "resposta" || !!(e.resposta && e.resposta.length);
+      const k = e.par_id;
+      if (!k) { buscas.push({ ...e, _temP: temP, _temR: temR }); return; }
+      if (mapa[k] === undefined) { mapa[k] = buscas.length; buscas.push({ ...e, _temP: temP, _temR: temR }); return; }
+      const b = buscas[mapa[k]]; const tp = b._temP || temP, tr = b._temR || temR;
+      // o PROMPT é o representante (carrega risco, informação e classificação)
+      if (e.papel === "prompt") buscas[mapa[k]] = { ...e, _temP: true, _temR: tr };
+      else { b._temP = tp; b._temR = tr; }
+    });
+    document.getElementById("cap-usos-hint").textContent = `${buscas.length} busca(s) · ${itens.length} captura(s) · mais recentes primeiro`;
     const fonteChip = f => (f === "so-local" || f === "agente-local" || f === "nativo")
       ? `<span class="pill-ok" title="identidade lida do sistema operacional (${esc(f)})">✓ verificada</span>`
       : `<span class="pill-nao" title="identidade ${esc(f || "ausente")}: declarada ou ausente">⚠ não verificada</span>`;
@@ -1171,14 +1184,20 @@ ESPIA_BIND=0.0.0.0 python3 run.py coletor
         return `<span style="${pillBase};background:var(--ok-bg);color:var(--ok)" title="Nível 0 — detectores determinísticos na borda (CPF/CNPJ/Luhn/credencial)">Detectores</span>`;
       return `<span class="dim" title="classificação veio da planilha (legado) ou não registrada">—</span>`;
     };
+    const buscaChip = e => {
+      if (e._temP && e._temR) return `<br><span style="${pillBase};background:var(--ok-bg);color:var(--ok);margin-top:3px" title="busca única — prompt e resposta vinculados (par ${esc(e.par_id || "")})">↔ prompt + resposta</span>`;
+      if (e._temP) return `<br><span class="dim mono" style="font-size:10.5px" title="prompt capturado; resposta ainda não vinculada">↔ só prompt</span>`;
+      if (e._temR) return `<br><span class="dim mono" style="font-size:10.5px">↔ só resposta</span>`;
+      return "";
+    };
     alvo.innerHTML = `<table>
       <thead><tr><th>Quando</th><th>Usuário</th><th>IA</th><th>Origem</th><th>Informação</th><th>Classificação</th><th>Tipo de alerta</th><th>Identidade</th></tr></thead>
-      <tbody>${itens.map(e => {
+      <tbody>${buscas.map(e => {
         const u = userPorId[e.usuario_id];
         return `<tr class="clicavel" data-evt-ir="${esc(e.id)}">
           <td class="mono nowrap dim" style="font-size:12px">${dataHora(e.ts)}</td>
           <td>${esc(u ? u.nome : e.usuario)}<br><span class="dim" style="font-size:11.5px">${esc(e.area || "")}${e.maquina ? " · " + esc(e.maquina) : ""}</span></td>
-          <td>${esc(e.ferramenta)}<br><span class="dim mono" style="font-size:11px">${esc(e.dominio || "")}</span></td>
+          <td>${esc(e.ferramenta)}<br><span class="dim mono" style="font-size:11px">${esc(e.dominio || "")}</span>${buscaChip(e)}</td>
           <td class="nowrap">${origemChip(e)}</td>
           <td>${esc(e.informacao)}<br>${chipCls(e.sensibilidade)}</td>
           <td class="nowrap">${classifChip(e)}</td>
