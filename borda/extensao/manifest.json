@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
   "name": "GerencIA · borda",
-  "version": "0.2.1",
+  "version": "0.2.2",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6TK99i5hzISwpMkFGeHyqrkKcHdYHCJhoxU10Sdivy/TquQchTzIZLujuftMWZmbUtwtxhspTagqd7MYzHSkQY0mwzln1xNmU6vLPww2nLYCQ3/6/ue4NRyUZhnUhzB2+Rgwu0JpAv3RTJOyQ/vm/LHd8R2K4taslrozN2zCltHjxvDHZ9+teuEsaUv6SmGoQCAFifbT1b5h9u2ikK6DLYkZ8dlinE5kA8CfLBXO/4JieowikfgRStCOtH8zc9koIy4n3tCtpBRSDmT0UOeH2Cg6/jJZbgJMw6cKMPXOhEKUvZlZNdP37VvheRA46c1uIMEurInBzomR0iIfhgnrkwIDAQAB",
   "description": "Coletor de borda do GerencIA: registra, para governança, quando o usuário interage com ferramentas de IA. Detectores e fingerprint rodam localmente; o conteúdo não sai da máquina.",
   "icons": {
     "16": "icones/rastro-16.png",

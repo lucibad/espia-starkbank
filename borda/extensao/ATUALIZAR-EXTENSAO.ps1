@@ -11,7 +11,7 @@
 param(
   [string]$Zip = "",
   [string]$Dest = "C:\GerencIA\extensao",
-  [string]$Url  = "https://raw.githubusercontent.com/lucibad/espia-starkbank/main/borda/pacotes/gerencia-extensao-chrome-edge-0.2.1.zip"
+  [string]$Url  = "https://raw.githubusercontent.com/lucibad/espia-starkbank/main/borda/pacotes/gerencia-extensao-chrome-edge-0.2.2.zip"
 )
 $ErrorActionPreference = "Stop"
 
@@ -43,9 +43,18 @@ Write-Host ("  versao          : {0}" -f $versao)
 Write-Host ("  captura conteudo: {0}" -f ($(if($temConteudo){"SIM"}else{"NAO"})))
 Write-Host ("  captura resposta: {0}" -f ($(if($temResposta){"SIM"}else{"NAO"})))
 if (-not ($temConteudo -and $temResposta)) {
-  Write-Host "AVISO: esta build NAO captura conteudo. Baixe a 0.2.1 e rode de novo." -ForegroundColor Yellow
+  Write-Host "AVISO: esta build NAO captura conteudo. Baixe a 0.2.2 e rode de novo." -ForegroundColor Yellow
 } else {
   Write-Host "OK - build com captura de conteudo (prompt + resposta)." -ForegroundColor Green
+}
+
+# --- Registra o host nativo de identidade (HKCU = por usuario; ID fixo da extensao) ---
+$hostInst = Join-Path $Dest "nativo-windows\instalar.ps1"
+if (Test-Path $hostInst) {
+  Write-Host ""
+  Write-Host "Registrando o host nativo de identidade (para o usuario $env:USERNAME)..." -ForegroundColor Cyan
+  try { & powershell -ExecutionPolicy Bypass -File $hostInst | Out-Null; Write-Host "  OK - host nativo registrado." -ForegroundColor Green }
+  catch { Write-Host "  (falha ao registrar host nativo: $_)" -ForegroundColor Yellow }
 }
 
 Write-Host ""

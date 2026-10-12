@@ -15,7 +15,8 @@
     .\instalar.ps1 -ChromiumIds "id_do_chrome","id_do_edge"
 #>
 param(
-  [string[]] $ChromiumIds = @()
+  # ID fixo da extensão GerencIA (chave no manifest) — serve p/ todos os usuários.
+  [string[]] $ChromiumIds = @("oklefhefpjhemamlampdkdgfkidmoemi")
 )
 
 $ErrorActionPreference = "Stop"
