@@ -14,9 +14,13 @@ EXT="extensao"; limpar "$EXT"
 VER=$(grep -o '"version": *"[^"]*"' "$EXT/manifest.json" | head -1 | grep -oE '[0-9.]+')
 for alvo in chrome-edge firefox; do
   z="$OUT/gerencia-extensao-$alvo-$VER.zip"; rm -f "$z"
-  ( cd "$EXT" && zip -qr -X "../$z" . -x '*.DS_Store' -x '*__pycache__*' )
+  # ATUALIZAR-EXTENSAO.ps1 é ferramenta de deploy, não faz parte da extensão carregada.
+  ( cd "$EXT" && zip -qr -X "../$z" . -x '*.DS_Store' -x '*__pycache__*' -x 'ATUALIZAR-EXTENSAO.ps1' )
   echo "  $z"
 done
+# .xpi do Firefox = o mesmo pacote com extensão .xpi (manifest na raiz)
+cp -f "$OUT/gerencia-extensao-firefox-$VER.zip" "$OUT/gerencia-extensao-firefox-$VER.xpi"
+echo "  $OUT/gerencia-extensao-firefox-$VER.xpi"
 
 # ---------- 2) agente de estação (serviço do Windows) ----------
 E="estacao"; limpar "$E"
