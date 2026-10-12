@@ -118,6 +118,9 @@ button { font: inherit; color: inherit; }
 .navbtn .n { margin-left: auto; font-family: var(--f-mono); font-size: 11px; color: var(--ink-3); }
 .navbtn[aria-current="true"] .n { color: var(--accent-ink); }
 .navbtn .n.alerta { color: var(--sev-Critico); font-weight: 600; }
+.navlink { display: flex; align-items: baseline; gap: 8px; text-decoration: none; padding: 7px 10px; border-radius: var(--r-md); color: var(--ink-2); font-size: 13.5px; width: 100%; box-sizing: border-box; }
+.navlink:hover { background: var(--surface-2); color: var(--ink); }
+.navlink .n { margin-left: auto; font-family: var(--f-mono); font-size: 13px; color: var(--ink-3); }
 .rail-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
 .themebtn {
   background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md);
@@ -333,6 +336,7 @@ svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
       <button class="navbtn" data-vista="rastrear">Rastrear<span class="n">⌕</span></button>
       <button class="navbtn" data-vista="alertas">Alertas<span class="n" id="n-alertas"></span></button>
       <button class="navbtn" data-vista="captura">Captura<span class="n" id="n-captura"></span></button>
+      <a class="navlink" href="https://claude.ai/artifact/QvCzA4Hsq6LnvH3MDQJsKM" target="_blank" rel="noopener">Rastro<span class="n">↗</span></a>
     </div>
 
     <div class="navgroup">
