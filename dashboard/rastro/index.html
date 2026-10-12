@@ -1,0 +1,1230 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Rastro — Governança de IA</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ground:#f4f6f8; --panel:#ffffff; --panel-2:#fafbfc;
+  --ink:#121820; --ink-2:#56606e; --ink-3:#8b94a1;
+  --rule:#dde2e9; --rule-2:#eceff3;
+  --accent:#1c4f9c; --accent-ink:#1c4f9c; --accent-soft:#e7eef8;
+  --s-baixo:#6b7684; --s-medio:#b07d12; --s-alto:#c8641f; --s-critico:#b8322f;
+  --s-baixo-bg:#eceef1; --s-medio-bg:#fbf2dd; --s-alto-bg:#fbeadc; --s-critico-bg:#fbe9e7;
+  --bar:#2a78d6; --bar-2:#86b6ef;
+  --up:#b8322f;
+  --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0f1319; --panel:#171c24; --panel-2:#1c222b;
+  --ink:#eef1f6; --ink-2:#a2abb9; --ink-3:#79828f;
+  --rule:#293039; --rule-2:#222833;
+  --accent:#79aaf0; --accent-ink:#9dc2f7; --accent-soft:#1a2637;
+  --s-baixo:#98a3b1; --s-medio:#d7a63f; --s-alto:#e08a4e; --s-critico:#e8807c;
+  --s-baixo-bg:#242a33; --s-medio-bg:#302719; --s-alto-bg:#332419; --s-critico-bg:#33201f;
+  --bar:#3987e5; --bar-2:#2a5a94;
+  --up:#e8807c;
+}}
+:root[data-theme="dark"]{
+  --ground:#0f1319; --panel:#171c24; --panel-2:#1c222b;
+  --ink:#eef1f6; --ink-2:#a2abb9; --ink-3:#79828f;
+  --rule:#293039; --rule-2:#222833;
+  --accent:#79aaf0; --accent-ink:#9dc2f7; --accent-soft:#1a2637;
+  --s-baixo:#98a3b1; --s-medio:#d7a63f; --s-alto:#e08a4e; --s-critico:#e8807c;
+  --s-baixo-bg:#242a33; --s-medio-bg:#302719; --s-alto-bg:#332419; --s-critico-bg:#33201f;
+  --bar:#3987e5; --bar-2:#2a5a94;
+  --up:#e8807c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:1360px;margin:0 auto;padding:0 20px 64px}
+
+/* header */
+header{padding:26px 0 18px;border-bottom:1px solid var(--rule);margin-bottom:20px}
+.hrow{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.brand{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:0}
+.brand em{font-style:normal;color:var(--accent-ink)}
+.tagline{font-size:13px;color:var(--ink-2);margin:4px 0 0}
+.src{font-family:var(--mono);font-size:11px;color:var(--ink-3);text-align:right;line-height:1.55}
+
+/* kpis */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:18px}
+.kpi{background:var(--panel);padding:14px 16px}
+.kpi .v{font-family:var(--mono);font-size:25px;font-weight:600;letter-spacing:-.02em;line-height:1.15;display:block}
+.kpi .v.hot{color:var(--s-critico)}
+.kpi .l{font-size:11.5px;color:var(--ink-2);display:block;margin-top:4px;line-height:1.35}
+
+/* engine toggle */
+.engine{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--accent-soft);border:1px solid var(--rule);padding:12px 16px;margin-bottom:18px}
+.engine .lbl{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink)}
+.seg{display:inline-flex;border:1px solid var(--rule);background:var(--panel)}
+.seg button{appearance:none;border:0;background:transparent;color:var(--ink-2);font-family:var(--sans);font-size:12.5px;font-weight:600;padding:7px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.engine .note{font-size:12.5px;color:var(--ink-2);flex:1;min-width:240px}
+
+/* identidade do analista */
+.who{display:flex;align-items:center;gap:7px;margin-top:8px;justify-content:flex-end}
+.who label{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.who input{font-family:var(--mono);font-size:11.5px;color:var(--ink);background:var(--panel);border:1px solid var(--rule);padding:4px 7px;width:132px}
+.who input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+/* classificação por IA */
+.clf{margin-top:12px;border-top:1px solid var(--rule-2);padding-top:12px}
+.clf-btns{display:flex;gap:7px;flex-wrap:wrap}
+.clf-btns button{appearance:none;border:1px solid var(--accent);background:transparent;color:var(--accent-ink);font-family:var(--sans);font-size:12px;font-weight:600;padding:6px 11px;cursor:pointer}
+.clf-btns button:hover:not(:disabled){background:var(--accent);color:#fff}
+.clf-btns button:disabled{opacity:.45;cursor:default;border-color:var(--rule);color:var(--ink-3)}
+.clf-btns button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.clf-out{margin-top:10px;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+.clf-card{border-left:2px solid var(--accent);background:var(--panel-2);padding:10px 12px}
+.clf-card.diverge{border-left-color:var(--s-critico);background:var(--s-critico-bg)}
+.clf-card .veredito{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.clf-card .veredito .q{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+
+/* auditoria */
+.aud{max-height:300px;overflow-y:auto}
+.aud-item{padding:10px 14px;border-bottom:1px solid var(--rule-2);font-size:12px;line-height:1.45}
+.aud-item:last-child{border-bottom:none}
+.aud-item .l1{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:3px}
+.aud-item .ts{font-family:var(--mono);font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.aud-item .quem{font-family:var(--mono);font-size:11px;color:var(--accent-ink);font-weight:600}
+.aud-item .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;padding:1px 5px;background:var(--rule-2);color:var(--ink-2)}
+.aud-item .q{color:var(--ink);display:block}
+.aud-item .meta{color:var(--ink-3);font-size:11px;font-family:var(--mono);margin-top:2px}
+.aud-vazio{padding:16px 14px;font-size:12.5px;color:var(--ink-2)}
+
+/* busca em linguagem natural */
+.nl{background:var(--panel);border:1px solid var(--rule);padding:13px 14px;margin-bottom:12px}
+.nl-top{display:flex;align-items:center;gap:10px;margin-bottom:9px;flex-wrap:wrap}
+.nl-top .lbl{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink)}
+.nl-top .badge{font-family:var(--mono);font-size:10px;padding:2px 6px;background:var(--accent-soft);color:var(--accent-ink);letter-spacing:.04em}
+.nl-row{display:flex;gap:8px;flex-wrap:wrap}
+.nl-row input{flex:1;min-width:260px;font-family:var(--sans);font-size:13.5px;color:var(--ink);background:var(--panel-2);border:1px solid var(--rule);padding:9px 11px}
+.nl-row input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.nl-row button{appearance:none;border:0;background:var(--accent);color:#fff;font-family:var(--sans);font-size:13px;font-weight:600;padding:9px 18px;cursor:pointer;white-space:nowrap}
+.nl-row button:disabled{opacity:.5;cursor:default}
+.nl-row button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.nl-ex{margin-top:9px;display:flex;gap:6px;flex-wrap:wrap;align-items:baseline}
+.nl-ex span.t{font-size:11.5px;color:var(--ink-3)}
+.nl-ex button{appearance:none;border:1px solid var(--rule);background:transparent;color:var(--ink-2);font-family:var(--sans);font-size:11.5px;padding:3px 9px;cursor:pointer}
+.nl-ex button:hover{border-color:var(--accent);color:var(--accent-ink)}
+.nl-status{margin-top:10px;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.nl-status.err{color:var(--s-critico)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);border:1px solid var(--rule);padding:3px 5px 3px 9px;font-size:11.5px;color:var(--ink)}
+.chip .k{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent-ink)}
+.chip button{appearance:none;border:0;background:transparent;color:var(--ink-3);font-size:14px;line-height:1;cursor:pointer;padding:0 3px}
+.chip button:hover{color:var(--s-critico)}
+.chip.lit{background:var(--s-medio-bg)}
+.chip.lit .k{color:var(--s-medio)}
+
+/* filtros */
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+select,input[type=search]{font-family:var(--sans);font-size:12.5px;color:var(--ink);background:var(--panel);border:1px solid var(--rule);padding:7px 9px;min-width:130px}
+input[type=search]{min-width:190px}
+select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.clear{appearance:none;border:1px solid var(--rule);background:var(--panel);color:var(--ink-2);font-size:12.5px;padding:7px 12px;cursor:pointer;font-family:var(--sans)}
+.hits{font-family:var(--mono);font-size:12px;color:var(--ink-2);margin-left:auto}
+
+/* grid principal */
+.main{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:1040px){.main{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--rule)}
+.phead{display:flex;align-items:baseline;gap:10px;padding:12px 14px;border-bottom:1px solid var(--rule)}
+.phead h2{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:0}
+.phead .sub{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-left:auto}
+
+/* tabela */
+.tscroll{overflow-x:auto;max-height:560px;overflow-y:auto}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+thead th{position:sticky;top:0;background:var(--panel-2);text-align:left;font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2);padding:8px 10px;border-bottom:1px solid var(--rule);white-space:nowrap;z-index:1}
+tbody td{padding:7px 10px;border-bottom:1px solid var(--rule-2);vertical-align:top}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--panel-2)}
+tbody tr[aria-selected="true"]{background:var(--accent-soft)}
+td.id{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);white-space:nowrap}
+td.when{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);white-space:nowrap}
+.pill{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.04em;padding:2px 7px;white-space:nowrap}
+.r-Baixo{background:var(--s-baixo-bg);color:var(--s-baixo)}
+.r-Médio{background:var(--s-medio-bg);color:var(--s-medio)}
+.r-Alto{background:var(--s-alto-bg);color:var(--s-alto)}
+.r-Crítico{background:var(--s-critico-bg);color:var(--s-critico)}
+.up{color:var(--up);font-family:var(--mono);font-size:10.5px;font-weight:600;margin-left:5px}
+.prov{color:var(--s-medio);font-family:var(--mono);font-size:11px;font-weight:700;margin-left:5px;cursor:help}
+.apr{color:var(--accent-ink);font-family:var(--mono);font-size:11px;font-weight:700;margin-left:5px;cursor:help}
+.engine .auto{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);white-space:nowrap}
+.engine .auto input{accent-color:var(--accent)}
+.engine .lote{appearance:none;border:1px solid var(--accent);background:transparent;color:var(--accent-ink);font-family:var(--sans);font-size:12px;font-weight:600;padding:6px 11px;cursor:pointer;white-space:nowrap}
+.engine .lote:hover:not(:disabled){background:var(--accent);color:#fff}
+.engine .lote:disabled{opacity:.45;cursor:default;border-color:var(--rule);color:var(--ink-3)}
+.casc{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.casc .step{display:flex;gap:9px;align-items:baseline;font-size:12px;color:var(--ink-3)}
+.casc .step .n{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;flex:none;width:92px}
+.casc .step.on{color:var(--ink)}
+.casc .step.on .n{color:var(--accent-ink);font-weight:600}
+.casc .step.stop .n{color:var(--s-medio);font-weight:600}
+.admin{margin-top:28px}
+.admin-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:1040px){.admin-grid{grid-template-columns:1fr}}
+#invTab th{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);padding:5px 6px;border-bottom:1px solid var(--rule)}
+#invTab td{padding:4px 6px;border-bottom:1px solid var(--rule-2)}
+#invTab input,#invTab select{width:100%;font-family:var(--sans);font-size:12px;color:var(--ink);background:var(--panel-2);border:1px solid var(--rule);padding:4px 6px}
+#invTab .del{appearance:none;border:0;background:transparent;color:var(--ink-3);cursor:pointer;font-size:15px;line-height:1}
+#invTab .del:hover{color:var(--s-critico)}
+.inv-add{display:flex;gap:7px;margin-top:10px}
+.inv-add input{flex:1;font-family:var(--sans);font-size:12px;color:var(--ink);background:var(--panel-2);border:1px solid var(--rule);padding:6px 8px}
+.inv-acoes{display:flex;align-items:center;gap:12px;margin-top:12px}
+.primary{appearance:none;border:0;background:var(--accent);color:#fff;font-family:var(--sans);font-size:12.5px;font-weight:600;padding:8px 16px;cursor:pointer}
+.primary:disabled{opacity:.5;cursor:default}
+.inv-msg{font-size:12px;color:var(--ink-2)}
+.cap-crit{color:var(--s-critico);font-weight:600}
+.st-nao{font-family:var(--mono);font-size:10px;color:var(--s-critico)}
+.st-sim{font-family:var(--mono);font-size:10px;color:var(--s-baixo)}
+.empty{padding:28px 14px;color:var(--ink-2);font-size:13px}
+
+/* evidência */
+.ev{padding:14px}
+.ev .head{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin:0 0 3px}
+.ev h3{font-size:16px;font-weight:600;margin:0 0 12px;line-height:1.3}
+.kv{display:grid;grid-template-columns:104px 1fr;gap:7px 12px;font-size:12.5px;margin-bottom:14px}
+.kv dt{color:var(--ink-3);font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;padding-top:1px}
+.kv dd{margin:0;color:var(--ink)}
+.why{border-left:2px solid var(--accent);background:var(--accent-soft);padding:11px 13px;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+.why b{color:var(--ink);font-weight:600;display:block;margin-bottom:4px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-family:var(--mono)}
+.why.danger{border-left-color:var(--s-critico);background:var(--s-critico-bg)}
+.rule-txt{margin-top:10px;font-size:12px;color:var(--ink-2);line-height:1.5}
+.rule-txt code{font-family:var(--mono);font-size:11.5px;color:var(--accent-ink);font-weight:600}
+
+/* barras */
+.bars{padding:13px 14px}
+.bar{margin-bottom:11px}
+.bar:last-child{margin-bottom:0}
+.bar .top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;gap:10px}
+.bar .top .n{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-2);flex:none}
+.track{height:9px;background:var(--rule-2)}
+.fill{height:9px;background:var(--bar);border-radius:0 4px 4px 0}
+.fill.crit{background:var(--s-critico)}
+
+footer{margin-top:28px;padding-top:16px;border-top:1px solid var(--rule);font-family:var(--mono);font-size:11px;line-height:1.65;color:var(--ink-3)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="hrow">
+    <div>
+      <h1 class="brand">Rastro<em>.</em> <span style="font-weight:400;color:var(--ink-2);font-size:15px">console de governança de IA</span></h1>
+      <p class="tagline">Desafio 2 · Starkbank — o quê, quem, onde, quando, para quê e por que é risco.</p>
+    </div>
+    <div>
+      <div class="src" id="src">carregando base…</div>
+      <div class="who">
+        <label for="analista">analista</label>
+        <input id="analista" type="text" maxlength="28" placeholder="seu.nome" autocomplete="off">
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="kpis" id="kpis"></div>
+
+<div class="engine">
+  <span class="lbl">Motor de risco</span>
+  <div class="seg" role="group" aria-label="Motor de risco">
+    <button id="bOrig" aria-pressed="false">Original da base</button>
+    <button id="bNovo" aria-pressed="true">Reclassificado</button>
+  </div>
+  <span class="note" id="engineNote"></span>
+  <label class="auto" title="quando a camada 1 não resolve e não há caso aprendido, submete ao LLM ao abrir o evento">
+    <input type="checkbox" id="autoLLM" checked> escalar ao LLM automaticamente
+  </label>
+  <button class="lote" id="btnLote" disabled title="resolve os pendentes do filtro atual, até 20 chamadas, e ensina a base">Resolver pendentes do filtro</button>
+</div>
+
+<div class="nl">
+  <div class="nl-top">
+    <span class="lbl">Investigar em português</span>
+    <span class="badge" id="nlBadge">verificando disponibilidade…</span>
+  </div>
+  <div class="nl-row">
+    <input id="nlq" type="text" autocomplete="off"
+           placeholder="ex.: quem expôs credencial em ferramenta não aprovada em agosto?">
+    <button id="nlGo" disabled>Investigar</button>
+  </div>
+  <div class="nl-ex">
+    <span class="t">experimente:</span>
+    <button data-q="quem expôs credencial em ferramenta não aprovada?">credencial fora do perímetro</button>
+    <button data-q="dados de cliente do time comercial em agosto">dado de cliente no comercial</button>
+    <button data-q="o que a engenharia mandou pra IA pública">engenharia em IA pública</button>
+    <button data-q="alertas críticos que ninguém tratou">alertas críticos parados</button>
+  </div>
+  <div class="nl-status" id="nlStatus"></div>
+  <div class="chips" id="chips"></div>
+</div>
+
+<div class="filters">
+  <select id="fArea"></select>
+  <select id="fFer"></select>
+  <select id="fSens"></select>
+  <select id="fRisc"></select>
+  <select id="fMes"></select>
+  <input type="search" id="fTxt" placeholder="filtro literal (substring)…">
+  <button class="clear" id="fClear">limpar</button>
+  <span class="hits" id="hits"></span>
+</div>
+
+<div class="main">
+  <div class="panel">
+    <div class="phead"><h2>Histórico rastreável</h2><span class="sub" id="tsub"></span></div>
+    <div class="tscroll">
+      <table>
+        <thead><tr>
+          <th>Evento</th><th>Data</th><th>Área</th><th>Ferramenta</th>
+          <th>Informação</th><th>Sensib.</th><th>Risco</th><th>Alerta</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="display:grid;gap:16px">
+    <div class="panel">
+      <div class="phead"><h2>Evidência</h2><span class="sub">clique numa linha</span></div>
+      <div class="ev" id="ev"></div>
+    </div>
+    <div class="panel">
+      <div class="phead"><h2>Trilha de auditoria</h2><span class="sub" id="audSub">consultas registradas</span></div>
+      <div class="aud" id="aud"><p class="aud-vazio">Carregando registro…</p></div>
+    </div>
+    <div class="panel">
+      <div class="phead"><h2>Risco por área</h2><span class="sub">% crítico no filtro</span></div>
+      <div class="bars" id="barsArea"></div>
+    </div>
+    <div class="panel">
+      <div class="phead"><h2>Sensibilidade</h2><span class="sub">eventos no filtro</span></div>
+      <div class="bars" id="barsSens"></div>
+    </div>
+  </div>
+</div>
+
+<section class="admin" id="adminArea" hidden>
+  <div class="phead" style="border:1px solid var(--rule);border-bottom:0">
+    <h2>Administração — captura pelos agentes</h2>
+    <span class="sub" id="admSub">modo local</span>
+  </div>
+  <div class="admin-grid">
+    <div class="panel">
+      <div class="phead"><h2>Usos de IA capturados</h2><span class="sub" id="capSub">tempo real</span></div>
+      <div class="tscroll" style="max-height:320px">
+        <table>
+          <thead><tr><th>Hora</th><th>Usuário</th><th>Ferramenta</th><th>Informação</th><th>Sensib.</th><th>Risco</th></tr></thead>
+          <tbody id="capBody"><tr><td colspan="6" class="empty">Aguardando eventos dos agentes…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="phead"><h2>Inventário de ferramentas</h2><span class="sub">o que é aprovado</span></div>
+      <div style="padding:12px 14px">
+        <table id="invTab" style="width:100%;font-size:12.5px">
+          <thead><tr><th style="text-align:left">Domínio</th><th style="text-align:left">Ferramenta</th><th style="text-align:left">Status</th><th></th></tr></thead>
+          <tbody id="invBody"></tbody>
+        </table>
+        <div class="inv-add">
+          <input id="invDom" placeholder="dominio.com" autocomplete="off">
+          <input id="invFer" placeholder="nome da ferramenta" autocomplete="off">
+          <button id="invAdd" class="clear">+ adicionar</button>
+        </div>
+        <div class="inv-acoes">
+          <button id="invSalvar" class="primary">Salvar inventário</button>
+          <span id="invMsg" class="inv-msg"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="foot"></footer>
+</div>
+
+<script src="config.js"></script>
+<script src="dados.js"></script>
+<script>
+(function(){
+  var D = window.DADOS, LK = D.lk, EV = D.ev;
+  var SENS = LK.sens, RISC = LK.risc;
+  var ANON = ["dados agregados anonimizados","ticket de atendimento anonimizado"];
+
+  // ── motor de risco corrigido ─────────────────────────────────────
+  // Cada ramo devolve [nível, regra, motivo, confiança].
+  //   confiança "alta"  → regra dura da política; a camada 1 RESOLVE.
+  //   confiança "baixa" → ramo que a própria regra manda "validar" ou
+  //                        "revisar" (R07, R13): a camada 1 NÃO resolve.
+  //                        Vai à base aprendida; se não houver, ao LLM.
+  function recl(r){
+    var fer = LK.fer[r[4]], tipo = LK.tipo[r[5]].toLowerCase(), sens = SENS[r[6]], qtd = r[10];
+    var naoAp = (D.fer_meta[fer].status || "").indexOf("Não aprovada") >= 0;
+    if (tipo.indexOf("secret") >= 0 || tipo.indexOf("chave") >= 0)
+      return ["Crítico","R03","credencial ou secret em ferramenta de IA — escala independente da ferramenta","alta"];
+    if (naoAp && (sens === "Confidencial" || sens === "Crítica"))
+      return ["Crítico","R01/R02","informação sensível em ferramenta sem contrato corporativo","alta"];
+    if (sens === "Crítica")
+      return ["Crítico","R04/R05","informação crítica: as regras mandam escalar para Compliance/Segurança","alta"];
+    if (sens === "Confidencial"){
+      if (naoAp) return ["Alto","R01","ferramenta não aprovada","alta"];
+      return qtd >= 10 ? ["Alto","R11","volume: "+qtd+" itens numa única interação","alta"]
+                       : ["Médio","R07","ferramenta aprovada — a regra pede validar a finalidade, o que exige ler o conteúdo","baixa"];
+    }
+    if (sens === "Interna"){
+      for (var i=0;i<ANON.length;i++) if (tipo.indexOf(ANON[i]) >= 0)
+        return ["Baixo","R09","conteúdo de fato anonimizado","alta"];
+      return ["Médio","R13","classificado como Interna sem ser anonimizado — R13 manda REVISAR","baixa"];
+    }
+    return ["Baixo","R08","informação pública — registrar sem alerta","alta"];
+  }
+
+  // Assinatura do caso: a chave pela qual a IA clássica reconhece um caso já
+  // resolvido. Deliberadamente sem usuário, área, data e volume — o julgamento
+  // é sobre o CONTEÚDO (tipo × finalidade, no contexto da ferramenta), e o
+  // mesmo conteúdo deve receber o mesmo nível. Volume ≥ 10 já é regra dura
+  // (R11), então abaixo disso ele não muda o julgamento.
+  function assinatura(r){
+    return [LK.tipo[r[5]], D.fer_meta[LK.fer[r[4]]].status, SENS[r[6]], LK.fin[r[11]]].join(" | ");
+  }
+  function hashSig(s){
+    var h = 5381; for (var i=0;i<s.length;i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return "s" + (h >>> 0).toString(16);
+  }
+
+  // pré-computa
+  EV.forEach(function(r){
+    var c = recl(r);
+    r[16] = c[0]; r[17] = c[1]; r[18] = c[2];
+    r[19] = RISC.indexOf(c[0]) > r[7];       // subiu de nível
+    r[20] = c[3];                             // confiança da camada 1
+    r[21] = assinatura(r);
+  });
+
+  // ── base aprendida: o LLM ensina, a IA clássica lembra ───────────
+  var LEARN = {};                             // assinatura → entrada
+  function aprendidoDe(r){ return LEARN[r[21]] || null; }
+
+  var motor = "novo";
+  function riscoDe(r){
+    if (motor !== "novo") return RISC[r[7]];
+    if (r[20] === "baixa"){ var a = aprendidoDe(r); if (a) return a.nivel; }
+    return r[16];
+  }
+  function regraDe(r){
+    if (motor !== "novo") return r[8];
+    if (r[20] === "baixa" && aprendidoDe(r)) return "aprendido";
+    return r[17];
+  }
+  // como o nível exibido foi decidido
+  function origemDe(r){
+    if (motor !== "novo") return "base";
+    if (r[20] === "alta") return "regra";
+    return aprendidoDe(r) ? "aprendido" : "provisório";
+  }
+
+  // ── filtros ──────────────────────────────────────────────────────
+  var MESES = {};
+  EV.forEach(function(r){ MESES[r[1].slice(0,6)] = 1; });
+  var mesList = Object.keys(MESES).sort();
+  function mesLabel(m){ return m.slice(4,6) + "/" + m.slice(0,4); }
+
+  function fill(sel, items, todos){
+    var h = '<option value="">'+todos+'</option>';
+    items.forEach(function(v,i){ h += '<option value="'+i+'">'+v+'</option>'; });
+    sel.innerHTML = h;
+  }
+  var fArea=document.getElementById("fArea"), fFer=document.getElementById("fFer"),
+      fSens=document.getElementById("fSens"), fRisc=document.getElementById("fRisc"),
+      fMes=document.getElementById("fMes"), fTxt=document.getElementById("fTxt");
+  fill(fArea, LK.area, "todas as áreas");
+  fill(fFer,  LK.fer,  "todas as ferramentas");
+  fill(fSens, SENS,    "toda sensibilidade");
+  var hr = '<option value="">todo risco</option>';
+  RISC.forEach(function(v){ hr += '<option value="'+v+'">'+v+'</option>'; });
+  fRisc.innerHTML = hr;
+  var hm = '<option value="">todo o período</option>';
+  mesList.forEach(function(m){ hm += '<option value="'+m+'">'+mesLabel(m)+'</option>'; });
+  fMes.innerHTML = hm;
+
+  // filtro derivado da pergunta em linguagem natural
+  var NL = null;   // {areas,fers,tipos,sens,risc,mesDe,mesAte,usuarios,termos,naoAprovadas,alertaAberto,resumo}
+  function nlVazio(){
+    return !NL || (!NL.areas.length && !NL.fers.length && !NL.tipos.length && !NL.sens.length
+      && !NL.risc.length && !NL.usuarios.length && !NL.termos.length
+      && !NL.mesDe && !NL.mesAte && !NL.naoAprovadas && !NL.alertaAberto);
+  }
+
+  function passaNL(r){
+    if (nlVazio()) return true;
+    if (NL.areas.length   && NL.areas.indexOf(LK.area[r[3]]) < 0) return false;
+    if (NL.fers.length    && NL.fers.indexOf(LK.fer[r[4]]) < 0) return false;
+    if (NL.tipos.length   && NL.tipos.indexOf(LK.tipo[r[5]]) < 0) return false;
+    if (NL.sens.length    && NL.sens.indexOf(SENS[r[6]]) < 0) return false;
+    if (NL.risc.length    && NL.risc.indexOf(riscoDe(r)) < 0) return false;
+    if (NL.usuarios.length && NL.usuarios.indexOf("USR-"+r[2]) < 0) return false;
+    if (NL.mesDe  && r[1].slice(0,6) < NL.mesDe)  return false;
+    if (NL.mesAte && r[1].slice(0,6) > NL.mesAte) return false;
+    if (NL.naoAprovadas){
+      var st = (D.fer_meta[LK.fer[r[4]]].status || "");
+      if (st.indexOf("Não aprovada") < 0) return false;
+    }
+    if (NL.alertaAberto && (!r[15] || r[15] === "Tratado")) return false;
+    if (NL.termos.length){
+      var blob = (LK.tipo[r[5]]+" "+LK.fer[r[4]]+" "+LK.area[r[3]]+" "+r[12]+" "+
+                  LK.fin[r[11]]+" "+LK.forma[r[9]]).toLowerCase();
+      for (var i=0;i<NL.termos.length;i++)
+        if (blob.indexOf(NL.termos[i].toLowerCase()) < 0) return false;
+    }
+    return true;
+  }
+
+  function filtrar(){
+    var a=fArea.value, f=fFer.value, s=fSens.value, rk=fRisc.value, m=fMes.value,
+        q=fTxt.value.trim().toLowerCase();
+    return EV.filter(function(r){
+      if (a !== "" && r[3] != a) return false;
+      if (f !== "" && r[4] != f) return false;
+      if (s !== "" && r[6] != s) return false;
+      if (rk !== "" && riscoDe(r) !== rk) return false;
+      if (m !== "" && r[1].slice(0,6) !== m) return false;
+      if (q){
+        var blob = (LK.tipo[r[5]]+" USR-"+r[2]+" "+LK.fer[r[4]]+" "+LK.area[r[3]]+" "+
+                    r[12]+" "+LK.fin[r[11]]+" EVT-"+r[0]).toLowerCase();
+        if (blob.indexOf(q) < 0) return false;
+      }
+      return passaNL(r);
+    });
+  }
+
+  // ── render ───────────────────────────────────────────────────────
+  function fmtData(t){ return t.slice(6,8)+"/"+t.slice(4,6)+" "+t.slice(9,11)+":"+t.slice(11,13); }
+  function esc(s){ return String(s).replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
+
+  var sel = null;
+
+  function pill(r){ return '<span class="pill r-'+r+'">'+r+'</span>'; }
+
+  function renderTabela(rows){
+    var tb = document.getElementById("tbody");
+    if (!rows.length){ tb.innerHTML = '<tr><td colspan="8" class="empty">Nenhum evento com esses filtros.</td></tr>'; return; }
+    var lim = rows.slice(0, 300), h = "";
+    for (var i=0;i<lim.length;i++){
+      var r = lim[i], rk = riscoDe(r);
+      h += '<tr data-i="'+r[0]+'"'+(sel===r[0]?' aria-selected="true"':'')+'>'
+        +  '<td class="id">EVT-'+r[0]+'</td>'
+        +  '<td class="when">'+fmtData(r[1])+'</td>'
+        +  '<td>'+esc(LK.area[r[3]])+'</td>'
+        +  '<td>'+esc(LK.fer[r[4]])+'</td>'
+        +  '<td>'+esc(LK.tipo[r[5]])+'</td>'
+        +  '<td>'+esc(SENS[r[6]])+'</td>'
+        +  '<td>'+pill(rk)
+        +  (motor==="novo"&&r[19]?'<span class="up" title="subiu de nível na reclassificação">↑</span>':'')
+        +  (origemDe(r)==="provisório"?'<span class="prov" title="camada 1 não resolve; nível provisório até o LLM opinar">?</span>':'')
+        +  (origemDe(r)==="aprendido"?'<span class="apr" title="resolvido pela base aprendida, sem chamar o LLM">≈</span>':'')
+        +  '</td>'
+        +  '<td>'+(r[15]?'<span class="pill r-'+(r[15]==="Tratado"?"Baixo":"Alto")+'">'+r[15]+'</span>':'<span style="color:var(--ink-3)">—</span>')+'</td>'
+        +  '</tr>';
+    }
+    tb.innerHTML = h;
+    document.getElementById("tsub").textContent =
+      rows.length > 300 ? "mostrando 300 de "+rows.length : rows.length+" eventos";
+  }
+
+  function renderEvidencia(r){
+    var box = document.getElementById("ev");
+    if (!r){
+      box.innerHTML = '<p style="color:var(--ink-2);font-size:13px;margin:0">'
+        + 'Selecione um evento no histórico para ver a trilha completa e a justificativa da classificação de risco.</p>';
+      return;
+    }
+    var rk = riscoDe(r), reg = regraDe(r), meta = D.fer_meta[LK.fer[r[4]]];
+    var rr = D.regras[motor==="novo" ? (r[17].split("/")[0]) : r[8]];
+    var crit = (rk === "Crítico");
+    box.innerHTML =
+      '<p class="head mono">EVT-'+r[0]+'</p>'
+      + '<h3>'+esc(LK.tipo[r[5]])+'</h3>'
+      + '<dl class="kv">'
+      + '<dt>Quem</dt><dd>USR-'+r[2]+' · '+esc(LK.area[r[3]])+'</dd>'
+      + '<dt>Onde</dt><dd>'+esc(LK.fer[r[4]])+' <span style="color:var(--ink-3)">('+esc(meta.tipo)+' · '+esc(meta.status)+')</span></dd>'
+      + '<dt>Quando</dt><dd class="mono">'+fmtData(r[1])+'/'+r[1].slice(0,4)+'</dd>'
+      + '<dt>Para quê</dt><dd>'+esc(LK.fin[r[11]])+'</dd>'
+      + '<dt>Como</dt><dd>'+esc(LK.forma[r[9]])+' · '+r[10]+' item(ns)</dd>'
+      + '<dt>Sensib.</dt><dd>'+esc(SENS[r[6]])+'</dd>'
+      + '<dt>Origem</dt><dd>'+esc(LK.orig[r[14]])+'</dd>'
+      + '<dt>Risco</dt><dd>'+pill(rk)+' <span class="mono" style="font-size:11px;color:var(--ink-3)">'+esc(reg)+'</span></dd>'
+      + '</dl>'
+      + '<div class="why'+(crit?' danger':'')+'"><b>Por que foi classificado assim</b>'
+      + (motor==="novo" ? esc(r[18]) : esc(r[12]))
+      + (rr ? '<div class="rule-txt"><code>'+esc(reg)+'</code> — '+esc(rr.regra||rr.tema)+'<br><b style="display:inline;text-transform:none;letter-spacing:0;font-family:var(--sans);font-size:12px">Ação:</b> '+esc(rr.acao)+'</div>' : '')
+      + '</div>'
+      + (motor==="novo" && r[19]
+          ? '<p style="margin:11px 0 0;font-size:12px;color:var(--up)"><b>↑ Reclassificado:</b> a base marcava este evento como <b>'+RISC[r[7]]+'</b>.</p>'
+          : '')
+      + '<div class="clf">' + cascataHtml(r) + '<div class="clf-out" id="clfOut">'
+      + conteudoCascata(r) + '</div></div>';
+    var b = document.getElementById("btnClf");
+    if (b) b.addEventListener("click", function(){ escalarLLM(r); });
+    // cascata automática: camada 1 → base aprendida → LLM
+    if (motor === "novo" && origemDe(r) === "provisório" && ask
+        && document.getElementById("autoLLM").checked && !EM_CURSO[r[21]]) escalarLLM(r);
+  }
+
+  // Os três degraus da cascata, com o que aconteceu neste evento.
+  function cascataHtml(r){
+    if (motor !== "novo")
+      return '<div class="casc"><div class="step on"><span class="n">base</span><span>nível atribuído pelo motor original da Starkbank</span></div></div>';
+    var o = origemDe(r), a = aprendidoDe(r);
+    var s1 = '<div class="step on"><span class="n">1 · regra</span><span>'
+      + (r[20]==="alta" ? 'resolveu — <b>'+esc(r[17])+'</b>' : 'não resolve — <b>'+esc(r[17])+'</b> pede julgamento do conteúdo')
+      + '</span></div>';
+    if (r[20]==="alta") return '<div class="casc">'+s1+'</div>';
+    var s2 = '<div class="step '+(a?"on":"stop")+'"><span class="n">2 · aprendido</span><span>'
+      + (a ? 'caso conhecido — visto <b>'+(a.contagem||1)+'×</b>, ensinado por '+esc(a.ia||"LLM")
+           : 'assinatura inédita — nada aprendido ainda')
+      + '</span></div>';
+    var s3 = '<div class="step '+(a?"":"on")+'"><span class="n">3 · LLM</span><span>'
+      + (a ? 'não acionado' : (ask ? 'acionado para resolver e <b>ensinar</b> a base' : 'indisponível — nível fica provisório'))
+      + '</span></div>';
+    return '<div class="casc">'+s1+s2+s3+'</div>';
+  }
+
+  function conteudoCascata(r){
+    if (motor !== "novo" || r[20] === "alta") return "";
+    var a = aprendidoDe(r);
+    if (a) return cardClf(a, r);
+    if (!ask) return '<span style="color:var(--ink-3);font-size:12px">Sem LLM disponível, este evento fica com o nível provisório da regra.</span>';
+    if (EM_CURSO[r[21]]) return '<span style="color:var(--ink-3);font-size:12px">Submetendo ao LLM…</span>';
+    if (!document.getElementById("autoLLM").checked)
+      return '<div class="clf-btns"><button id="btnClf">Submeter ao LLM e ensinar a base</button></div>';
+    return "";
+  }
+
+  // card do parecer aprendido (veio do LLM, agora pertence à IA clássica)
+  function cardClf(c, r){
+    var regra = r[16];   // o que a regra daria sozinha
+    var diverge = c.nivel && c.nivel !== regra;
+    return '<div class="clf-card'+(diverge?" diverge":"")+'">'
+      + '<div class="veredito"><span class="q">nível aprendido</span>'+pill(c.nivel)
+      + (diverge ? '<span style="font-size:11px;color:var(--s-critico);font-weight:600">a regra sozinha daria '+regra+'</span>'
+                 : '<span style="font-size:11px;color:var(--ink-3)">coincide com o provisório da regra</span>')
+      + '</div>'
+      + '<div>'+esc(c.justificativa||"")+'</div>'
+      + (c.sinais && c.sinais.length
+          ? '<div style="margin-top:6px;font-size:11.5px;color:var(--ink-3)"><b>sinais:</b> '+esc(c.sinais.join(" · "))+'</div>' : "")
+      + '<div style="margin-top:7px;font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.04em">'
+      + 'ENSINADO POR '+esc(c.ia||"LLM").toUpperCase()+' · '+esc(c.quando||c.ts||"")
+      + ' · ASSINATURA: '+esc(r[21])+'</div>'
+      + '</div>';
+  }
+
+  function renderBarras(rows){
+    // por área: % crítico
+    var agg = {};
+    rows.forEach(function(r){
+      var a = LK.area[r[3]];
+      if (!agg[a]) agg[a] = [0,0];
+      agg[a][0]++;
+      if (riscoDe(r) === "Crítico") agg[a][1]++;
+    });
+    var arr = Object.keys(agg).map(function(a){
+      return [a, agg[a][0], agg[a][1], agg[a][0] ? 100*agg[a][1]/agg[a][0] : 0];
+    }).sort(function(x,y){ return y[3]-x[3]; }).slice(0,8);
+    var max = Math.max.apply(null, arr.map(function(x){ return x[3]; }).concat([1]));
+    var h = "";
+    arr.forEach(function(x){
+      h += '<div class="bar"><div class="top"><span>'+esc(x[0])+'</span>'
+        +  '<span class="n">'+x[3].toFixed(1)+'% · '+x[2]+'/'+x[1]+'</span></div>'
+        +  '<div class="track"><div class="fill'+(x[3]>=30?' crit':'')+'" style="width:'+Math.max(2,100*x[3]/max)+'%"></div></div></div>';
+    });
+    document.getElementById("barsArea").innerHTML = h || '<p style="margin:0;font-size:12.5px;color:var(--ink-2)">Sem dados no filtro.</p>';
+
+    // sensibilidade
+    var cs = {}; SENS.forEach(function(s){ cs[s]=0; });
+    rows.forEach(function(r){ cs[SENS[r[6]]]++; });
+    var mx = Math.max.apply(null, SENS.map(function(s){ return cs[s]; }).concat([1]));
+    var h2 = "";
+    SENS.forEach(function(s){
+      var pc = rows.length ? 100*cs[s]/rows.length : 0;
+      h2 += '<div class="bar"><div class="top"><span>'+s+'</span>'
+         +  '<span class="n">'+cs[s]+' · '+pc.toFixed(1)+'%</span></div>'
+         +  '<div class="track"><div class="fill'+(s==="Crítica"?' crit':'')+'" style="width:'+Math.max(2,100*cs[s]/mx)+'%"></div></div></div>';
+    });
+    document.getElementById("barsSens").innerHTML = h2;
+  }
+
+  function renderKpis(rows){
+    var n = rows.length;
+    var crit = rows.filter(function(r){ return riscoDe(r) === "Crítico"; }).length;
+    var cred = rows.filter(function(r){
+      var t = LK.tipo[r[5]].toLowerCase();
+      return t.indexOf("secret") >= 0 || t.indexOf("chave") >= 0;
+    }).length;
+    var abertos = rows.filter(function(r){ return r[15] && r[15] !== "Tratado"; }).length;
+    var sens = rows.filter(function(r){ return r[6] >= 2; }).length;
+    var subiu = rows.filter(function(r){ return r[19]; }).length;
+    var pend  = rows.filter(function(r){ return r[20] === "baixa" && !aprendidoDe(r); }).length;
+    var aprnd = rows.filter(function(r){ return r[20] === "baixa" && aprendidoDe(r); }).length;
+    var k = [
+      [n, "eventos no filtro", false],
+      [(n? (100*crit/n).toFixed(1):"0.0")+"%", crit+" de risco crítico", crit>0],
+      [(n? (100*sens/n).toFixed(1):"0.0")+"%", "confidencial ou crítica", false],
+      [cred, "com credencial exposta", cred>0],
+      [abertos, "alertas sem tratamento", abertos>0],
+      [motor==="novo"? subiu : "—", motor==="novo"? "reclassificados p/ cima" : "motor original ativo", false],
+      [motor==="novo"? pend : "—", motor==="novo"? "sem resolução na camada 1" : "—", motor==="novo" && pend>0],
+      [motor==="novo"? aprnd : "—", motor==="novo"? "resolvidos pela base aprendida" : "—", false]
+    ];
+    document.getElementById("kpis").innerHTML = k.map(function(x){
+      return '<div class="kpi"><span class="v'+(x[2]?' hot':'')+'">'+x[0]+'</span><span class="l">'+x[1]+'</span></div>';
+    }).join("");
+  }
+
+  function render(){
+    var rows = filtrar();
+    renderKpis(rows);
+    renderTabela(rows);
+    renderBarras(rows);
+    document.getElementById("hits").textContent = rows.length + " / " + EV.length + " eventos";
+    var r = sel ? EV.filter(function(x){ return x[0] === sel; })[0] : null;
+    renderEvidencia(r);
+  }
+
+  // ── eventos de UI ────────────────────────────────────────────────
+  document.getElementById("tbody").addEventListener("click", function(e){
+    var tr = e.target.closest("tr"); if (!tr || !tr.dataset.i) return;
+    sel = tr.dataset.i; render();
+  });
+  [fArea,fFer,fSens,fRisc,fMes].forEach(function(el){ el.addEventListener("change", render); });
+  fTxt.addEventListener("input", render);
+  document.getElementById("fClear").addEventListener("click", function(){
+    fArea.value=fFer.value=fSens.value=fRisc.value=fMes.value=""; fTxt.value="";
+    NL=null; sel=null; renderChips(); render();
+  });
+
+  // ── busca em linguagem natural (capacidade `sample`) ─────────────
+  var nlq=document.getElementById("nlq"), nlGo=document.getElementById("nlGo"),
+      nlStatus=document.getElementById("nlStatus"), nlBadge=document.getElementById("nlBadge"),
+      chipsEl=document.getElementById("chips");
+  var ask = null, pedindo = false;
+
+  var CAMPOS = [
+    ["areas","área"], ["fers","ferramenta"], ["tipos","informação"],
+    ["sens","sensibilidade"], ["risc","risco"], ["usuarios","usuário"], ["termos","texto"]
+  ];
+
+  function renderChips(){
+    if (nlVazio()){ chipsEl.innerHTML = ""; return; }
+    var h = "";
+    CAMPOS.forEach(function(c){
+      (NL[c[0]]||[]).forEach(function(v){
+        h += '<span class="chip'+(c[0]==="termos"?" lit":"")+'"><span class="k">'+c[1]+'</span>'
+          +  esc(v)+'<button data-f="'+c[0]+'" data-v="'+esc(v).replace(/"/g,"&quot;")+'" '
+          +  'aria-label="remover filtro">×</button></span>';
+      });
+    });
+    if (NL.naoAprovadas)
+      h += '<span class="chip"><span class="k">ferramenta</span>não aprovadas<button data-f="naoAprovadas" aria-label="remover filtro">×</button></span>';
+    if (NL.alertaAberto)
+      h += '<span class="chip"><span class="k">alerta</span>sem tratamento<button data-f="alertaAberto" aria-label="remover filtro">×</button></span>';
+    if (NL.mesDe || NL.mesAte){
+      var p = (NL.mesDe?mesLabel(NL.mesDe):"início") + " → " + (NL.mesAte?mesLabel(NL.mesAte):"fim");
+      h += '<span class="chip"><span class="k">período</span>'+p+'<button data-f="periodo" aria-label="remover filtro">×</button></span>';
+    }
+    chipsEl.innerHTML = h;
+  }
+
+  chipsEl.addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b || !NL) return;
+    var f = b.dataset.f;
+    if (f === "periodo"){ NL.mesDe = NL.mesAte = null; }
+    else if (f === "naoAprovadas" || f === "alertaAberto"){ NL[f] = false; }
+    else { NL[f] = (NL[f]||[]).filter(function(v){ return v !== b.dataset.v; }); }
+    renderChips(); render();
+  });
+
+  var VOCAB = null;
+  function vocab(){
+    if (VOCAB) return VOCAB;
+    VOCAB = "áreas: " + LK.area.join(" | ")
+      + "\nferramentas: " + LK.fer.map(function(f){
+          return f + " [" + D.fer_meta[f].status + "]"; }).join(" | ")
+      + "\ntipos de informação: " + LK.tipo.join(" | ")
+      + "\nsensibilidade: " + SENS.join(" | ")
+      + "\nrisco: " + RISC.join(" | ")
+      + "\nmeses disponíveis (AAAAMM): " + mesList.join(" | ");
+    return VOCAB;
+  }
+
+  function montarPrompt(q){
+    return "Você converte perguntas em português sobre uso corporativo de IA num filtro JSON.\n"
+      + "Responda SOMENTE com o JSON, sem comentário.\n\n"
+      + "VOCABULÁRIO DA BASE (use exatamente estes valores, nada fora da lista):\n" + vocab() + "\n\n"
+      + "SCHEMA:\n"
+      + '{"areas":[],"fers":[],"tipos":[],"sens":[],"risc":[],"usuarios":[],'
+      + '"mesDe":null,"mesAte":null,"naoAprovadas":false,"alertaAberto":false,'
+      + '"termos":[],"resumo":""}\n\n'
+      + "REGRAS:\n"
+      + "- Listas vazias = sem restrição naquele campo. Só preencha o que a pergunta pede.\n"
+      + "- Valores DEVEM sair do vocabulário acima, copiados literalmente.\n"
+      + "- 'credencial', 'senha', 'token', 'secret', 'chave' → tipos: [\"Chave/API secret\"].\n"
+      + "- 'IA pública', 'ferramenta não aprovada', 'fora do perímetro', 'shadow AI' → naoAprovadas: true.\n"
+      + "- 'alerta aberto', 'não tratado', 'ninguém olhou', 'parado' → alertaAberto: true.\n"
+      + "- Datas: mesDe/mesAte no formato AAAAMM. 'agosto' → mesDe e mesAte = \"202608\".\n"
+      + "  'desde julho' → mesDe \"202607\", mesAte null. A base cobre 202606 a 202609.\n"
+      + "- usuarios no formato \"USR-0001\".\n"
+      + "- termos: só palavras que NÃO couberam em nenhum campo acima, para busca textual.\n"
+      + "- resumo: uma frase curta em português dizendo como você interpretou a pergunta.\n\n"
+      + "PERGUNTA: " + q;
+  }
+
+  function limpaLista(arr, validos){
+    if (!Array.isArray(arr)) return [];
+    return arr.filter(function(v){ return typeof v === "string" && validos.indexOf(v) >= 0; });
+  }
+
+  function aplicar(j){
+    NL = {
+      areas:  limpaLista(j.areas, LK.area),
+      fers:   limpaLista(j.fers,  LK.fer),
+      tipos:  limpaLista(j.tipos, LK.tipo),
+      sens:   limpaLista(j.sens,  SENS),
+      risc:   limpaLista(j.risc,  RISC),
+      usuarios: Array.isArray(j.usuarios) ? j.usuarios.filter(function(u){
+                  return typeof u === "string" && /^USR-\d{4}$/.test(u); }) : [],
+      mesDe:  (typeof j.mesDe  === "string" && /^\d{6}$/.test(j.mesDe))  ? j.mesDe  : null,
+      mesAte: (typeof j.mesAte === "string" && /^\d{6}$/.test(j.mesAte)) ? j.mesAte : null,
+      naoAprovadas: j.naoAprovadas === true,
+      alertaAberto: j.alertaAberto === true,
+      termos: Array.isArray(j.termos) ? j.termos.filter(function(t){
+                return typeof t === "string" && t.length > 2; }).slice(0,4) : [],
+      resumo: typeof j.resumo === "string" ? j.resumo : ""
+    };
+  }
+
+  function statusTexto(msg, erro){
+    nlStatus.textContent = msg;
+    nlStatus.className = "nl-status" + (erro ? " err" : "");
+  }
+
+  async function investigar(){
+    var q = nlq.value.trim();
+    if (!q || !ask || pedindo) return;
+    pedindo = true; nlGo.disabled = true;
+    statusTexto("Interpretando a pergunta…", false);
+    try {
+      var j = await ask.json(montarPrompt(q), { modelTier: "quick" });
+      aplicar(j);
+      sel = null;
+      renderChips();
+      var n = filtrar().length;
+      statusTexto((NL.resumo || "Filtro aplicado.") + "  →  " + n + " evento(s).", false);
+      render();
+      registrar("rastreio", q, rotuloIA("quick"), n + " evento(s) retornado(s)");
+    } catch (e) {
+      var c = e && e.code;
+      if (c === "not_granted"){
+        ask = null; nlGo.disabled = true; nlq.disabled = true;
+        nlBadge.textContent = "permissão negada";
+        statusTexto("Sem permissão para consultar o Claude nesta visualização. Os filtros e a busca literal continuam funcionando.", true);
+        return;
+      }
+      if (c === "rate_limited") statusTexto("Muitas consultas seguidas. Espere alguns segundos e tente de novo.", true);
+      else if (c === "invalid_json") statusTexto("Não consegui estruturar essa pergunta. Tente ser mais específico — cite área, ferramenta ou tipo de informação.", true);
+      else if (c === "cancelled") statusTexto("Consulta cancelada.", true);
+      else statusTexto("Falha ao interpretar: " + ((e && e.message) || "erro desconhecido"), true);
+    } finally {
+      pedindo = false;
+      if (ask) nlGo.disabled = false;
+    }
+  }
+
+  nlGo.addEventListener("click", investigar);
+  nlq.addEventListener("keydown", function(e){ if (e.key === "Enter") investigar(); });
+  document.querySelectorAll(".nl-ex button").forEach(function(b){
+    b.addEventListener("click", function(){
+      nlq.value = b.dataset.q;
+      if (ask) investigar(); else nlq.focus();
+    });
+  });
+
+  // ── modo de execução ─────────────────────────────────────────────
+  // LOCAL  → servido por app/agente.py: identidade = usuário do SO,
+  //          trilha em SQLite, IA via API da Anthropic no servidor.
+  // ARTIFACT → capacidades `sample` e `db` da plataforma.
+  var LOCAL = (window.RASTRO_LOCAL && typeof window.RASTRO_LOCAL === "object") ? window.RASTRO_LOCAL : null;
+
+  // ── identidade do analista ───────────────────────────────────────
+  var inpAnalista = document.getElementById("analista");
+  if (LOCAL && LOCAL.analista){
+    // Lida pelo servidor do sistema operacional. O navegador não edita.
+    inpAnalista.value = LOCAL.analista;
+    inpAnalista.readOnly = true;
+    inpAnalista.title = "usuário logado na máquina, lido pelo servidor";
+    inpAnalista.previousElementSibling.textContent = "analista · SO";
+  } else {
+    // Modo artifact: sem a capacidade `user`, a identidade é autodeclarada.
+    // Limitação documentada em docs/AUDITORIA.md.
+    try { inpAnalista.value = localStorage.getItem("rastro.analista") || ""; } catch(e){}
+    inpAnalista.addEventListener("change", function(){
+      try { localStorage.setItem("rastro.analista", inpAnalista.value.trim()); } catch(e){}
+    });
+  }
+  function analista(){ return (inpAnalista.value || "").trim() || "não identificado"; }
+
+  // ── trilha de auditoria ──────────────────────────────────────────
+  // Duas implementações, mesma interface: gravarTrilha(reg) e assinarTrilha(cb).
+  var banco = null, TRILHA = [];
+  var gravarTrilha = null, assinarTrilha = null;
+
+  async function httpJson(metodo, rota, corpo){
+    var r = await fetch(rota, { method: metodo, headers: {"Content-Type":"application/json"},
+                                body: corpo ? JSON.stringify(corpo) : undefined });
+    var j = null; try { j = await r.json(); } catch(e){}
+    if (!r.ok) throw (j && j.code ? j : { code: "http_"+r.status, message: r.statusText });
+    return j;
+  }
+
+  function agora(){
+    var d = new Date(), p = function(n){ return (n<10?"0":"")+n; };
+    return {
+      iso: d.toISOString(),
+      data: p(d.getDate())+"/"+p(d.getMonth()+1)+"/"+d.getFullYear(),
+      hora: p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds())
+    };
+  }
+
+  function renderTrilha(){
+    var el = document.getElementById("aud");
+    if (!banco){
+      el.innerHTML = '<p class="aud-vazio">Registro persistente indisponível nesta visualização. '
+        + 'As consultas desta sessão não estão sendo gravadas.</p>';
+      document.getElementById("audSub").textContent = "sem persistência";
+      return;
+    }
+    if (!TRILHA.length){
+      el.innerHTML = '<p class="aud-vazio">Nenhuma consulta registrada ainda. '
+        + 'Toda investigação e toda classificação por IA entra aqui.</p>';
+      document.getElementById("audSub").textContent = "0 consultas";
+      return;
+    }
+    el.innerHTML = TRILHA.map(function(a){
+      return '<div class="aud-item">'
+        + '<div class="l1"><span class="ts">'+esc(a.data)+" "+esc(a.hora)+'</span>'
+        + '<span class="quem">'+esc(a.analista)+'</span>'
+        + '<span class="tag">'+esc(a.tipo)+'</span></div>'
+        + '<span class="q">'+esc(a.pergunta)+'</span>'
+        + '<div class="meta">'+esc(a.ia)+' · '+esc(a.resultado)+'</div>'
+        + '</div>';
+    }).join("");
+    document.getElementById("audSub").textContent = TRILHA.length + " consulta(s)";
+  }
+
+  async function registrar(tipo, pergunta, ia, resultado){
+    var t = agora();
+    var reg = { ts: t.iso, data: t.data, hora: t.hora, analista: analista(),
+                tipo: tipo, pergunta: pergunta, ia: ia, resultado: resultado };
+    TRILHA.unshift(reg);
+    if (TRILHA.length > 60) TRILHA.pop();
+    renderTrilha();
+    if (!gravarTrilha) return;
+    try { await gravarTrilha(reg); }
+    catch (e) { /* o registro local já está na tela; não travar a UI */ }
+  }
+
+  function aplicarTrilha(lista){
+    TRILHA = (lista || []).filter(function(x){ return x && x.ts; });
+    renderTrilha();
+  }
+
+  if (LOCAL){
+    // servidor local: SQLite; o servidor carimba o analista do SO
+    banco = true;
+    gravarTrilha = function(reg){ return httpJson("POST", "/api/auditoria", reg); };
+    assinarTrilha = function(cb){
+      var tick = function(){ httpJson("GET", "/api/auditoria").then(function(j){ cb(j.itens); }).catch(function(){}); };
+      tick(); setInterval(tick, 4000);
+    };
+    renderTrilha(); assinarTrilha(aplicarTrilha);
+  } else {
+    (window.claude && window.claude.use ? claude.use("db") : Promise.resolve(null))
+      .then(function(b){
+        banco = b;
+        renderTrilha();
+        if (!b) return;
+        gravarTrilha = function(reg){
+          var id = reg.ts.replace(/[:.]/g, "-") + "-" + Math.random().toString(36).slice(2,7);
+          return b.doc("auditoria/" + id).set(reg);
+        };
+        b.collection("auditoria").orderBy("ts", "desc").limit(60).onSnapshot(
+          function(snap){
+            aplicarTrilha((snap && snap.docs ? snap.docs : [])
+              .map(function(d){ return d.exists ? d.data() : null; }));
+          },
+          function(e){ document.getElementById("audSub").textContent = "erro ao ler registro"; });
+      })
+      .catch(function(){ banco = null; renderTrilha(); });
+  }
+
+  // ── camada de IA na classificação ────────────────────────────────
+  function promptClassificacao(r){
+    var fer = LK.fer[r[4]], meta = D.fer_meta[fer];
+    return "Você é um analista de segurança da informação classificando o risco de um uso de IA corporativa.\n"
+      + "Responda SOMENTE com JSON, sem comentário.\n\n"
+      + "POLÍTICA DE CLASSIFICAÇÃO DA EMPRESA:\n"
+      + D.classif.map(function(c){ return "- " + c.n + ": " + c.def + " → " + c.regra; }).join("\n") + "\n\n"
+      + "NÍVEIS DE RISCO POSSÍVEIS: Baixo | Médio | Alto | Crítico\n\n"
+      + "EVENTO:\n"
+      + "- Tipo de informação: " + LK.tipo[r[5]] + "\n"
+      + "- Sensibilidade declarada: " + SENS[r[6]] + "\n"
+      + "- Ferramenta: " + fer + " (" + meta.tipo + ", " + meta.status + ", logs: " + meta.logs + ")\n"
+      + "- Forma de uso: " + LK.forma[r[9]] + "\n"
+      + "- Quantidade de itens: " + r[10] + "\n"
+      + "- Finalidade declarada: " + LK.fin[r[11]] + "\n"
+      + "- Área: " + LK.area[r[3]] + "\n"
+      + "- Evidência registrada: " + (r[12] || "nenhuma") + "\n\n"
+      + "Avalie o CONTEÚDO e o CONTEXTO, não só os metadados. Considere se a finalidade\n"
+      + "declarada é coerente com o tipo de informação, se o volume é desproporcional e se a\n"
+      + "ferramenta é adequada à sensibilidade.\n\n"
+      + 'SCHEMA: {"nivel":"Baixo|Médio|Alto|Crítico","justificativa":"uma ou duas frases em português",'
+      + '"sinais":["fatores que pesaram, no máximo 3"]}';
+  }
+
+  // ── persistência da base aprendida ───────────────────────────────
+  var gravarAprendizado = null;
+  function aplicarAprendizado(lista){
+    var m = {};
+    (lista || []).forEach(function(e){
+      if (e && e.assinatura && RISC.indexOf(e.nivel) >= 0) m[e.assinatura] = e;
+    });
+    LEARN = m;
+    render();
+  }
+  if (LOCAL){
+    gravarAprendizado = function(e){ return httpJson("POST", "/api/aprendizado", e); };
+    var tickA = function(){ httpJson("GET", "/api/aprendizado").then(function(j){ aplicarAprendizado(j.itens); }).catch(function(){}); };
+    tickA(); setInterval(tickA, 6000);
+  } else {
+    (window.claude && window.claude.use ? claude.use("db") : Promise.resolve(null))
+      .then(function(b){
+        if (!b) return;
+        gravarAprendizado = function(e){ return b.doc("aprendizado/" + hashSig(e.assinatura)).set(e); };
+        b.collection("aprendizado").onSnapshot(function(snap){
+          aplicarAprendizado((snap && snap.docs ? snap.docs : [])
+            .map(function(d){ return d.exists ? d.data() : null; }));
+        }, function(){});
+      }).catch(function(){});
+  }
+
+  // ── degrau 3: o LLM resolve e ENSINA a base ──────────────────────
+  var EM_CURSO = {};   // assinatura → true enquanto uma chamada roda
+  async function escalarLLM(r){
+    if (!ask || EM_CURSO[r[21]]) return;
+    EM_CURSO[r[21]] = true;
+    var out = document.getElementById("clfOut");
+    if (out && sel === r[0]) out.innerHTML = '<span style="color:var(--ink-3);font-size:12px">Submetendo ao LLM…</span>';
+    try {
+      var j = await ask.json(promptClassificacao(r), { modelTier: "default" });
+      var nivel = (RISC.indexOf(j.nivel) >= 0) ? j.nivel : null;
+      if (!nivel) throw { code: "invalid_json", message: "nível fora da escala" };
+      var t = agora();
+      var entrada = {
+        assinatura: r[21],
+        nivel: nivel,
+        justificativa: typeof j.justificativa === "string" ? j.justificativa.slice(0,600) : "",
+        sinais: Array.isArray(j.sinais) ? j.sinais.filter(function(x){ return typeof x === "string"; }).slice(0,3) : [],
+        ia: rotuloIA("default"),
+        analista: analista(),
+        ts: t.iso, quando: t.data + " " + t.hora,
+        contagem: (LEARN[r[21]] && LEARN[r[21]].contagem || 0) + 1
+      };
+      LEARN[r[21]] = entrada;                       // a IA clássica aprende agora
+      if (gravarAprendizado) { try { await gravarAprendizado(entrada); } catch(e){} }
+      registrar("classificação", "EVT-" + r[0] + " · " + LK.tipo[r[5]],
+                rotuloIA("default"),
+                "parecer: " + nivel + " · regra sozinha: " + r[16] + " · ensinou assinatura");
+      return true;
+    } catch (e) {
+      var c = e && e.code;
+      var msg = c === "not_granted" ? "Sem permissão para consultar o Claude."
+              : c === "rate_limited" ? "Muitas consultas seguidas. Aguarde alguns segundos."
+              : c === "invalid_json" ? "A IA não devolveu um parecer utilizável."
+              : "Falha ao classificar: " + ((e && e.message) || "erro desconhecido");
+      if (out && sel === r[0]) out.innerHTML = '<span style="color:var(--s-critico);font-size:12px">'+esc(msg)+'</span>';
+      if (c === "not_granted") ask = null;
+      if (c === "rate_limited") throw e;           // o lote precisa parar
+      return false;
+    } finally {
+      delete EM_CURSO[r[21]];
+      render();
+    }
+  }
+
+  // ── lote: resolve os pendentes do filtro e ensina a base ─────────
+  var btnLote = document.getElementById("btnLote");
+  async function resolverLote(){
+    if (!ask) return;
+    var pend = filtrar().filter(function(r){ return r[20] === "baixa" && !aprendidoDe(r); });
+    // uma chamada por assinatura, não por evento: é isso que a base aprende
+    var vistos = {}, fila = [];
+    pend.forEach(function(r){ if (!vistos[r[21]]) { vistos[r[21]] = 1; fila.push(r); } });
+    var total = Math.min(fila.length, 20);
+    if (!total) return;
+    btnLote.disabled = true;
+    var ok = 0;
+    for (var i = 0; i < total; i++){
+      btnLote.textContent = "Resolvendo " + (i+1) + "/" + total + "…";
+      try { if (await escalarLLM(fila[i])) ok++; }
+      catch (e) { break; }                        // rate limit: para o lote
+    }
+    btnLote.textContent = "Resolver pendentes do filtro";
+    btnLote.disabled = !ask;
+    statusTexto(ok + " assinatura(s) aprendida(s) — cobrem " +
+      pend.filter(function(r){ return aprendidoDe(r); }).length + " dos " + pend.length +
+      " eventos pendentes do filtro.", false);
+  }
+  btnLote.addEventListener("click", resolverLote);
+  document.getElementById("autoLLM").addEventListener("change", render);
+
+  // a capacidade chega depois — a página já funciona sem ela
+  nlBadge.textContent = "conectando…";
+  function resolverIA(){
+    if (LOCAL){
+      if (!LOCAL.ia) return Promise.resolve(null);
+      // adaptador com a mesma interface de `sample`: ask.json(prompt, opts)
+      var modelo = LOCAL.modelo || "modelo local";
+      return Promise.resolve({
+        json: function(prompt){ return httpJson("POST", "/api/ia", { prompt: prompt }).then(function(j){ return j.json; }); },
+        rotulo: "Claude via API (" + modelo + ")"
+      });
+    }
+    return window.claude && window.claude.use ? claude.use("sample") : Promise.resolve(null);
+  }
+  function rotuloIA(tier){ return (ask && ask.rotulo) ? ask.rotulo : "Claude (sample, tier " + tier + ")"; }
+  resolverIA()
+    .then(function(s){
+      if (!s){
+        nlq.disabled = true; nlGo.disabled = true;
+        nlBadge.textContent = "indisponível nesta visualização";
+        statusTexto("A interpretação em linguagem natural precisa do Claude, que não está disponível aqui. Use os filtros abaixo e a busca literal.", false);
+        return;
+      }
+      ask = s; nlGo.disabled = false; btnLote.disabled = false;
+      nlBadge.textContent = "interpretado pelo Claude";
+      render();
+      statusTexto("Pergunte em português. A pergunta vira um filtro estruturado, exibido como etiquetas removíveis — você vê exatamente como ela foi interpretada.", false);
+    })
+    .catch(function(){
+      nlq.disabled = true; nlGo.disabled = true;
+      nlBadge.textContent = "indisponível";
+    });
+  function setMotor(m){
+    motor = m;
+    document.getElementById("bOrig").setAttribute("aria-pressed", m==="orig");
+    document.getElementById("bNovo").setAttribute("aria-pressed", m==="novo");
+    var subiu = EV.filter(function(r){ return r[19]; }).length;
+    var critO = EV.filter(function(r){ return RISC[r[7]]==="Crítico"; }).length;
+    var critN = EV.filter(function(r){ return r[16]==="Crítico"; }).length;
+    var alta  = EV.filter(function(r){ return r[20]==="alta"; }).length;
+    document.getElementById("engineNote").innerHTML = m==="novo"
+      ? "Cascata: a regra resolve <b>"+alta+"</b> de "+EV.length+" eventos sozinha; os <b>"+(EV.length-alta)+"</b> restantes pedem julgamento e vão à base aprendida, depois ao LLM — que ensina a base. Críticos: <b>"+critO+"</b> → <b>"+critN+"</b>."
+      : "Régua da base: rebaixa 59 eventos de informação crítica para “Alto” e trata toda informação Interna como risco Baixo via R09.";
+    render();
+  }
+  document.getElementById("bOrig").addEventListener("click", function(){ setMotor("orig"); });
+  document.getElementById("bNovo").addEventListener("click", function(){ setMotor("novo"); });
+
+  // ── painel de administração (só no modo local, servido pelo agente) ──
+  if (LOCAL){
+    document.getElementById("adminArea").hidden = false;
+    document.getElementById("admSub").textContent = "agente em " + (location.host || "127.0.0.1");
+    var INV = {};
+
+    function statusSel(dom, atual){
+      var opts = ["Aprovada","Aprovada condicional","Aprovada apenas para conteúdo público","Não aprovada"];
+      return '<select data-dom="'+esc(dom)+'">'
+        + opts.map(function(o){ return '<option'+(o===atual?" selected":"")+'>'+o+'</option>'; }).join("")
+        + '</select>';
+    }
+    function renderInv(){
+      var b = document.getElementById("invBody"), h = "";
+      Object.keys(INV).sort().forEach(function(dom){
+        var m = INV[dom];
+        h += '<tr><td class="mono" style="font-size:11.5px">'+esc(dom)+'</td>'
+          + '<td><input data-dom="'+esc(dom)+'" class="ferInput" value="'+esc(m.ferramenta)+'"></td>'
+          + '<td>'+statusSel(dom, m.status)+'</td>'
+          + '<td><button class="del" data-dom="'+esc(dom)+'" title="remover">×</button></td></tr>';
+      });
+      b.innerHTML = h || '<tr><td colspan="4" class="empty">Nenhuma ferramenta no inventário.</td></tr>';
+    }
+    document.getElementById("invBody").addEventListener("input", function(e){
+      var el = e.target, dom = el.dataset.dom;
+      if (!dom || !INV[dom]) return;
+      if (el.classList.contains("ferInput")) INV[dom].ferramenta = el.value;
+      else if (el.tagName === "SELECT") INV[dom].status = el.value;
+    });
+    document.getElementById("invBody").addEventListener("click", function(e){
+      var b = e.target.closest(".del"); if (!b) return;
+      delete INV[b.dataset.dom]; renderInv();
+    });
+    document.getElementById("invAdd").addEventListener("click", function(){
+      var d = document.getElementById("invDom").value.trim().toLowerCase().replace(/^https?:\/\//,"").replace(/\/.*$/,"");
+      var f = document.getElementById("invFer").value.trim();
+      if (!d) return;
+      INV[d] = { ferramenta: f || d, status: "Não aprovada" };
+      document.getElementById("invDom").value = ""; document.getElementById("invFer").value = "";
+      renderInv();
+    });
+    document.getElementById("invSalvar").addEventListener("click", async function(){
+      var btn = this; btn.disabled = true;
+      document.getElementById("invMsg").textContent = "salvando…";
+      try {
+        await httpJson("POST", "/api/config", { inventario: INV });
+        document.getElementById("invMsg").textContent = "salvo — vale para os próximos eventos.";
+      } catch (e) {
+        document.getElementById("invMsg").textContent = "falha: " + ((e && e.message) || e.code || "erro");
+      } finally { btn.disabled = false; }
+    });
+    httpJson("GET", "/api/config").then(function(j){ INV = j.inventario || {}; renderInv(); }).catch(function(){});
+
+    // monitor de usos capturados pelos agentes
+    function renderCap(itens){
+      var b = document.getElementById("capBody");
+      if (!itens || !itens.length){
+        b.innerHTML = '<tr><td colspan="6" class="empty">Nenhum uso capturado ainda. Instale a extensão numa estação e use uma ferramenta de IA.</td></tr>';
+        return;
+      }
+      b.innerHTML = itens.slice(0,120).map(function(e){
+        var crit = e.nivel === "Crítico";
+        return '<tr><td class="when">'+esc(e.hora)+'</td>'
+          + '<td class="mono" style="font-size:11.5px">'+esc(e.usuario)+'</td>'
+          + '<td>'+esc(e.ferramenta)+' <span class="'+(/Não aprovada/.test(e.status_fer)?"st-nao":"st-sim")+'">'+(/Não aprovada/.test(e.status_fer)?"⚠":"✓")+'</span></td>'
+          + '<td>'+esc(e.tipo)+'</td><td>'+esc(e.sens)+'</td>'
+          + '<td><span class="pill r-'+esc(e.nivel)+'">'+esc(e.nivel)+'</span>'
+          + (e.origem==="provisório"?' <span class="prov">?</span>':'')+'</td></tr>';
+      }).join("");
+      document.getElementById("capSub").textContent = itens.length + " uso(s)";
+    }
+    var tickCap = function(){ httpJson("GET","/api/eventos").then(function(j){ renderCap(j.itens); }).catch(function(){}); };
+    tickCap(); setInterval(tickCap, 4000);
+  }
+
+  // rodapé e fonte
+  var d0 = EV[EV.length-1][1], d1 = EV[0][1];
+  document.getElementById("src").innerHTML =
+    "Base de Dados - Starkbank.xlsx<br>" + EV.length + " eventos · " +
+    fmtData(d0).slice(0,5) + "/" + d0.slice(0,4) + " a " + fmtData(d1).slice(0,5) + "/" + d1.slice(0,4);
+  document.getElementById("foot").innerHTML =
+    "Protótipo V1 · ITA Challenge Sprint · Desafio 2 — Starkbank<br>"
+    + "Dados de Eventos_Uso_IA (n=" + EV.length + "), Alertas (n=160), Regras_Risco (14 regras) e Casos_Validacao (15 casos).<br>"
+    + "O motor reclassificado aplica as regras R01–R13 da própria empresa; a régua de classificação continua sendo a da Starkbank.";
+
+  setMotor("novo");
+})();
+</script>
+
+</body></html>
