@@ -14,3 +14,7 @@ implantacao/certs/*
 
 # macOS
 .DS_Store
+
+# LLM local (binários grandes, fora do repo)
+*.gguf
+llm-local/bin/

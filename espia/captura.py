@@ -57,7 +57,8 @@ CREATE TABLE IF NOT EXISTS capturas (
   papel            TEXT,            -- prompt | resposta
   prompt           TEXT,            -- CONTEUDO da pesquisa (guarda de conteúdo)
   resposta         TEXT,            -- CONTEUDO do retorno da IA
-  fonte_captura    TEXT             -- extensao | agente (quem capturou)
+  fonte_captura    TEXT,            -- extensao | agente | mitm (quem capturou)
+  classificado_por TEXT             -- borda | llm-local | llm-local-baixa-confianca
 );
 -- Inventário das IAs externas monitoradas: o admin cadastra e decide o status.
 -- É a autoridade sobre nome e aprovação das ferramentas que a planilha não
@@ -126,7 +127,7 @@ def garantir_esquema(con: sqlite3.Connection) -> None:
     con.executescript(ESQUEMA_CAPTURAS)
     # Migração: bancos antigos não têm as colunas de conteúdo — adiciona se faltarem.
     cols = {r[1] for r in con.execute("PRAGMA table_info(capturas)")}
-    for c in ("par_id", "papel", "prompt", "resposta", "fonte_captura"):
+    for c in ("par_id", "papel", "prompt", "resposta", "fonte_captura", "classificado_por"):
         if c not in cols:
             con.execute(f"ALTER TABLE capturas ADD COLUMN {c} TEXT")
     con.commit()
@@ -171,11 +172,29 @@ def ingerir(con: sqlite3.Connection, corpo: dict, usuario: str, identidade_fonte
     agora = dt.datetime.now().replace(microsecond=0).isoformat()
     ts = _texto(corpo.get("ts"), 32) or agora
 
+    # --- Cascata de classificação do CONTEÚDO ---------------------------------
+    # Nível 0: detectores determinísticos da borda (CPF/CNPJ/Luhn/credencial).
+    # Nível 1: LLM LOCAL (llamafile + Qwen3), on-premise — o conteúdo não sai.
+    # Nível 2: LLM na nuvem, só para o resíduo de baixa confiança (marcado aqui).
+    tipo = _texto(corpo.get("tipo") or "Conteúdo não classificado", 80)
+    classificado_por = "borda"
+    conteudo = (corpo.get("prompt") or "") or (corpo.get("resposta") or "")
+    if conteudo and fonte_captura in ("extensao", "mitm") and (
+            not deteccoes or tipo == "Conteúdo não classificado"):
+        from . import classificador_local as cl   # import tardio: sem custo se não usar
+        r = cl.classificar(conteudo)
+        if r:
+            if r["confianca"] >= cl.MIN_CONF:
+                tipo, sens = r["tipo"], r["sensibilidade"]
+                classificado_por = "llm-local"
+            else:
+                classificado_por = "llm-local-baixa-confianca"   # candidato ao Nível 2
+
     cur = con.execute(
         """INSERT INTO capturas (ts,recebido_em,usuario,identidade_fonte,maquina,dominio,
              ferramenta,status_fer,forma,qtd,tipo,sens,finalidade,deteccoes,fingerprint,
-             previa,titulo,modo,par_id,papel,prompt,resposta,fonte_captura)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+             previa,titulo,modo,par_id,papel,prompt,resposta,fonte_captura,classificado_por)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (
             ts, agora, _texto(usuario, 64) or "não identificado", _texto(identidade_fonte, 20),
             _texto(corpo.get("maquina"), 64),
@@ -183,7 +202,7 @@ def ingerir(con: sqlite3.Connection, corpo: dict, usuario: str, identidade_fonte
             _texto(corpo.get("ferramenta") or corpo.get("dominio"), 80),
             _texto(corpo.get("status_fer"), 60),
             _texto(corpo.get("forma") or "Prompt", 40), qtd,
-            _texto(corpo.get("tipo") or "Conteúdo não classificado", 80), sens,
+            tipo, sens,
             _texto(corpo.get("finalidade") or "Não declarada", 80),
             json.dumps(deteccoes, ensure_ascii=False)[:1200],
             json.dumps(fingerprint, ensure_ascii=False)[:4000],
@@ -195,6 +214,7 @@ def ingerir(con: sqlite3.Connection, corpo: dict, usuario: str, identidade_fonte
             _texto(corpo.get("prompt"), 16000),      # CONTEUDO da pesquisa
             _texto(corpo.get("resposta"), 16000),    # CONTEUDO do retorno da IA
             fonte_captura,
+            classificado_por,                        # borda | llm-local | ...
         ),
     )
     cap_id = f"CAP-{cur.lastrowid:06d}"
