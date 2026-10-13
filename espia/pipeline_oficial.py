@@ -393,12 +393,18 @@ def exportar_painel(payload: dict) -> Path:
     dados = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     corpo = corpo.replace('<script src="dados.js"></script>',
                           f"<script>window.EspIA={dados};</script>")
-    doc = (
-        '<!doctype html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n'
-        '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
-        "<style>:root{color-scheme:light dark}img{max-width:100%}[hidden]{display:none!important}</style>\n"
-        "</head>\n<body>\n" + corpo + "\n</body>\n</html>\n"
-    )
+    # Se o index.html já é um documento completo (novo layout), usa-o como está —
+    # só com os dados embutidos. Caso contrário (template-fragmento antigo),
+    # embrulha no esqueleto HTML mínimo.
+    if corpo.lstrip()[:9].lower() == "<!doctype":
+        doc = corpo
+    else:
+        doc = (
+            '<!doctype html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n'
+            '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
+            "<style>:root{color-scheme:light dark}img{max-width:100%}[hidden]{display:none!important}</style>\n"
+            "</head>\n<body>\n" + corpo + "\n</body>\n</html>\n"
+        )
     destino = DIR_PAINEL / "painel.html"
     destino.write_text(doc, encoding="utf-8")
     (DIR_PAINEL / "dados.js").write_text(
