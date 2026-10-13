@@ -489,7 +489,129 @@ main { padding: clamp(18px, 2.2vw, 28px) clamp(16px, 2.4vw, 32px) 48px; }
 .kpis { grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
 @media (max-width: 1100px) { .g-3-1 { grid-template-columns: minmax(0, 1fr); } .split { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 900px) { .app { grid-template-columns: minmax(0, 1fr); } .side { padding: 10px 14px; gap: 12px; } .brand .tag { display: none; } }
+
+/* ===== Alertas em quadro (kanban) ===== */
+.kanban { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.kcol { background: #E9EDF3; border-radius: 16px; padding: 12px; min-height: 220px; transition: box-shadow .15s, background .15s; }
+.kcol.over { background: #E1E9F8; box-shadow: inset 0 0 0 2px var(--primary); }
+.kcol header { display: flex; align-items: center; gap: 8px; padding: 4px 6px 2px; }
+.kcol header i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.kcol header h3 { font-size: 15px; }
+.kcol header .n { margin-left: auto; font-size: 12px; font-weight: 700; background: #fff; border-radius: 999px; padding: 2px 9px; color: var(--ink-2); }
+.kcol .ksub { font-size: 12px; color: var(--ink-3); padding: 0 6px 10px; }
+.kcards { display: flex; flex-direction: column; gap: 8px; }
+.kcard { background: #fff; border-radius: 12px; box-shadow: var(--shadow), 0 1px 2px rgba(19,23,26,.05); padding: 12px; cursor: grab; display: flex; flex-direction: column; gap: 6px; }
+.kcard:hover { box-shadow: inset 0 0 0 1px var(--border), 0 6px 14px -8px rgba(19,23,26,.25); }
+.kcard:active { cursor: grabbing; }
+.kcard.drag { opacity: .45; }
+.kcard:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.kc-top { display: flex; gap: 6px; align-items: center; }
+.kc-id { margin-left: auto; font-size: 11px; color: var(--ink-4); }
+.kcard b { font-size: 14px; color: var(--ink-h); line-height: 1.3; }
+.kc-sub { font-size: 12px; color: var(--ink-3); }
+.kc-foot { display: flex; justify-content: space-between; gap: 8px; font-size: 11.5px; color: var(--ink-2); border-top: 1px solid var(--line); padding-top: 6px; margin-top: 2px; }
+.kmore { margin-top: 8px; width: 100%; border: 0; background: transparent; color: var(--primary); font-weight: 700; cursor: pointer; padding: 8px; border-radius: 8px; font-size: 13px; }
+.kmore:hover { background: #fff; }
+.kempty { text-align: center; color: var(--ink-3); font-size: 13px; padding: 24px 0; margin: 0; }
+.malerta { align-items: start; }
+.malerta .trat { margin-top: 0; padding-top: 0; border-top: 0; }
+@media (max-width: 900px) { .kanban { grid-template-columns: minmax(0, 1fr); } }
+.kord { display: flex; align-items: center; gap: 6px; padding: 0 6px 10px; font-size: 12px; color: var(--ink-3); }
+.kord select { flex: 1; min-width: 0; height: 30px; border: 1px solid var(--border); border-radius: 8px; background: #fff; padding: 0 6px; font-size: 12px; color: var(--ink); }
+
+/* ===== Cadastros ===== */
+.src.cadastro { background: #EEF0F4; color: #3D4B5E; box-shadow: inset 0 0 0 1px #C9D1DD; }
+.mform { width: min(560px, 100%); }
+.cform label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 600; color: var(--ink-2); margin-bottom: 12px; }
+.cform input, .cform select, .cform textarea { height: 42px; border: 1px solid var(--border); border-radius: 10px; background: #fff; padding: 0 12px; font-size: 14px; font-family: inherit; color: var(--ink); }
+.cform textarea { height: auto; min-height: 76px; padding: 10px 12px; resize: vertical; }
+.cform input:focus, .cform select:focus, .cform textarea:focus { outline: 2px solid var(--primary); outline-offset: -1px; }
+.cform .req { color: var(--alert); }
+.cform .acts { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; }
+.cerr { background: var(--alert-bg); color: var(--alert-ink); border-radius: 10px; padding: 10px 12px; font-size: 13px; margin: 0 0 12px; }
+
+/* ===== Usuário logado (menu lateral) ===== */
+.usuario { display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 10px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); }
+.usuario:empty { display: none; }
+.u-av { width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: #fff; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex: none; }
+.u-tx { min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
+.u-tx b { font-size: 12.5px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.u-tx span { font-size: 11px; color: var(--side-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.u-sair { margin-left: auto; border: 0; background: transparent; color: var(--side-muted); font-size: 12px; cursor: pointer; padding: 4px 6px; border-radius: 6px; }
+.u-sair:hover { background: rgba(255,255,255,.1); color: #fff; }
+
+/* ===== Tela de login ===== */
+body.bloq .app { display: none; }
+#login { position: fixed; inset: 0; z-index: 80; background: var(--bg); display: grid; place-items: center; padding: 20px; overflow-y: auto; }
+.lg-box { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); width: min(860px, 100%); background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 24px 60px -20px rgba(19,23,26,.25); }
+.lg-brand { background: var(--side); color: #fff; padding: 48px 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 18px; }
+.lg-brand .logo-h { width: min(260px, 100%); height: auto; display: block; }
+.lg-brand p { margin: 0; color: var(--side-muted); font-size: 14px; line-height: 1.5; max-width: 26ch; }
+.lg-form { padding: 44px 40px; display: flex; flex-direction: column; gap: 14px; }
+.lg-form h1 { font-size: 26px; margin-bottom: 4px; }
+.lg-form label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.lg-form input[type=email], .lg-form input[type=password] { height: 44px; border: 1px solid var(--border); border-radius: 10px; padding: 0 12px; font-size: 15px; }
+.lg-form input:focus { outline: 2px solid var(--primary); outline-offset: -1px; }
+.lg-form .lg-chk { flex-direction: row; align-items: center; gap: 8px; font-weight: 500; }
+.lg-form .btn.primary { height: 46px; justify-content: center; font-size: 15px; }
+.lg-form .cerr { margin: 0; }
+@media (max-width: 700px) { .lg-box { grid-template-columns: minmax(0, 1fr); } .lg-brand { padding: 28px; } .lg-brand .logo-h { width: 200px; } .lg-form { padding: 28px 22px; } }
+@media (max-width: 900px) { .side > div.usuario { display: flex; margin-left: auto; padding: 4px; background: none; border: 0; } .u-tx { display: none; } }
+.lg-brand .logo-h { width: min(300px, 100%); }
+.side > .usuario { margin-top: auto; }
+
+/* ===== Acompanhamento v2: indicadores enxutos, sem quebra no desktop ===== */
+.kpis4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
+.kpi2 { gap: 6px; padding: 20px 22px; }
+.kpi2 .lab { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi2 .val { font-size: clamp(30px, 2.4vw, 38px); margin: 2px 0 4px; }
+.kpi2 .foot { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.metaline { font-size: 12.5px; font-weight: 600; }
+.metaline.fora { color: #1A3170; }
+.metaline.ok { color: var(--ink-3); }
+.g-1-2 { grid-template-columns: minmax(320px, 1fr) minmax(0, 2fr); }
+.tiles4 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tiles4 .tile { padding: 12px 14px; }
+.tiles4 .tile b { font-size: 26px; line-height: 1.1; }
+.tiles4 .tile small { font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+.hbs { grid-template-columns: minmax(120px, 34%) minmax(0, 1fr) 104px; }
+.hbs .v { white-space: nowrap; }
+.hbs .v small, .thin b small { font-weight: 600; font-size: 12px; color: var(--ink-3); margin-left: 4px; }
+.card-h .hint { white-space: normal; }
+@media (max-width: 1100px) { .kpis4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .g-1-2 { grid-template-columns: minmax(0, 1fr); } }
+.semanal .cols .bars, .semanal .cols .yax { height: 300px; }
+.semanal .cols .bars { background-size: 100% 75px; }
+.linhaA { align-items: stretch; }
+.pilha { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.tiles4.linha { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.tiles4.linha .tile { padding: 10px 12px; }
+.tiles4.linha .tile b { font-size: 22px; }
+.semanal { display: flex; flex-direction: column; }
+.semanal .cols { flex: 1; }
+.semanal .cols .bars, .semanal .cols .yax { height: 100%; min-height: 260px; }
+.semanal .cols .plot { display: flex; flex-direction: column; }
+.semanal .cols .bars { flex: 1; }
+.rsel { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.rsel button { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); background: #fff; border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 600; color: var(--ink-3); cursor: pointer; }
+.rsel button i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; opacity: .35; }
+.rsel button[aria-pressed="true"] { color: var(--ink-h); border-color: var(--ink-4); background: var(--surface-2); }
+.rsel button[aria-pressed="true"] i { opacity: 1; }
+.cols .bars button.sel-semana { outline: 2px solid var(--primary); outline-offset: 3px; }
+.cols .bars.com-sel button:not(.sel-semana) { opacity: .4; }
+.thin.cols2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 32px; row-gap: 14px; }
+.thin .dist { display: flex; flex-wrap: nowrap; margin-left: 6px; gap: 4px 12px; font-size: 11.5px; font-weight: 500; color: var(--ink-3); }
+.thin .dist span { display: inline-flex; align-items: center; gap: 4px; }
+.thin .dist i { width: 7px; height: 7px; border-radius: 2px; display: inline-block; }
+@media (max-width: 1100px) { .thin.cols2 { grid-template-columns: minmax(0, 1fr); } }
+/* etiqueta (status, classificação) sempre ao lado do nome */
+.hb .l { flex-direction: row; align-items: center; gap: 8px; }
+.chain b { flex-wrap: nowrap; align-items: flex-start; }
+.chain b .risk { flex: none; margin-top: 1px; }
+#cad-novo, #cad-exp { white-space: nowrap; }
 </style>
+
+
+
 </head>
 <body>
 <div class="app">
@@ -497,14 +619,14 @@ main { padding: clamp(18px, 2.2vw, 28px) clamp(16px, 2.4vw, 32px) 48px; }
     <div class="brand"><svg class="logo-v" role="img" aria-label="GerencIA — Rastreabilidade e Governança" xmlns="http://www.w3.org/2000/svg" viewBox="34 30 498 312"><g transform="translate(183.05 25.00) scale(1.66667)"><line x1="76" y1="76" x2="104" y2="104" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round"/><circle cx="52" cy="52" r="34" fill="none" stroke="#5B8DEF" stroke-width="18"/><rect x="40" y="40" width="24" height="24" rx="4" fill="#9CC5FA"/></g><path fill="#FFFFFF" d="M84.512 335.896Q74.32 335.896 66.728 332.516Q59.135999999999996 329.136 54.196 323.41600000000005Q49.256 317.696 46.864000000000004 310.728Q44.472 303.76 44.472 296.79200000000003V294.504Q44.472 287.32800000000003 46.864000000000004 280.46400000000006Q49.256 273.6 54.092 267.98400000000004Q58.928 262.36800000000005 66.156 259.04Q73.384 255.71200000000002 82.848 255.71200000000002Q93.144 255.71200000000002 101.048 259.50800000000004Q108.952 263.30400000000003 113.73599999999999 270.01200000000006Q118.52 276.72 119.24799999999999 285.56H102.19200000000001Q101.568 281.40000000000003 98.916 278.28000000000003Q96.264 275.16 92.156 273.39200000000005Q88.048 271.624 82.848 271.624Q77.856 271.624 73.95599999999999 273.39200000000005Q70.056 275.16 67.3 278.384Q64.544 281.608 63.14 286.028Q61.736000000000004 290.44800000000004 61.736000000000004 295.752Q61.736000000000004 301.264 63.244 305.788Q64.752 310.312 67.66399999999999 313.588Q70.576 316.86400000000003 74.892 318.63200000000006Q79.208 320.40000000000003 84.512 320.40000000000003Q91.584 320.40000000000003 96.78399999999999 317.488Q100.112 315.61600000000004 102.19200000000001 313.016V306.672H82.328V294.40000000000003H124.136V306.672H117.896V319.56800000000004Q113.008 327.47200000000004 104.428 331.684Q95.848 335.896 84.512 335.896Z"/><path fill="#FFFFFF" d="M157.32799999999997 335.896Q150.048 335.896 144.48399999999998 333.4Q138.92 330.904 135.228 326.692Q131.536 322.48 129.612 317.228Q127.68799999999999 311.976 127.68799999999999 306.464V304.384Q127.68799999999999 298.664 129.612 293.41200000000003Q131.536 288.16 135.176 284.0Q138.816 279.84000000000003 144.276 277.396Q149.736 274.952 156.70399999999998 274.952Q165.856 274.952 172.148 279.06Q178.44 283.168 181.768 289.77200000000005Q185.096 296.37600000000003 185.096 304.17600000000004V309.79200000000003H143.49599999999998Q143.808 312.288 144.64 314.368Q146.096 318.216 149.216 320.29600000000005Q152.33599999999998 322.37600000000003 157.32799999999997 322.37600000000003Q161.904 322.37600000000003 164.81599999999997 320.60800000000006Q167.72799999999998 318.84000000000003 168.76799999999997 316.24H184.05599999999998Q182.808 321.96000000000004 179.168 326.432Q175.528 330.904 170.016 333.4Q164.504 335.896 157.32799999999997 335.896ZM143.6 300.32800000000003H169.28799999999998Q168.976 297.93600000000004 168.144 295.96000000000004Q166.688 292.32 163.82799999999997 290.396Q160.968 288.47200000000004 156.70399999999998 288.47200000000004Q152.33599999999998 288.47200000000004 149.32 290.44800000000004Q146.304 292.42400000000004 144.744 296.168Q144.016 298.04 143.6 300.32800000000003Z"/><path fill="#FFFFFF" d="M193.12 333.92V276.928H206.328V295.752Q207.26399999999998 287.64 211.21599999999998 282.752Q216.31199999999998 276.20000000000005 226.088 276.20000000000005H228.272V290.552H224.112Q217.248 290.552 213.504 294.244Q209.76 297.93600000000004 209.76 304.904V333.92Z"/><path fill="#FFFFFF" d="M259.696 335.896Q252.416 335.896 246.852 333.4Q241.288 330.904 237.596 326.692Q233.904 322.48 231.98000000000002 317.228Q230.056 311.976 230.056 306.464V304.384Q230.056 298.664 231.98000000000002 293.41200000000003Q233.904 288.16 237.54399999999998 284.0Q241.184 279.84000000000003 246.644 277.396Q252.10399999999998 274.952 259.072 274.952Q268.224 274.952 274.51599999999996 279.06Q280.808 283.168 284.13599999999997 289.77200000000005Q287.464 296.37600000000003 287.464 304.17600000000004V309.79200000000003H245.864Q246.176 312.288 247.008 314.368Q248.464 318.216 251.584 320.29600000000005Q254.704 322.37600000000003 259.696 322.37600000000003Q264.272 322.37600000000003 267.18399999999997 320.60800000000006Q270.096 318.84000000000003 271.13599999999997 316.24H286.424Q285.176 321.96000000000004 281.536 326.432Q277.896 330.904 272.384 333.4Q266.872 335.896 259.696 335.896ZM245.968 300.32800000000003H271.656Q271.344 297.93600000000004 270.512 295.96000000000004Q269.056 292.32 266.196 290.396Q263.336 288.47200000000004 259.072 288.47200000000004Q254.704 288.47200000000004 251.688 290.44800000000004Q248.672 292.42400000000004 247.112 296.168Q246.38400000000001 298.04 245.968 300.32800000000003Z"/><path fill="#FFFFFF" d="M295.488 333.92V276.928H308.696V291.28000000000003Q309.216 288.88800000000003 310.048 286.808Q312.232 280.98400000000004 316.808 278.072Q321.384 275.16 327.93600000000004 275.16H328.664Q338.648 275.16 343.90000000000003 281.66Q349.15200000000004 288.16 349.15200000000004 301.368V333.92H332.512V300.432Q332.512 295.856 329.808 292.944Q327.10400000000004 290.03200000000004 322.528 290.03200000000004Q317.848 290.03200000000004 314.98800000000006 292.99600000000004Q312.12800000000004 295.96000000000004 312.12800000000004 300.744V333.92Z"/><path fill="#FFFFFF" d="M385.88 335.896Q378.496 335.896 373.036 333.452Q367.576 331.00800000000004 363.93600000000004 326.848Q360.296 322.688 358.528 317.43600000000004Q356.76 312.184 356.76 306.56800000000004V304.59200000000004Q356.76 298.76800000000003 358.632 293.41200000000003Q360.504 288.05600000000004 364.144 283.896Q367.784 279.736 373.244 277.344Q378.704 274.952 385.776 274.952Q393.472 274.952 399.4 277.916Q405.328 280.88 408.864 286.18399999999997Q412.4 291.488 412.81600000000003 298.35200000000003H396.488Q396.072 294.504 393.42 291.85200000000003Q390.76800000000003 289.20000000000005 385.776 289.20000000000005Q381.616 289.20000000000005 378.86 291.28000000000003Q376.104 293.36 374.75199999999995 297.0Q373.4 300.64 373.4 305.632Q373.4 310.208 374.648 313.90000000000003Q375.896 317.59200000000004 378.65200000000004 319.62Q381.408 321.648 385.88 321.648Q389.208 321.648 391.548 320.452Q393.88800000000003 319.25600000000003 395.29200000000003 317.124Q396.696 314.992 397.008 312.184H413.232Q412.92 319.25600000000003 409.28 324.612Q405.64 329.968 399.608 332.932Q393.576 335.896 385.88 335.896Z"/><path fill="#7DB3F7" d="M421.984 333.92V258.0H439.03999999999996V333.92Z"/><path fill="#7DB3F7" d="M446.128 333.92 471.192 258.0H498.752L524.752 333.92H507.072L500.93600000000004 315.096H469.216L463.184 333.92ZM496.25600000000003 300.952 486.79200000000003 271.93600000000004H482.944L473.688 300.952Z"/></svg><span class="tag">Rastreabilidade e governança</span><svg class="logo-m" role="img" aria-label="GerencIA" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120.00 120.00"><g transform="translate(0.00 0.00) scale(1.00000)"><line x1="76" y1="76" x2="104" y2="104" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round"/><circle cx="52" cy="52" r="34" fill="none" stroke="#5B8DEF" stroke-width="18"/><rect x="40" y="40" width="24" height="24" rx="4" fill="#9CC5FA"/></g></svg></div>
     <nav class="nav" id="nav" aria-label="Navegação principal"></nav>
     <div><div class="side-sec">Fonte dos eventos</div><div class="fontes" id="fontes"></div></div>
-    <div class="disc" id="disc"></div>
+    <div class="usuario" id="usuario"></div>
   </aside>
   <div class="content">
     
     <main id="main"></main>
-    <footer id="foot"></footer>
   </div>
 </div>
+<template id="tpl-logo-h"><svg class="logo-h" role="img" aria-label="GerencIA — Rastreabilidade e Governança" xmlns="http://www.w3.org/2000/svg" viewBox="116 58 598 142"><g transform="translate(114.95 59.15) scale(0.85)"><line x1="76" y1="76" x2="104" y2="104" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round"/><circle cx="52" cy="52" r="34" fill="none" stroke="#5B8DEF" stroke-width="18"/><rect x="40" y="40" width="24" height="24" rx="4" fill="#9CC5FA"/></g><path fill="#FFFFFF" d="M267.312 151.336Q257.12 151.336 249.528 147.95600000000002Q241.93599999999998 144.57600000000002 236.99599999999998 138.85600000000002Q232.05599999999998 133.13600000000002 229.664 126.16800000000002Q227.272 119.20000000000002 227.272 112.23200000000001V109.94400000000002Q227.272 102.76800000000001 229.664 95.90400000000002Q232.05599999999998 89.04000000000002 236.892 83.42400000000002Q241.72799999999998 77.80800000000002 248.95599999999996 74.48000000000002Q256.18399999999997 71.15200000000002 265.64799999999997 71.15200000000002Q275.94399999999996 71.15200000000002 283.84799999999996 74.94800000000001Q291.75199999999995 78.74400000000001 296.53599999999994 85.45200000000003Q301.32 92.16000000000003 302.048 101.00000000000001H284.99199999999996Q284.368 96.84000000000002 281.716 93.72000000000003Q279.06399999999996 90.60000000000002 274.95599999999996 88.83200000000002Q270.84799999999996 87.06400000000002 265.64799999999997 87.06400000000002Q260.656 87.06400000000002 256.756 88.83200000000002Q252.856 90.60000000000002 250.1 93.82400000000001Q247.344 97.04800000000002 245.94 101.46800000000002Q244.53599999999997 105.888 244.53599999999997 111.19200000000001Q244.53599999999997 116.70400000000001 246.04399999999998 121.22800000000001Q247.552 125.75200000000001 250.464 129.02800000000002Q253.37599999999998 132.304 257.692 134.072Q262.008 135.84 267.312 135.84Q274.38399999999996 135.84 279.584 132.92800000000003Q282.912 131.056 284.99199999999996 128.45600000000002V122.11200000000002H265.128V109.84000000000002H306.936V122.11200000000002H300.69599999999997V135.008Q295.808 142.912 287.22799999999995 147.12400000000002Q278.64799999999997 151.336 267.312 151.336Z"/><path fill="#FFFFFF" d="M340.12799999999993 151.336Q332.84799999999996 151.336 327.284 148.84000000000003Q321.71999999999997 146.34400000000002 318.02799999999996 142.132Q314.33599999999996 137.92000000000002 312.4119999999999 132.668Q310.48799999999994 127.41600000000001 310.48799999999994 121.90400000000001V119.82400000000001Q310.48799999999994 114.10400000000001 312.4119999999999 108.85200000000002Q314.33599999999996 103.60000000000002 317.976 99.44000000000003Q321.616 95.28000000000002 327.07599999999996 92.83600000000001Q332.53599999999994 90.39200000000002 339.50399999999996 90.39200000000002Q348.65599999999995 90.39200000000002 354.948 94.50000000000003Q361.23999999999995 98.60800000000002 364.568 105.21200000000002Q367.89599999999996 111.81600000000002 367.89599999999996 119.61600000000001V125.23200000000001H326.29599999999994Q326.60799999999995 127.72800000000001 327.43999999999994 129.80800000000002Q328.89599999999996 133.656 332.01599999999996 135.736Q335.13599999999997 137.816 340.12799999999993 137.816Q344.70399999999995 137.816 347.616 136.048Q350.52799999999996 134.28 351.568 131.68H366.85599999999994Q365.60799999999995 137.4 361.96799999999996 141.872Q358.328 146.34400000000002 352.816 148.84000000000003Q347.304 151.336 340.12799999999993 151.336ZM326.4 115.76800000000001H352.08799999999997Q351.77599999999995 113.376 350.94399999999996 111.4Q349.48799999999994 107.76000000000002 346.62799999999993 105.83600000000001Q343.768 103.912 339.50399999999996 103.912Q335.13599999999997 103.912 332.12 105.888Q329.104 107.86400000000002 327.544 111.60800000000002Q326.816 113.48000000000002 326.4 115.76800000000001Z"/><path fill="#FFFFFF" d="M375.91999999999996 149.36V92.36800000000002H389.128V111.19200000000001Q390.06399999999996 103.08000000000001 394.01599999999996 98.19200000000001Q399.11199999999997 91.64000000000001 408.888 91.64000000000001H411.072V105.99200000000002H406.912Q400.048 105.99200000000002 396.304 109.68400000000001Q392.55999999999995 113.376 392.55999999999995 120.34400000000002V149.36Z"/><path fill="#FFFFFF" d="M442.496 151.336Q435.21599999999995 151.336 429.65199999999993 148.84000000000003Q424.08799999999997 146.34400000000002 420.39599999999996 142.132Q416.70399999999995 137.92000000000002 414.78 132.668Q412.85599999999994 127.41600000000001 412.85599999999994 121.90400000000001V119.82400000000001Q412.85599999999994 114.10400000000001 414.78 108.85200000000002Q416.70399999999995 103.60000000000002 420.34399999999994 99.44000000000003Q423.984 95.28000000000002 429.44399999999996 92.83600000000001Q434.90399999999994 90.39200000000002 441.87199999999996 90.39200000000002Q451.02399999999994 90.39200000000002 457.3159999999999 94.50000000000003Q463.60799999999995 98.60800000000002 466.9359999999999 105.21200000000002Q470.26399999999995 111.81600000000002 470.26399999999995 119.61600000000001V125.23200000000001H428.66399999999993Q428.97599999999994 127.72800000000001 429.80799999999994 129.80800000000002Q431.26399999999995 133.656 434.38399999999996 135.736Q437.50399999999996 137.816 442.496 137.816Q447.07199999999995 137.816 449.9839999999999 136.048Q452.89599999999996 134.28 453.9359999999999 131.68H469.22399999999993Q467.97599999999994 137.4 464.33599999999996 141.872Q460.69599999999997 146.34400000000002 455.18399999999997 148.84000000000003Q449.67199999999997 151.336 442.496 151.336ZM428.768 115.76800000000001H454.45599999999996Q454.14399999999995 113.376 453.31199999999995 111.4Q451.85599999999994 107.76000000000002 448.996 105.83600000000001Q446.13599999999997 103.912 441.87199999999996 103.912Q437.50399999999996 103.912 434.48799999999994 105.888Q431.472 107.86400000000002 429.912 111.60800000000002Q429.18399999999997 113.48000000000002 428.768 115.76800000000001Z"/><path fill="#FFFFFF" d="M478.28799999999995 149.36V92.36800000000002H491.496V106.72000000000001Q492.01599999999996 104.32800000000002 492.84799999999996 102.24800000000002Q495.032 96.424 499.60799999999995 93.51200000000001Q504.18399999999997 90.60000000000002 510.736 90.60000000000002H511.46399999999994Q521.448 90.60000000000002 526.7 97.10000000000002Q531.952 103.60000000000002 531.952 116.80800000000002V149.36H515.312V115.87200000000001Q515.312 111.29600000000002 512.608 108.38400000000001Q509.904 105.47200000000001 505.328 105.47200000000001Q500.64799999999997 105.47200000000001 497.788 108.436Q494.928 111.4 494.928 116.18400000000001V149.36Z"/><path fill="#FFFFFF" d="M568.68 151.336Q561.2959999999999 151.336 555.8359999999999 148.892Q550.3759999999999 146.448 546.7359999999999 142.288Q543.0959999999999 138.12800000000001 541.328 132.876Q539.56 127.62400000000001 539.56 122.00800000000001V120.03200000000001Q539.56 114.20800000000001 541.4319999999999 108.852Q543.3039999999999 103.49600000000001 546.944 99.33600000000001Q550.584 95.17600000000002 556.0439999999999 92.78400000000002Q561.5039999999999 90.39200000000002 568.5759999999999 90.39200000000002Q576.2719999999999 90.39200000000002 582.1999999999999 93.35600000000002Q588.1279999999999 96.32000000000002 591.664 101.62400000000002Q595.1999999999999 106.92800000000003 595.6159999999999 113.79200000000002H579.2879999999999Q578.8719999999998 109.94400000000002 576.2199999999998 107.29200000000002Q573.5679999999999 104.64000000000001 568.5759999999999 104.64000000000001Q564.4159999999999 104.64000000000001 561.6599999999999 106.72000000000001Q558.9039999999999 108.80000000000001 557.5519999999999 112.44000000000001Q556.1999999999999 116.08000000000001 556.1999999999999 121.07200000000002Q556.1999999999999 125.64800000000001 557.4479999999999 129.34Q558.6959999999999 133.032 561.4519999999999 135.06Q564.2079999999999 137.08800000000002 568.68 137.08800000000002Q572.0079999999999 137.08800000000002 574.348 135.89200000000002Q576.6879999999999 134.69600000000003 578.0919999999999 132.56400000000002Q579.4959999999999 130.43200000000002 579.8079999999999 127.62400000000001H596.0319999999999Q595.7199999999999 134.69600000000003 592.0799999999999 140.05200000000002Q588.4399999999999 145.40800000000002 582.4079999999999 148.372Q576.3759999999999 151.336 568.68 151.336Z"/><path fill="#7DB3F7" d="M604.7839999999999 149.36V73.44000000000001H621.8399999999999V149.36Z"/><path fill="#7DB3F7" d="M628.9279999999999 149.36 653.992 73.44000000000001H681.5519999999999L707.5519999999999 149.36H689.872L683.7359999999999 130.536H652.0159999999998L645.9839999999999 149.36ZM679.0559999999999 116.39200000000002 669.5919999999999 87.37600000000002H665.7439999999999L656.4879999999999 116.39200000000002Z"/><text x="122.60" y="192" font-size="24" font-family="Red Hat Text, system-ui, sans-serif" font-weight="700" fill="#B8C2D1" textLength="584.95" lengthAdjust="spacing">RASTREABILIDADE E GOVERNANÇA</text></svg></template>
 <div id="tip" hidden></div>
 <div id="modal" hidden></div>
 
@@ -516,6 +638,20 @@ if (!E) {
   document.getElementById('main').innerHTML = '<div class="card empty-state">Não encontrei o <b>dados.js</b> ao lado deste arquivo. Mantenha os arquivos do pacote na mesma pasta.</div>';
   throw new Error('dados.js ausente');
 }
+// ---------------- cadastros feitos no painel ----------------
+// Demonstração: ficam salvos neste navegador (localStorage) e entram no painel junto com os da planilha.
+// Para levar ao pipeline, use "Exportar cadastros" (JSON) na aba Governança → Cadastros.
+const CKEY = 'gerencia-cadastros-v1';
+const CAD = { classificacoes: [], ferramentas: [], usuarios: [], tipos: [], regras: [], fontes: [] };
+try { const g = JSON.parse(localStorage.getItem(CKEY) || '{}') || {}; Object.keys(CAD).forEach(k => { if (Array.isArray(g[k])) CAD[k] = g[k]; }); } catch (e) { /* sem armazenamento: só os da planilha */ }
+const salvarCad = () => { try { localStorage.setItem(CKEY, JSON.stringify(CAD)); return true; } catch (e) { return false; } };
+CAD.classificacoes.forEach(x => E.politica.classificacoes.push({ ...x, cadastro: true }));
+CAD.ferramentas.forEach(x => E.ferramentas.push({ ...x, cadastro: true }));
+CAD.usuarios.forEach(x => E.usuarios.push({ ...x, cadastro: true }));
+CAD.tipos.forEach(x => E.tipos.push({ ...x, cadastro: true }));
+CAD.regras.forEach(x => E.politica.regras.push({ usos_base: 0, usos_principal: 0, usos_total: 0, ...x, cadastro: true }));
+CAD.fontes.forEach(x => E.fontes.push({ ...x, cadastro: true }));
+
 
 // ---------------- constantes ----------------
 const RISCOS = ['Crítico', 'Alto', 'Médio', 'Baixo', 'REVISAR'];
@@ -676,8 +812,7 @@ function renderNav() {
   document.getElementById('fontes').innerHTML =
     fa('planilha', 'Planilha') +
     `<div class="fbar"><i style="width:${((nF.planilha || 0) / tot * 100).toFixed(1)}%"></i></div>` +
-    fa('coleta', '<span class="dot"></span>Coleta') +
-    `<div class="cap">Planilha: carga legada da base oficial. Coleta: registrada pelo coletor da GerencIA${ultReal ? ` · última captura ${dtBR(ultReal)}` : ''}</div>`;
+    fa('coleta', '<span class="dot"></span>Coleta');
   // o status do coletor fica no bloco “Fonte dos eventos” do menu lateral
 }
 
@@ -791,13 +926,13 @@ const legendaRisco = (only) => `<div class="legend">${RISCOS.filter(r => !only |
 function evidencia(e, a) {
   if (!e) return '<div class="empty-state">Evento não encontrado.</div>';
   const u = USR[e.usuario_id], f = FER[e.ferramenta_id];
-  const chain = (e.achados || []).map((x, i) => `<li class="${RK[x.nivel] || ''}"><b>${i === 0 ? 'Decidiu: ' : 'Também se aplica: '}${esc(x.regra)} · ${esc(x.titulo)} ${riskChip(x.nivel)}</b>${esc(x.motivo)}<div class="acao">Ação: ${esc(x.acao)}</div></li>`).join('');
+  const chain = (e.achados || []).map((x, i) => `<li class="${RK[x.nivel] || ''}"><b>${riskChip(x.nivel)} <span>${i === 0 ? 'Decidiu: ' : 'Também se aplica: '}${esc(x.regra)} · ${esc(x.titulo)}</span></b>${esc(x.motivo)}<div class="acao">Ação: ${esc(x.acao)}</div></li>`).join('');
   return `<div class="ev">
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${riskChip(e.risco)} ${ruleChip(e.regra)} ${srcTag(e.fonte)} <span class="muted small mono" style="margin-left:auto">${esc(e.id)}${a ? ' · ' + esc(a.id) : ''}</span></div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${riskChip(e.risco)} ${srcTag(e.fonte)}</div>
     <dl>
       <dt>Fonte</dt><dd>${srcTag(e.fonte)} <span class="muted small">${esc(FONTE[e.fonte].full)}</span></dd>
       <dt>Quem</dt><dd><a href="${link(['investigar', 'pessoa', e.usuario_id])}">${esc(nomeUsr(e.usuario_id))}</a><span class="muted small"> · ${esc(e.area)}${u ? ' · ' + esc(u.cargo) : ''}</span></dd>
-      <dt>Onde</dt><dd><a href="${link(['investigar', 'ferramenta', e.ferramenta_id])}">${esc(f ? f.nome : e.ferramenta)}</a><br>${stTag(e.ferramenta_id)}</dd>
+      <dt>Onde</dt><dd><a href="${link(['investigar', 'ferramenta', e.ferramenta_id])}">${esc(f ? f.nome : e.ferramenta)}</a> ${stTag(e.ferramenta_id)}</dd>
       <dt>Quando</dt><dd class="mono">${dtBR(e.ts)}${e.fora_horario ? ' <span class="muted small">(fora do horário)</span>' : ''}</dd>
       <dt>O quê</dt><dd><a href="${link(['investigar', 'info', e.informacao_id])}">${esc(e.informacao)}</a> ${clsChip(e.sensibilidade)}</dd>
       <dt>Como</dt><dd>${esc(e.forma_uso)} · ${num(e.qtd)} item(ns)</dd>
@@ -808,7 +943,7 @@ function evidencia(e, a) {
     <h3 style="font-size:13.5px">Por que isto é risco</h3>
     <ol class="chain">${chain || '<li>Sem achados registrados.</li>'}</ol>
     ${e.evidencia_base ? `<p class="note mt">Evidência registrada na origem: ${esc(e.evidencia_base)}</p>` : ''}
-    ${e.divergente && e.risco_base ? `<p class="note">A base trazia <b>${esc(e.risco_base)}</b> (${esc(e.regra_base)}); o motor apurou <b>${esc(e.risco)}</b> (${esc(e.regra)}). Detalhes em Governança → Auditoria.</p>` : ''}
+    ${e.divergente && e.risco_base ? `<p class="note">A base trazia <b>${esc(e.risco_base)}</b> (${esc(e.regra_base)}); o motor apurou <b>${esc(e.risco)}</b> (${esc(e.regra)}). Detalhes em Governança → Regras de risco → Auditoria da base.</p>` : ''}
     <div class="linkrow"><a href="${link(['investigar', 'info', e.informacao_id])}">Onde mais esta informação foi usada →</a><a href="${link(['investigar', 'evento', e.id])}">Abrir evento →</a></div>
   </div>`;
 }
@@ -816,7 +951,6 @@ function evidencia(e, a) {
 // =====================================================================
 // ACOMPANHAMENTO — hero de metas, cards e gráficos (layout Grafite)
 // =====================================================================
-let semanaSel = null;   // semana destacada no gráfico (índice)
 const SVGI = {
   pulso: '<svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>',
   cadeado: '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
@@ -825,159 +959,123 @@ const SVGI = {
   alerta: '<svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 10v4"/><path d="M12 17v.5"/></svg>',
   info: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#697077" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8v.5"/></svg>',
 };
+let infoRiscos = new Set(['Crítico', 'Alto']);   // níveis mostrados em "Informações mais expostas" (padrão: crítico e alto)
 function vistaAcompanhamento(main) {
   const evs = fEventos(), als = fAlertas();
   const total = evs.length;
   const weeks = seriesSemanal(evs);
-  const fechadas = weeks.filter(s => !s.parcial && s.total);
   const nCrit = evs.filter(e => e.sensibilidade === 'Crítica').length;
   const nConf = evs.filter(e => e.sensibilidade === 'Confidencial').length;
   const sens = nCrit + nConf;
   const nao = evs.filter(e => e.naoAprovada).length;
   const crit = evs.filter(e => e.risco === 'Crítico').length;
-  const alto = evs.filter(e => e.risco === 'Alto').length;
-  const pend = als.filter(a => a.status !== 'Tratado');
   const pessoas = new Set(evs.map(e => e.usuario_id)).size;
   const areas = new Set(evs.map(e => e.area)).size;
-  const semAlerta = evs.filter(e => !E.alertas.some(a => a.evento_id === e.id) && (e.risco === 'Crítico' || e.risco === 'Alto')).length;
-  const nFonte = count(evs, e => e.fonte);
-  const stAl = count(als, a => a.status), rpAl = count(pend, a => a.responsavel);
-  const pNao = total ? nao / total : 0, pCrit = total ? crit / total : 0;
+  const sh = (n, d) => (d ? pct(n / d) : '0%');                     // share: sempre % do total indicado
+  const de = (n, d, un) => `${num(n)} de ${num(d)} ${un}`;          // e o número que dá a conta
 
-  // ---- hero: o que está fora da meta ----
-  const ESC = 0.25;   // escala das barras do hero: 0 a 25%
-  const foraNao = pNao >= META.naoAprovada, foraCrit = pCrit >= META.critico, foraSem = semAlerta > 0;
-  const nFora = [foraNao, foraCrit, foraSem].filter(Boolean).length;
-  const motivo = [foraNao && 'uso em ferramenta não aprovada', foraCrit && 'eventos críticos', foraSem && 'eventos de risco alto sem alerta aberto'].filter(Boolean);
-  const metaCard = (l, v, metaTxt, fora, w, mark, foot) => `<div class="m"><div class="l">${l}</div>
-    <div class="v"><b>${v}</b><span class="${fora ? '' : 'ok'}">${metaTxt}</span></div>
-    ${w != null ? `<div class="track"><i class="${fora ? '' : 'ok'}" style="width:${Math.min(100, w * 100).toFixed(1)}%"></i><u style="left:${(mark * 100).toFixed(1)}%"></u></div>` : ''}
-    ${foot}</div>`;
-  const hero = `<section class="hero" aria-label="Metas">
-    <div class="lead">
-      <span class="flag ${nFora ? '' : 'ok'}">${nFora ? SVGI.alerta.replace('<svg', '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"') + 'Atenção' : '✓ Dentro da meta'}</span>
-      <h2>${nFora ? `${nFora} indicador${nFora > 1 ? 'es' : ''} fora do limite no período` : 'Todos os indicadores dentro do limite'}</h2>
-      <p>${nFora ? `Fora da meta: ${motivo.join(', ')}.` : 'Nenhum indicador acompanhado está acima da meta no recorte atual.'}</p>
-    </div>
-    ${metaCard('Em ferramenta não aprovada', pct(pNao), 'meta &lt; 3%', foraNao, pNao / ESC, META.naoAprovada / ESC, `<div class="f">${num(nao)} eventos${foraNao && META.naoAprovada ? ` · ${(pNao / META.naoAprovada).toFixed(1).replace('.', ',')}× a meta` : ''} · escala até 25%</div>`)}
-    ${metaCard('Eventos de risco crítico', pct(pCrit), 'meta &lt; 1%', foraCrit, pCrit / ESC, META.critico / ESC, `<div class="f">${num(crit)} eventos${foraCrit ? ` · ${Math.round(pCrit / META.critico)}× a meta` : ''}</div>`)}
-    ${metaCard('Risco alto/crítico sem alerta', num(semAlerta), 'meta: 0', foraSem, null, 0, `<a class="go" href="${link(['alertas'], { status: 'sem' })}">Abrir eventos sem alerta →</a>`)}
+  // ---- indicadores: mesmo formato em todos (valor grande, "X de Y" embaixo, meta quando houver) ----
+  const metaLinha = (v, m) => `<span class="metaline ${v >= m ? 'fora' : 'ok'}">${v >= m ? '▲ Acima da meta' : '✓ Dentro da meta'} · Meta &lt; ${pct(m, 0)}</span>`;
+  const kpi = (lab, val, linhas, hrefTo) => `<${hrefTo ? `a href="${hrefTo}"` : 'article'} class="kpi kpi2">
+      <span class="lab">${lab}</span><span class="val">${val}</span>${linhas.map(l => `<span class="foot">${l}</span>`).join('')}</${hrefTo ? 'a' : 'article'}>`;
+  const cards = `<section class="kpis4" aria-label="Indicadores">
+    ${kpi('Eventos de uso de IA', num(total), [`${num(pessoas)} pessoas em ${num(areas)} áreas`, `Média de ${pessoas ? Math.round(total / pessoas) : 0} eventos por pessoa`], link(['investigar']))}
+    ${kpi('Informação confidencial ou crítica', sh(sens, total), [de(sens, total, 'eventos'), `Crítica ${sh(nCrit, total)} · Confidencial ${sh(nConf, total)}`])}
+    ${kpi('Em ferramenta não aprovada', sh(nao, total), [de(nao, total, 'eventos'), metaLinha(total ? nao / total : 0, META.naoAprovada)], href(['governanca'], { tipo: 'ferramentas' }))}
+    ${kpi('Eventos de risco crítico', sh(crit, total), [de(crit, total, 'eventos'), metaLinha(total ? crit / total : 0, META.critico)], link(['investigar'], { risco: 'Crítico' }))}
   </section>`;
 
-  // ---- cards ----
-  const kpi = (lab, right, val, foot, extra, hrefTo) => `<${hrefTo ? `a href="${hrefTo}"` : 'article'} class="kpi">
-      <div class="kpi-top"><span class="lab">${lab}</span>${right}</div>
-      <div class="val">${val}</div>${foot ? `<div class="foot">${foot}</div>` : ''}${extra || ''}</${hrefTo ? 'a' : 'article'}>`;
-  const ico = (k) => `<span class="ico">${SVGI[k]}</span>`;
-  const metaTag = (v, meta) => v >= meta ? `<span class="meta fora">▲ acima da meta &lt; ${pct(meta, 0)}</span>` : `<span class="meta dentro">✓ dentro da meta</span>`;
-  const wv = (fn) => fechadas.map(fn);
-  const cards = `<section class="kpis" aria-label="Indicadores">
-    ${kpi('Eventos de uso de IA', ico('pulso'), num(total), `<span class="pill-n">Planilha ${num(nFonte.planilha || 0)}</span><span class="src coleta">Coleta ${num(nFonte.coleta || 0)}</span>`, spark(wv(s => s.total), css('--spark')), link(['investigar']))}
-    ${kpi('Com informação confidencial ou crítica', ico('cadeado'), pct(total ? sens / total : 0), `${num(sens)} de ${num(total)} eventos`,
-      `<div class="stack"><i style="width:${total ? nCrit / total * 100 : 0}%;background:var(--sens-crit)"></i><i style="width:${total ? nConf / total * 100 : 0}%;background:var(--sens-conf)"></i></div>
-       <div class="legend" style="margin-top:0"><span><i style="background:var(--sens-crit)"></i>Crítica ${num(nCrit)}</span><span><i style="background:var(--sens-conf)"></i>Confidencial ${num(nConf)}</span></div>`)}
-    ${kpi('Em ferramenta não aprovada', metaTag(pNao, META.naoAprovada), pct(pNao), `${num(nao)} eventos · ${fechadas.length} semanas fechadas`, spark(wv(s => s.nao / s.total), css('--primary'), { min: 0, max: ESC, meta: META.naoAprovada }), href(['governanca', 'inventario'], {}))}
-    ${kpi('Eventos de risco crítico', metaTag(pCrit, META.critico), `${num(crit)}<small>${pct(pCrit)}</small>`, `${num(alto)} de risco alto · críticos por semana`, spark(wv(s => s['Crítico']), css('--primary')), link(['investigar'], { risco: 'Crítico' }))}
-    ${kpi('Alertas pendentes', ico('sino'), num(pend.length), `de ${num(als.length)} alertas no recorte`,
-      `<div class="stack">${[['Aberto', 'var(--st-aberto)'], ['Em análise', 'var(--st-analise)'], ['Tratado', 'var(--st-tratado)']].map(([k, c]) => `<i style="width:${als.length ? (stAl[k] || 0) / als.length * 100 : 0}%;background:${c}"></i>`).join('')}</div>
-       <div class="legend" style="margin-top:0">${[['Aberto', 'Abertos', 'var(--st-aberto)'], ['Em análise', 'Em análise', 'var(--st-analise)'], ['Tratado', 'Tratados', 'var(--st-tratado)']].map(([k, l, c]) => `<span><i style="background:${c}"></i>${l} ${num(stAl[k] || 0)}</span>`).join('')}</div>`, link(['alertas'], { status: 'Aberto' }))}
-    ${kpi('Pessoas usando IA', ico('pessoas'), num(pessoas), `em ${areas} áreas · média de ${pessoas ? Math.round(total / pessoas) : 0} eventos por pessoa`, '', '')}
-  </section>`;
+  // ---- alertas por situação: total e share de cada etapa ----
+  const stAl = count(als, a => a.status);
+  const tAl = als.length;
+  const pend = als.filter(a => a.status !== 'Tratado');
+  const rpAl = count(pend, a => a.responsavel);
+  const etapas = [['Aberto', 'crit', 'var(--st-aberto)'], ['Em análise', 'med', 'var(--st-analise)'], ['Tratado', '', 'var(--st-tratado)']];
+  const situacao = `<section class="card">
+      <div class="card-h"><h3>Alertas por situação</h3><a class="r" href="${link(['alertas'])}">Abrir quadro →</a></div>
+      <div class="tiles4 linha">
+        <a class="tile line" href="${link(['alertas'])}"><span>Total</span><b>${num(tAl)}</b><small>100%</small></a>
+        ${etapas.map(([k, c]) => `<a class="tile ${c}" href="${link(['alertas'])}"><span>${k}</span><b>${num(stAl[k] || 0)}</b><small>${sh(stAl[k] || 0, tAl)}</small></a>`).join('')}
+      </div>
+      <div class="stack" style="margin-top:14px">${etapas.map(([k, , cor]) => `<i style="width:${tAl ? (stAl[k] || 0) / tAl * 100 : 0}%;background:${cor}"${tipAttr(`<b>${k}</b><br>${num(stAl[k] || 0)} de ${num(tAl)} alertas · ${sh(stAl[k] || 0, tAl)}`)}></i>`).join('')}</div>
+    </section>`;
 
-  // ---- gráfico semanal (colunas em HTML, como na referência) ----
-  if (semanaSel != null && semanaSel >= weeks.length) semanaSel = null;
+  // ---- eventos por semana (passar o mouse mostra número e share de cada risco) ----
   const mx = niceMax(Math.max(1, ...weeks.map(w => w.total)));
   const ordem = ['Crítico', 'Alto', 'Médio', 'Baixo', 'REVISAR'];
-  const every = Math.max(1, Math.ceil(weeks.length / 6));
-  const colunas = weeks.map((s, i) => {
-    const tip = `<b>Semana de ${dBR(s.w)}</b>${s.parcial ? ' (parcial)' : ''}<br>` + ordem.filter(r => s[r]).map(r => `<div class="row"><span><i style="background:${COR[r]}"></i>${r}</span><b>${s[r]}</b></div>`).join('') + `<div class="row"><span>Total</span><b>${s.total}</b></div><div class="row"><span>Planilha · Coleta</span><b>${s.planilha || 0} · ${s.coleta || 0}</b></div>`;
-    const cls = semanaSel === i ? 'sel' : (semanaSel != null ? 'dim' : '');
-    return `<button type="button" class="${cls}" data-w="${i}" aria-label="Semana de ${dBR(s.w)}: ${s.total} eventos"${tipAttr(tip)}>${ordem.filter(r => s[r]).map(r => `<i style="height:${(s[r] / mx * 100).toFixed(2)}%;background:${COR[r]}"></i>`).join('')}</button>`;
+  const every = Math.max(1, Math.ceil(weeks.length / 8));
+  const colunas = weeks.map((s) => {
+    const tip = `<b>Semana de ${dBR(s.w)}</b>${s.parcial ? ' (parcial)' : ''} · ${num(s.total)} eventos<br>` +
+      ordem.filter(r => s[r]).map(r => `<div class="row"><span><i style="background:${COR[r]}"></i>${r}</span><b>${s[r]} · ${sh(s[r], s.total)}</b></div>`).join('') +
+      `<span style="opacity:.7">${route.q.de === s.w ? 'Clique de novo para tirar o filtro' : 'Clique para filtrar a semana'}</span>`;
+    const selW = route.q.de === s.w && route.q.ate === (s.fim > PER.fim ? PER.fim : s.fim);
+    return `<button type="button" class="${selW ? 'sel-semana' : ''}" data-de="${s.w}" data-ate="${s.fim > PER.fim ? PER.fim : s.fim}" aria-label="Semana de ${dBR(s.w)}: ${s.total} eventos"${tipAttr(tip)}>${ordem.filter(r => s[r]).map(r => `<i style="height:${(s[r] / mx * 100).toFixed(2)}%;background:${COR[r]}"></i>`).join('')}</button>`;
   }).join('');
-  const ws = semanaSel != null ? weeks[semanaSel] : null;
-  const detalhe = ws
-    ? `<strong>Semana de ${dBR(ws.w)}${ws.parcial ? ' (parcial)' : ''}</strong><span>${num(ws.total)} eventos</span><span class="c">${ws['Crítico']} críticos · ${ws['Alto']} altos</span><span>${pct(ws.total ? ws.nao / ws.total : 0)} em ferramenta não aprovada</span><a href="${link(['acompanhamento'], { de: ws.w, ate: ws.fim > PER.fim ? PER.fim : ws.fim })}">Filtrar só esta semana →</a>`
-    : `<strong>Todo o período</strong><span>${num(total)} eventos</span><span class="c">${num(crit)} críticos · ${num(alto)} altos</span><span>${pct(pNao)} em ferramenta não aprovada</span>`;
-  const semanal = `<section class="card">
-      <div class="card-h"><h3>Eventos por semana, segundo o risco</h3><span class="hint">Clique numa coluna para ver o detalhe da semana</span>${legendaRisco(RISCOS.filter(r => evs.some(e => e.risco === r)))}</div>
+  const semanal = `<section class="card semanal">
+      <div class="card-h"><h3>Eventos por semana, segundo o risco</h3>${legendaRisco(RISCOS.filter(r => evs.some(e => e.risco === r)))}</div>
       <div class="cols"><div class="yax">${[4, 3, 2, 1, 0].map(k => `<span>${Math.round(mx * k / 4)}</span>`).join('')}</div>
-        <div class="plot"><div class="bars">${colunas}</div><div class="xax">${weeks.map((s, i) => `<span>${i % every === 0 || i === weeks.length - 1 ? dBR(s.w) : ''}</span>`).join('')}</div></div></div>
-      <div class="detail">${detalhe}</div>
+        <div class="plot"><div class="bars${weeks.some(w => route.q.de === w.w) ? ' com-sel' : ''}">${colunas}</div><div class="xax">${weeks.map((s, i) => `<span>${(i % every === 0 && weeks.length - 1 - i >= every) || i === weeks.length - 1 ? dBR(s.w) : ''}</span>`).join('')}</div></div></div>
     </section>`;
 
-  // ---- precisa de ação ----
-  const acao = pend.filter(a => a.risco === 'Crítico').sort((a, b) => b.iso.localeCompare(a.iso)).slice(0, 7);
-  const acaoCard = `<section class="card">
-      <div class="card-h"><h3>Precisa de ação agora</h3><span class="hint">Alertas críticos não tratados</span><a class="r" href="${link(['alertas'], { status: 'Aberto', risco: 'Crítico' })}">Ver fila →</a></div>
-      <div class="alist">${acao.length ? acao.map(a => `<a href="${link(['alertas'], { status: a.status, sel: a.id })}"><span class="aico">${SVGI.alerta}</span><span class="what"><b>${esc(a.informacao)}</b><small>${esc(nomeUsr(a.usuario_id))} · ${esc(a.ferramenta)}</small></span><span class="when">${dBR(a.data)}</span></a>`).join('') : '<div class="empty-state">Nenhum alerta crítico pendente no recorte.</div>'}</div>
+  // ---- informações, ferramentas e áreas: número e share em cada barra ----
+  const selR = RISCOS.filter(r => infoRiscos.has(r));
+  const ac = evs.filter(e => infoRiscos.has(e.risco));
+  const porInfo = Object.values(ac.reduce((m, e) => {
+    const k = e.informacao_id; (m[k] = m[k] || { id: k, nome: e.informacao, sens: e.sensibilidade, total: 0 }); m[k][e.risco] = (m[k][e.risco] || 0) + 1; m[k].total++; return m;
+  }, {})).sort((a, b) => b.total - a.total).slice(0, 13);
+  const mxInfo = Math.max(1, ...porInfo.map(r => r.total));
+  const filtroRisco = `<div class="rsel" role="group" aria-label="Níveis de risco">${RISCOS.filter(r => r !== 'REVISAR' || evs.some(e => e.risco === r)).map(r => `<button type="button" data-irisco="${r}" aria-pressed="${infoRiscos.has(r)}"><i style="background:${COR[r]}"></i>${r}</button>`).join('')}</div>`;
+  const infoCard = `<section class="card">
+      <div class="card-h"><h3>Informações mais expostas</h3>${filtroRisco}</div>
+      <div class="thin">${porInfo.map(r => `<a href="${link(['investigar', 'info', r.id])}"${tipAttr(`<b>${esc(r.nome)}</b> · ${num(r.total)} eventos · ${sh(r.total, ac.length)}<br>` + selR.filter(k => r[k]).map(k => `<div class="row"><span><i style="background:${COR[k]}"></i>${k}</span><b>${r[k]} · ${sh(r[k], r.total)}</b></div>`).join(''))}><span class="hd"><span><span class="nm">${esc(r.nome)}</span>${clsChip(r.sens)}</span><b>${num(r.total)} <small class="muted">${sh(r.total, ac.length)}</small></b></span>
+        <span class="bar">${selR.filter(k => r[k]).map(k => `<i style="width:${(r[k] / mxInfo * 100).toFixed(1)}%;background:${COR[k]}"></i>`).join('')}</span></a>`).join('') || '<div class="empty-state">Escolha ao menos um nível de risco.</div>'}</div>
     </section>`;
-
-  // ---- alertas por situação ----
-  const mxR = Math.max(1, ...Object.values(rpAl));
-  const situacao = `<section class="card">
-      <div class="card-h"><h3>Alertas por situação</h3><a class="r" href="${link(['alertas'])}">Abrir fila →</a></div>
-      <div class="tiles">
-        <a class="tile crit" href="${link(['alertas'], { status: 'Aberto' })}"><span>Aberto</span><b>${num(stAl['Aberto'] || 0)}</b></a>
-        <a class="tile med" href="${link(['alertas'], { status: 'Em análise' })}"><span>Em análise</span><b>${num(stAl['Em análise'] || 0)}</b></a>
-        <a class="tile" href="${link(['alertas'], { status: 'Tratado' })}"><span>Tratado</span><b>${num(stAl['Tratado'] || 0)}</b></a>
-      </div>
-      <div class="sub-h" style="margin-top:18px">Pendentes por responsável</div>
-      <div style="display:flex;flex-direction:column;gap:10px">${Object.entries(rpAl).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="rbar"><span>${esc(k)}</span><div class="tr"><i style="width:${(v / mxR * 100).toFixed(1)}%"></i></div><b>${v}</b></div>`).join('') || '<span class="muted">Nenhum pendente.</span>'}</div>
-      <div class="infonote">${SVGI.info}Nenhum alerta da base registra data de tratamento, então o prazo de 24h não é apurável.</div>
-    </section>`;
-
-  // ---- ferramentas, áreas, informações ----
   const porFerr = Object.values(evs.filter(e => e.sensivel).reduce((m, e) => {
     const k = e.ferramenta_id; (m[k] = m[k] || { id: k, Crítica: 0, Confidencial: 0, total: 0 }); m[k][e.sensibilidade]++; m[k].total++; return m;
   }, {})).sort((a, b) => b.total - a.total);
-  const porArea = AREAS.map(a => { const r = { label: a, total: 0 }; RISCOS.forEach(k => r[k] = 0); evs.filter(e => e.area === a).forEach(e => { r[e.risco]++; r.total++; }); return r; })
-    .filter(r => r.total).sort((a, b) => (b['Crítico'] + b['Alto']) - (a['Crítico'] + a['Alto']) || b.total - a.total);
-  const porInfo = Object.values(evs.filter(e => e.risco === 'Crítico' || e.risco === 'Alto').reduce((m, e) => {
-    const k = e.informacao_id; (m[k] = m[k] || { id: k, nome: e.informacao, sens: e.sensibilidade, 'Crítico': 0, 'Alto': 0, total: 0 }); m[k][e.risco]++; m[k].total++; return m;
-  }, {})).sort((a, b) => b.total - a.total).slice(0, 8);
-  const mxInfo = Math.max(1, ...porInfo.map(r => r.total));
-  const capt = evs.filter(e => e.aoVivo).sort((a, b) => b.ts.localeCompare(a.ts)).slice(0, 6);
-
+  const mxFerr = Math.max(1, ...porFerr.map(r => r.total));
   const ferrCard = `<section class="card">
-      <div class="card-h"><h3>Para onde vai a informação sensível</h3><span class="hint">Eventos confidenciais e críticos por ferramenta</span><div class="legend"><span><i style="background:var(--sens-crit)"></i>Crítica</span><span><i style="background:var(--sens-conf)"></i>Confidencial</span></div></div>
-      ${hbars(porFerr.map(r => ({ label: FER[r.id] ? FER[r.id].nome : r.id, sub: stTag(r.id), total: r.total, href: link(['investigar', 'ferramenta', r.id]),
-        segs: [{ v: r['Crítica'], color: 'var(--sens-crit)', name: 'Crítica' }, { v: r['Confidencial'], color: 'var(--sens-conf)', name: 'Confidencial' }] })))}
+      <div class="card-h"><h3>Para onde vai a informação sensível</h3><div class="legend"><span><i style="background:var(--sens-crit)"></i>Crítica</span><span><i style="background:var(--sens-conf)"></i>Confidencial</span></div></div>
+      <div class="thin">${porFerr.map(r => `<a href="${link(['investigar', 'ferramenta', r.id])}"${tipAttr(`<b>${esc(FER[r.id] ? FER[r.id].nome : r.id)}</b> · ${num(r.total)} eventos<br>Crítica ${r['Crítica']} · ${sh(r['Crítica'], r.total)}<br>Confidencial ${r['Confidencial']} · ${sh(r['Confidencial'], r.total)}`)}><span class="hd"><span><span class="nm">${esc(FER[r.id] ? FER[r.id].nome : r.id)}</span>${stTag(r.id)}</span><b>${num(r.total)} <small class="muted">${sh(r.total, sens)}</small></b></span>
+        <span class="bar"><i style="width:${(r['Crítica'] / mxFerr * 100).toFixed(1)}%;background:var(--sens-crit)"></i><i style="width:${(r['Confidencial'] / mxFerr * 100).toFixed(1)}%;background:var(--sens-conf)"></i></span></a>`).join('') || '<div class="empty-state">Sem eventos sensíveis no recorte.</div>'}</div>
     </section>`;
+  const porArea = AREAS.map(a => { const r = { label: a, total: 0 }; RISCOS.forEach(k => r[k] = 0); evs.filter(e => e.area === a).forEach(e => { r[e.risco]++; r.total++; }); return r; })
+    .filter(r => r.total).sort((a, b) => b.total - a.total);
   const mxArea = Math.max(1, ...porArea.map(r => r.total));
+  const abrev = { 'Crítico': 'Crít.', 'Alto': 'Alto', 'Médio': 'Méd.', 'Baixo': 'Baixo', 'REVISAR': 'Rev.' };
   const areaCard = `<section class="card">
-      <div class="card-h"><h3>Risco por área</h3><span class="hint">Ordenado por eventos alto + crítico</span>${legendaRisco(['Crítico', 'Alto', 'Médio', 'Baixo'])}</div>
-      <div class="hb" style="grid-template-columns:minmax(110px,140px) minmax(0,1fr) 70px">${porArea.map(r => {
-        const tip = `<b>${esc(r.label)}</b><br>` + RISCOS.filter(k => r[k]).map(k => `<div class="row"><span><i style="background:${COR[k]}"></i>${k}</span><b>${r[k]}</b></div>`).join('');
-        return `<a class="row" href="${link(['investigar', 'area', r.label])}"><span class="l">${esc(r.label)}</span><span class="t"${tipAttr(tip)}>${RISCOS.filter(k => r[k]).map(k => `<i style="width:${(r[k] / mxArea * 100).toFixed(2)}%;background:${COR[k]}"></i>`).join('')}</span><span class="v"><em>${r['Crítico'] + r['Alto']}</em> <small>/ ${r.total}</small></span></a>`;
+      <div class="card-h"><h3>Risco por área</h3><span class="hint">Ordenado pelo % de eventos de cada área no total. Passe o mouse para ver o % de cada nível de risco dentro da área.</span>${legendaRisco(['Crítico', 'Alto', 'Médio', 'Baixo'])}</div>
+      <div class="thin">${porArea.map(r => {
+        const niveis = RISCOS.filter(k => r[k]);
+        const tip = `<b>${esc(r.label)}</b> · ${num(r.total)} eventos · ${sh(r.total, total)} do total<br>` + niveis.map(k => `<div class="row"><span><i style="background:${COR[k]}"></i>${k}</span><b>${r[k]} · ${sh(r[k], r.total)} da área</b></div>`).join('');
+        return `<a href="${link(['investigar', 'area', r.label])}"${tipAttr(tip)}><span class="hd"><span><span class="nm">${esc(r.label)}</span></span><b>${num(r.total)} <small class="muted">${sh(r.total, total)} do total</small></b></span>
+          <span class="bar">${niveis.map(k => `<i style="width:${(r[k] / mxArea * 100).toFixed(2)}%;background:${COR[k]}"></i>`).join('')}</span></a>`;
       }).join('')}</div>
-      <div class="muted small" style="margin-top:12px">Número em destaque = eventos alto + crítico, do total de eventos da área.</div>
-    </section>`;
-  const infoCard = `<section class="card">
-      <div class="card-h"><h3>Informações mais expostas</h3><span class="hint">Eventos de risco alto ou crítico, por tipo de informação</span>${legendaRisco(['Crítico', 'Alto'])}</div>
-      <div class="thin">${porInfo.map(r => `<a href="${link(['investigar', 'info', r.id])}"><span class="hd"><span><span class="nm">${esc(r.nome)}</span>${clsChip(r.sens)}</span><b>${r.total}</b></span>
-        <span class="bar"><i style="width:${(r['Crítico'] / mxInfo * 100).toFixed(1)}%;background:${COR['Crítico']}"></i><i style="width:${(r['Alto'] / mxInfo * 100).toFixed(1)}%;background:${COR['Alto']}"></i></span></a>`).join('') || '<div class="empty-state">Sem eventos de risco alto ou crítico no recorte.</div>'}</div>
-    </section>`;
-  const ultReal = E.eventos.filter(e => e.fonte === 'coleta').reduce((m, e) => e.ts > m ? e.ts : m, '');
-  const realCard = `<section class="card">
-      <div class="card-h"><h3 style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:var(--primary);box-shadow:0 0 0 4px var(--primary-soft)"></span>Coleta</h3>${route.q.fonte === 'coleta' ? '' : `<a class="r" href="${link(['acompanhamento'], { fonte: 'coleta' })}">Ver só coleta →</a>`}</div>
-      <div class="tiles" style="grid-template-columns:repeat(2,minmax(0,1fr))">
-        <a class="tile line" href="${link(['acompanhamento'], { fonte: 'planilha' })}"><span>Planilha (carga legada)</span><b>${num(nFonte.planilha || 0)}</b></a>
-        <a class="tile coleta" href="${link(['acompanhamento'], { fonte: 'coleta' })}"><span>Coleta (GerencIA)</span><b>${num(nFonte.coleta || 0)}</b></a>
-      </div>
-      <div class="sub-h" style="margin-top:18px">Últimos eventos coletados</div>
-      <div class="alist">${capt.length ? capt.map(e => `<a href="${link(['investigar', 'evento', e.id])}">${riskChip(e.risco)}<span class="what"><b>${esc(e.informacao)} → ${esc(e.ferramenta)}</b><small>${esc(nomeUsr(e.usuario_id))} · ${esc(e.area)} · ${esc(e.forma_uso)}</small></span><span class="when">${dBR(e.data)} ${e.ts.slice(11, 16)}</span></a>`).join('') : '<div class="empty-state">Nenhum evento coletado no recorte.</div>'}</div>
     </section>`;
 
   main.innerHTML = `
-    <div class="head"><div><h1>Acompanhamento</h1></div></div>
-    ${hero}
+    <div class="head"><div><h1>Acompanhamento</h1><p>Veja se as metas estão sendo cumpridas e onde está o risco. Clique em um número, barra ou nome para abrir o detalhe.</p></div></div>
     ${cards}
-    <div class="grid g-3-1">${semanal}${acaoCard}</div>
-    <div class="grid g-2 mt"><section class="card"><div class="card-h"><h3>Uso em ferramenta não aprovada</h3><span class="hint">% dos eventos por semana · meta &lt; 3% · tracejado = semana parcial</span></div><div id="ch-nao"></div></section>${situacao}</div>
-    <div class="grid g-2 mt">${ferrCard}${areaCard}</div>
-    <div class="grid g-2 mt">${infoCard}${realCard}</div>`;
+    <div class="grid g-2 linhaA"><div class="pilha">${situacao}<section class="card"><div class="card-h"><h3>Uso em ferramenta não aprovada</h3><span class="hint">% dos eventos por semana · meta &lt; 3% · tracejado = semana parcial</span></div><div id="ch-nao"></div></section></div>${semanal}</div>
+    <div class="grid g-2 mt">${infoCard}${areaCard}</div>
+    <div class="grid g-2 mt">${ferrCard}<div></div></div>`;
   chartLinhaMeta(main.querySelector('#ch-nao'), weeks);
-  main.querySelectorAll('.bars button').forEach(b => b.onclick = () => { const i = +b.dataset.w; semanaSel = semanaSel === i ? null : i; render(); });
+  main.querySelectorAll('.bars button').forEach(b => {
+    const mesma = () => route.q.de === b.dataset.de && route.q.ate === b.dataset.ate;
+    b.onclick = () => setQ(mesma() ? { de: '', ate: '' } : { de: b.dataset.de, ate: b.dataset.ate });
+  });
+  main.querySelectorAll('[data-irisco]').forEach(b => b.onclick = () => { const r = b.dataset.irisco; infoRiscos.has(r) ? infoRiscos.delete(r) : infoRiscos.add(r); render(); });
+}
+// barras com número e share ("137 · 40,2%"); total = base do %
+function barrasShare(rows, total, cor) {
+  if (!rows.length) return '<div class="empty-state">Sem eventos no recorte.</div>';
+  const mx = Math.max(...rows.map(r => r.n), 1);
+  return `<div class="hb hbs">${rows.map(r => {
+    const segs = (r.segs || [{ v: r.n, color: cor || 'var(--bar)', name: r.label }]).filter(s => s.v > 0);
+    const tip = `<b>${esc(r.label)}</b> · ${num(r.n)} · ${total ? pct(r.n / total) : '0%'}<br>` + (r.segs ? r.segs.filter(s => s.v).map(s => `<div class="row"><span><i style="background:${s.color}"></i>${esc(s.name)}</span><b>${s.v} · ${pct(s.v / r.n)}</b></div>`).join('') : '');
+    const inner = `<span class="l">${esc(r.label)}${r.sub ? `<small>${r.sub}</small>` : ''}</span><span class="t"${tipAttr(tip)}>${segs.map(s => `<i style="width:${(s.v / mx * 100).toFixed(2)}%;background:${s.color}"></i>`).join('')}</span><span class="v">${num(r.n)} <small>${total ? pct(r.n / total) : ''}</small></span>`;
+    return r.href ? `<a class="row" href="${r.href}">${inner}</a>` : inner;
+  }).join('')}</div>`;
 }
 
 // =====================================================================
@@ -1019,7 +1117,7 @@ function vistaInvestigar(main) {
         fora: ev.filter(e => e.naoAprovada).length, ac: ev.filter(e => e.risco === 'Crítico' || e.risco === 'Alto').length,
         coleta: ev.filter(e => e.fonte === 'coleta').length, ult: ev.reduce((m, e) => e.ts > m ? e.ts : m, '') };
     }).filter(r => r.usos).sort((a, b) => b.ac - a.ac || b.usos - a.usos);
-    main.innerHTML = `<div class="head"><div><h1>Investigar</h1><p>Comece pela informação e veja quem a usou, em qual ferramenta, quando e com qual risco. Ou parta de uma pessoa, ferramenta ou área.</p></div></div>
+    main.innerHTML = `<div class="head"><div><h1>Investigar</h1><p>Busque uma informação, pessoa, ferramenta ou área, ou clique numa linha da tabela, para ver quem usou, onde, quando e com qual risco.</p></div></div>
       ${searchBox}
       <div class="qchips">mais expostos: ${porTipo.slice(0, 5).map(r => `<a href="${link(['investigar', 'info', r.t.id])}">${esc(r.t.nome)}</a>`).join('')}</div>
       <section class="card mt"><div class="card-h"><h3>Exposição por tipo de informação</h3><span class="hint">Clique numa linha para ver o resumo</span></div>
@@ -1075,134 +1173,267 @@ function vistaInvestigar(main) {
 // =====================================================================
 // ALERTAS — fila de trabalho
 // =====================================================================
-const PAGE = 20;
-function vistaAlertas(main) {
-  const q = route.q;
-  const tab = q.status || 'Aberto';
-  const base = fAlertas();
-  const semAlerta = fEventos().filter(e => !E.alertas.some(a => a.evento_id === e.id) && (e.risco === 'Crítico' || e.risco === 'Alto'));
-  const cnt = count(base, a => a.status);
-  const tabs = [...STATUS_ALERTA.map(s => [s, s, cnt[s] || 0]), ['Todos', 'Todos', base.length], ['sem', 'Risco sem alerta', semAlerta.length]];
-  const isSem = tab === 'sem';
-  const busca = norm(q.busca || '');
-  let rows;
-  if (isSem) {
-    rows = semAlerta.map(e => ({ id: e.id, fonte: e.fonte, ev: e, a: null, risco: e.risco, iso: e.ts, quem: e.usuario_id, area: e.area, ferramenta: e.ferramenta, info: e.informacao, sens: e.sensibilidade, regra: e.regra, resp: '—', status: '—' }));
-  } else {
-    rows = base.filter(a => tab === 'Todos' || a.status === tab).map(a => ({ id: a.id, fonte: a.fonte, ev: EVT[a.evento_id], a, risco: a.risco, iso: a.iso, quem: a.usuario_id, area: a.area, ferramenta: a.ferramenta, info: a.informacao, sens: a.sensibilidade, regra: a.regra, resp: a.responsavel, status: a.status }));
-  }
-  if (q.resp) rows = rows.filter(r => r.resp === q.resp);
-  if (busca) rows = rows.filter(r => norm([r.id, nomeUsr(r.quem), r.area, r.ferramenta, r.info, r.regra].join(' ')).includes(busca));
-  rows.sort((a, b) => (RORD[a.risco] ?? 9) - (RORD[b.risco] ?? 9) || b.iso.localeCompare(a.iso));
-  const pages = Math.max(1, Math.ceil(rows.length / PAGE));
-  const page = Math.min(pages, Math.max(1, +q.page || 1));
-  const slice = rows.slice((page - 1) * PAGE, page * PAGE);
-  const sel = q.sel ? rows.find(r => r.id === q.sel) || (ALT[q.sel] ? { id: q.sel, a: ALT[q.sel], ev: EVT[ALT[q.sel].evento_id] } : (EVT[q.sel] ? { id: q.sel, a: null, ev: EVT[q.sel] } : null)) : null;
-  const resps = [...new Set(E.alertas.map(a => a.responsavel))].sort();
-
-  main.innerHTML = `<div class="head"><div><h1>Alertas</h1><p>Fila de trabalho do time de governança. Clique num alerta para ver a evidência e registrar o tratamento.</p></div></div>
-  <section class="rotina" aria-label="Como funciona a fila">
-    <div><b><i style="background:var(--st-aberto)"></i>1 · Aberto</b>O motor gerou o alerta e ele foi para um responsável: credencial → Segurança; dado pessoal → Privacidade; ferramenta não aprovada ou financeiro → Compliance; demais casos → gestor da área.</div>
-    <div><b><i style="background:var(--st-analise)"></i>2 · Em análise</b>O responsável clica em <em>Assumir análise</em>, confere a evidência e fala com o colaborador.</div>
-    <div><b><i style="background:var(--st-tratado)"></i>3 · Tratado</b>Fecha com desfecho, ação tomada e comentário. Fica no histórico do alerta, com quem tratou e quando.</div>
-  </section>
-  <nav class="tabs">${tabs.map(([k, l, n]) => `<a href="${href(['alertas'], { ...gq(), status: k, resp: q.resp, busca: q.busca })}" ${tab === k ? 'aria-current="page"' : ''}>${l}<span class="n">${n}</span></a>`).join('')}</nav>
-  <div class="toolbar">
-    <input id="a-busca" type="search" placeholder="Filtrar por pessoa, ferramenta, informação, regra ou ID" value="${esc(q.busca || '')}" style="flex:1;min-width:220px;max-width:420px">
-    ${isSem ? '' : `<select id="a-resp"><option value="">Todos os responsáveis</option>${resps.map(r => `<option ${q.resp === r ? 'selected' : ''}>${esc(r)}</option>`).join('')}</select>`}
-    <span class="muted small">${num(rows.length)} ${isSem ? 'evento(s)' : 'alerta(s)'}</span>
-    <button class="btn" id="a-csv" type="button" style="margin-left:auto">⇩ Exportar CSV</button>
-  </div>
-  ${isSem ? '<p class="note" style="margin-top:0">Eventos que o motor classificou como Alto ou Crítico e que não têm alerta, da planilha e da coleta. São candidatos a abrir alerta.</p>' : ''}
-  <div class="split">
-    <section class="card" style="padding:6px 6px 10px">
-      ${slice.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Risco</th><th>Fonte</th><th>Quando</th><th>Quem</th><th>Ferramenta</th><th>Informação</th><th>Regra</th>${isSem ? '' : '<th>Situação</th><th>Responsável</th>'}</tr></thead>
-      <tbody>${slice.map(r => `<tr class="click ${sel && sel.id === r.id ? 'sel' : ''}" data-sel="${esc(r.id)}"><td>${riskChip(r.risco)}</td><td>${srcTag(r.fonte)}</td><td class="mono small">${dtBR(r.iso)}</td><td>${esc(nomeUsr(r.quem))}<span class="sub">${esc(r.area)}</span></td><td>${esc(r.ferramenta)}${r.ev ? `<span class="sub">${stTag(r.ev.ferramenta_id)}</span>` : ''}</td><td>${esc(r.info)}<span class="sub">${clsChip(r.sens)}</span></td><td>${ruleChip(r.regra)}</td>${isSem ? '' : `<td class="small">${esc(r.status)}</td><td class="small">${esc(r.resp)}</td>`}</tr>`).join('')}</tbody></table></div>
-      <div class="pager">Página ${page} de ${pages}
-        ${page > 1 ? `<a href="${href(['alertas'], { ...q, page: page - 1, sel: '' })}">← anterior</a>` : '<span class="off">← anterior</span>'}
-        ${page < pages ? `<a href="${href(['alertas'], { ...q, page: page + 1, sel: '' })}">próxima →</a>` : '<span class="off">próxima →</span>'}</div>`
-      : '<div class="empty-state">Nada nesta aba com os filtros atuais.</div>'}
-    </section>
-    <aside class="card drawer ${sel ? 'open' : ''}" id="drawer">
-      ${sel ? `<div style="display:flex;align-items:center;margin-bottom:6px"><h3 style="font-size:15px">${sel.a ? 'Alerta ' + esc(sel.a.id) : 'Evento sem alerta'}</h3><button class="btn close" type="button" id="d-close" style="margin-left:auto">Fechar ✕</button></div>${evidencia(sel.ev, sel.a)}${sel.a && sel.a.evidencia ? `<p class="note">Evidência do alerta: ${esc(sel.a.evidencia)}</p>` : ''}${blocoTratamento(sel.a, sel.ev)}`
-      : '<div class="empty-state" style="padding:30px 10px">Selecione um alerta para ver a evidência e registrar o tratamento.</div>'}
-    </aside>
-  </div>`;
-  main.querySelectorAll('tr[data-sel]').forEach(tr => tr.onclick = () => setQ({ sel: tr.dataset.sel }));
-  const b = main.querySelector('#a-busca');
-  let t; b.oninput = () => { clearTimeout(t); t = setTimeout(() => setQ({ busca: b.value, page: '', sel: '' }), 300); };
-  const r = main.querySelector('#a-resp'); if (r) r.onchange = () => setQ({ resp: r.value, page: '', sel: '' });
-  const c = main.querySelector('#d-close'); if (c) c.onclick = () => setQ({ sel: '' });
-  if (sel) bindTratamento(main.querySelector('#drawer'), sel.a, sel.ev);
-  main.querySelector('#a-csv').onclick = () => {
-    const head = ['id', 'fonte', 'risco', 'data_hora', 'usuario', 'area', 'ferramenta', 'informacao', 'sensibilidade', 'regra', 'situacao', 'responsavel'];
-    const lines = [head.join(';'), ...rows.map(x => [x.id, FONTE[x.fonte] ? FONTE[x.fonte].l : '', x.risco, dtBR(x.iso), nomeUsr(x.quem), x.area, x.ferramenta, x.info, x.sens, x.regra, x.status, x.resp].map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(';'))];
-    const blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `gerencia-alertas-${tab}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  };
-  // mantém o foco na busca após re-render
-  if (q.busca && document.activeElement === document.body) { b.focus(); b.setSelectionRange(b.value.length, b.value.length); }
+// =====================================================================
+// ALERTAS EM QUADRO (kanban): Aberto → Em análise → Tratado
+// =====================================================================
+const COLUNAS = [
+  ['Aberto', 'var(--st-aberto)', 'Aguardando o responsável assumir'],
+  ['Em análise', 'var(--st-analise)', 'Responsável verificando a evidência'],
+  ['Tratado', 'var(--st-tratado)', 'Fechado com desfecho e ação'],
+];
+const LIM_COL = 15;
+let colunaAberta = {};   // colunas com "mostrar mais" ativo
+const ORDENS = [['risco-desc', 'Risco: maior → menor'], ['risco-asc', 'Risco: menor → maior'], ['data-desc', 'Data: mais recente → mais antiga'], ['data-asc', 'Data: mais antiga → mais recente']];
+let ordemCol = { 'Aberto': 'risco-desc', 'Em análise': 'risco-desc', 'Tratado': 'risco-desc' };
+try { Object.assign(ordemCol, JSON.parse(localStorage.getItem('gerencia-ordem-quadro') || '{}')); } catch (e) { /* sem armazenamento: usa o padrão */ }
+function ordenar(lista, modo) {
+  const r = (a) => RORD[a.risco] ?? 9, d = (a) => a.iso || '';
+  const f = {
+    'risco-desc': (a, b) => r(a) - r(b) || d(b).localeCompare(d(a)),
+    'risco-asc': (a, b) => r(b) - r(a) || d(b).localeCompare(d(a)),
+    'data-desc': (a, b) => d(b).localeCompare(d(a)) || r(a) - r(b),
+    'data-asc': (a, b) => d(a).localeCompare(d(b)) || r(a) - r(b),
+  }[modo] || ((a, b) => r(a) - r(b));
+  return lista.slice().sort(f);
 }
+function vistaQuadro(main) {
+  const q = route.q;
+  const busca = norm(q.busca || '');
+  let als = fAlertas();
+  if (q.resp) als = als.filter(a => a.responsavel === q.resp);
+  if (busca) als = als.filter(a => norm([a.id, nomeUsr(a.usuario_id), a.area, a.ferramenta, a.informacao, a.regra].join(' ')).includes(busca));
+  const resps = [...new Set(E.alertas.map(a => a.responsavel))].sort();
+  const cartao = (a) => `<article class="kcard" draggable="true" tabindex="0" data-alert="${esc(a.id)}" aria-label="${esc(a.informacao)}, ${esc(a.risco)}">
+      <div class="kc-top">${riskChip(a.risco)}${srcTag(a.fonte)}<span class="kc-id">${esc(a.id)}</span></div>
+      <b>${esc(a.informacao)}</b>
+      <span class="kc-sub">${esc(nomeUsr(a.usuario_id))} · ${esc(a.ferramenta)}</span>
+      <div class="kc-foot"><span>${esc(a.responsavel)}</span><span>${dBR(a.data)}</span></div>
+    </article>`;
+  const colunas = COLUNAS.map(([st, cor, sub]) => {
+    const lista = ordenar(als.filter(a => a.status === st), ordemCol[st]);
+    const mostra = colunaAberta[st] ? lista : lista.slice(0, LIM_COL);
+    return `<section class="kcol" data-col="${st}" aria-label="${st}">
+      <header><i style="background:${cor}"></i><h3>${st}</h3><span class="n">${lista.length}</span></header>
+      <div class="ksub">${sub}</div>
+      <label class="kord"><span>Ordenar</span><select data-ordem="${st}" aria-label="Ordenar ${st}">${ORDENS.map(([v, l]) => `<option value="${v}" ${ordemCol[st] === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+      <div class="kcards">${mostra.map(cartao).join('') || '<p class="kempty">Nenhum alerta</p>'}</div>
+      ${lista.length > LIM_COL ? `<button type="button" class="kmore" data-more="${st}">${colunaAberta[st] ? 'Mostrar menos' : `Mostrar mais ${lista.length - LIM_COL}`}</button>` : ''}
+    </section>`;
+  }).join('');
+  main.innerHTML = `<div class="head"><div><h1>Alertas</h1><p>Arraste o cartão para mudar de etapa, ou clique nele para ver a evidência e registrar o tratamento.</p></div></div>
+    <div class="toolbar">
+      <input id="a-busca" type="search" placeholder="Filtrar por pessoa, ferramenta, informação, regra ou ID" value="${esc(q.busca || '')}" style="flex:1;min-width:200px;max-width:380px">
+      <select id="a-resp"><option value="">Todos os responsáveis</option>${resps.map(r => `<option ${q.resp === r ? 'selected' : ''}>${esc(r)}</option>`).join('')}</select>
+
+    </div>
+    <div class="kanban">${colunas}</div>`;
+  const b = main.querySelector('#a-busca');
+  let t; b.oninput = () => { clearTimeout(t); t = setTimeout(() => setQ({ busca: b.value }), 300); };
+  if (q.busca && document.activeElement === document.body) { b.focus(); b.setSelectionRange(b.value.length, b.value.length); }
+  main.querySelector('#a-resp').onchange = (e) => setQ({ resp: e.target.value });
+  main.querySelectorAll('[data-ordem]').forEach(x => x.onchange = () => { ordemCol[x.dataset.ordem] = x.value; try { localStorage.setItem('gerencia-ordem-quadro', JSON.stringify(ordemCol)); } catch (e) { /* ok */ } render(); });
+  main.querySelectorAll('[data-more]').forEach(x => x.onclick = () => { colunaAberta[x.dataset.more] = !colunaAberta[x.dataset.more]; render(); });
+  main.querySelectorAll('.kcard').forEach(c => {
+    c.ondragstart = (e) => { e.dataTransfer.setData('text/plain', c.dataset.alert); e.dataTransfer.effectAllowed = 'move'; c.classList.add('drag'); };
+    c.ondragend = () => c.classList.remove('drag');
+    c.onclick = () => openModal('alerta', c.dataset.alert);
+    c.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal('alerta', c.dataset.alert); } };
+  });
+  main.querySelectorAll('.kcol').forEach(col => {
+    col.ondragover = (e) => { e.preventDefault(); col.classList.add('over'); };
+    col.ondragleave = (e) => { if (!col.contains(e.relatedTarget)) col.classList.remove('over'); };
+    col.ondrop = (e) => { e.preventDefault(); col.classList.remove('over'); moverAlerta(e.dataTransfer.getData('text/plain'), col.dataset.col); };
+  });
+  // link vindo de outra tela com um alerta escolhido: abre o modal e limpa o "sel" do endereço
+  if (q.sel && ALT[q.sel]) {
+    const id = q.sel;
+    history.replaceState(null, '', href(['alertas'], { ...q, sel: '' }));
+    route.q = { ...q }; delete route.q.sel;
+    setTimeout(() => openModal('alerta', id), 0);
+  }
+}
+function moverAlerta(id, para) {
+  const a = ALT[id]; if (!a || a.status === para) return;
+  if (para === 'Em análise') registrar(id, 'Em análise', { nota: 'Análise assumida' });
+  else if (para === 'Aberto') registrar(id, 'Aberto', { nota: a.status === 'Tratado' ? 'Reaberto' : 'Devolvido para a fila' });
+  else {
+    // concluir pede desfecho, ação e comentário: abre o formulário no modal
+    if (a.status === 'Aberto') registrar(id, 'Em análise', { nota: 'Análise assumida' });
+    MODAL.aviso = 'Para mover para <b>Tratado</b>, preencha desfecho, ação tomada e comentário.';
+    openModal('alerta', id);
+  }
+}
+
+function vistaAlertas(main) { return vistaQuadro(main); }
 
 // =====================================================================
 // GOVERNANÇA — Política, Inventário, Auditoria, Validação
 // =====================================================================
 function vistaGovernanca(main) {
-  const sub = route.path[1] || 'auditoria';
-  const nDiv = E.indicadores.filter(i => i.divergente).length;
-  const nOk = E.validacao.filter(v => v.passou).length;
-  const tabs = [['auditoria', 'Auditoria', `${E.auditoria.length} achados`], ['validacao', 'Validação', `${nOk}/${E.validacao.length}`], ['politica', 'Política', `${E.politica.regras.length} regras`], ['inventario', 'Inventário', `${E.ferramentas.length} ferramentas`]];
-  let body = '';
-  if (sub === 'auditoria') {
-    const c = E.meta.concordancia;
-    body = `<section class="kpis" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
-      <div class="kpi"><span class="lab">Mesmo nível de risco que a base</span><span class="val">${pct(c.nivel / c.total)}</span><span class="foot">${c.nivel} de ${c.total} eventos</span></div>
-      <div class="kpi"><span class="lab">Mesma regra citada</span><span class="val">${pct(c.regra / c.total)}</span><span class="foot">${c.regra} de ${c.total}</span></div>
-      <div class="kpi"><span class="lab">Indicadores declarados que divergem</span><span class="val" style="color:${COR['Crítico']}">${nDiv}/${E.indicadores.length}</span><span class="foot">recalculados da base</span></div>
-      <div class="kpi"><span class="lab">Achados de rotulagem</span><span class="val">${E.auditoria.length}</span><span class="foot">${E.auditoria.filter(a => a.gravidade === 'alta').length} de gravidade alta</span></div>
-    </section>
-    <section class="card"><div class="card-h"><h3>O que a empresa declara × o que a base mostra</h3><span class="hint">aba Indicadores_Atuais, recalculada</span></div>
-      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Indicador</th><th class="num">Declarado</th><th class="num">Apurado</th><th>Situação</th><th>Observação</th></tr></thead>
-      <tbody>${E.indicadores.map(i => `<tr><td>${esc(i.nome)}</td><td class="num">${esc(i.declarado)}</td><td class="num"><b>${esc(i.apurado)}</b></td><td>${i.divergente ? '<span class="meta fora">≠ diverge</span>' : '<span class="meta dentro">✓ confere</span>'}</td><td class="small">${esc(i.observacao)}</td></tr>`).join('')}</tbody></table></div></section>
-    <section class="card mt"><div class="card-h"><h3>Achados de auditoria</h3><span class="hint">cada um com os eventos afetados</span></div>
-      ${E.auditoria.map((a, i) => `<details class="grp" ${i === 0 ? 'open' : ''}><summary><span class="rule">${esc(a.id)}</span> <b>${esc(a.titulo)}</b><span class="cnt"><span class="meta ${a.gravidade === 'alta' ? 'fora' : 'dentro'}" style="${a.gravidade === 'alta' ? '' : 'background:var(--surface-2);color:var(--ink-2)'}">gravidade ${esc(a.gravidade)}</span> ${(a.eventos || []).length} evento(s)</span></summary>
-        <div style="padding:0 14px 12px"><p style="margin:0 0 6px">${esc(a.resumo)}</p><p class="muted small" style="margin:0 0 6px">${esc(a.consequencia)}</p><p class="small" style="margin:0 0 8px"><b>Evidência:</b> ${esc(a.evidencia)}</p>
-        <div class="qchips" style="margin:0">${(a.eventos || []).slice(0, 40).map(id => `<a class="mono" href="${link(['investigar', 'evento', id])}">${esc(id)}</a>`).join('')}${(a.eventos || []).length > 40 ? `<span>+ ${(a.eventos.length - 40)}</span>` : ''}</div></div></details>`).join('')}
-    </section>`;
-  } else if (sub === 'validacao') {
-    body = `<section class="card"><div class="card-h"><h3>Casos do gabarito oficial</h3><span class="hint">Aba Casos_Validacao da planilha oficial, sem ajuste por caso</span></div>
-      ${E.validacao.map(v => `<details class="grp"><summary><span class="rule">${esc(v.caso)}</span> <b>${esc(v.informacao)}</b> <span class="muted small">${esc(v.ferramenta)} · ${esc(v.area)}</span><span class="cnt">esperado <b>${esc(v.esperado)}</b> · obtido ${riskChip(v.obtido)} ${ruleChip(v.regra)} ${v.passou ? '<span class="meta dentro">✓ passou</span>' : '<span class="meta fora">✕ falhou</span>'}</span></summary>
-        <div style="padding:0 14px 12px"><p class="small" style="margin:0 0 6px"><b>Justificativa do gabarito:</b> ${esc(v.justificativa)}</p><ol class="chain">${(v.achados || []).map(x => `<li class="${RK[x.nivel] || ''}"><b>${esc(x.regra)} · ${esc(x.titulo)}</b>${esc(x.motivo)}</li>`).join('')}</ol></div></details>`).join('')}
-    </section>`;
-  } else if (sub === 'politica') {
-    const P = E.politica;
-    body = `<div class="grid g-2">
-      <section class="card"><div class="card-h"><h3>Ordem de precedência</h3><span class="hint">da primeira à última avaliada</span></div>
-        <ol style="margin:0;padding-left:22px;line-height:1.9">${P.precedencia.map(p => `<li>${esc(p)}</li>`).join('')}</ol></section>
-      <section class="card"><div class="card-h"><h3>Níveis de classificação</h3><span class="hint">definidos pela empresa</span></div>
-        <table class="tbl"><tbody>${P.classificacoes.map(c => `<tr><td>${clsChip(c.classificacao)}</td><td>${esc(c.definicao)}<span class="sub">${esc(c.regra_geral)}</span></td><td class="small">risco base<br><b>${esc(c.risco_base)}</b></td></tr>`).join('')}</tbody></table></section>
-    </div>
-    <section class="card mt"><div class="card-h"><h3>Regras da política</h3><span class="hint">usos na base × usos no motor</span></div>
-      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Regra</th><th>Tema</th><th>Texto da política</th><th>Nível</th><th>Ação</th><th class="num">Base</th><th class="num">Motor</th></tr></thead>
-      <tbody>${P.regras.map(r => `<tr><td>${ruleChip(r.id)}</td><td>${esc(r.tema)}</td><td>${esc(r.texto)}</td><td>${riskChip(r.nivel === 'REVISAR' ? 'REVISAR' : r.nivel)}</td><td class="small">${esc(r.acao)}</td><td class="num">${r.usos_base}</td><td class="num">${r.usos_total}</td></tr>`).join('')}</tbody></table></div></section>
-    ${(P.propostas || []).length ? `<section class="card mt"><div class="card-h"><h3>Regras propostas pela auditoria</h3><span class="hint">lacunas que nenhuma regra cobre hoje</span></div>
-      ${P.propostas.map(p => `<details class="grp"><summary>${ruleChip(p.id)} <b>${esc(p.regra)}</b><span class="cnt">${riskChip(p.nivel)}</span></summary><div style="padding:0 14px 12px"><p class="small" style="margin:0 0 6px"><b>Ação:</b> ${esc(p.acao)}</p><p class="muted small" style="margin:0">${esc(p.porque)}</p></div></details>`).join('')}</section>` : ''}`;
-  } else {
-    const st = (fid) => { const ev = E.eventos.filter(e => e.ferramenta_id === fid); return { n: ev.length, p: new Set(ev.map(e => e.usuario_id)).size, s: ev.filter(e => e.sensivel).length, ac: ev.filter(e => e.risco === 'Crítico' || e.risco === 'Alto').length }; };
-    body = `<section class="card"><div class="card-h"><h3>Ferramentas de IA</h3><span class="hint">Cadastradas na planilha e detectadas na coleta</span></div>
-      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Ferramenta</th><th>Status</th><th>Finalidade aprovada</th><th>Controles</th><th>Logs</th><th class="num">Eventos</th><th class="num">Pessoas</th><th class="num">Sensíveis</th><th class="num">Alto/crítico</th></tr></thead>
-      <tbody>${E.ferramentas.map(f => { const s = st(f.id); return `<tr class="click" data-go="${href(['investigar', 'ferramenta', f.id], {})}"><td>${esc(f.nome)} ${/^IA-EXT/.test(f.id) ? srcTag('coleta') : srcTag('planilha')}<span class="sub mono">${esc(f.id)} · ${esc(f.tipo)}</span></td><td>${stTag(f.id)}</td><td class="small">${esc(f.finalidade)}</td><td class="small">${esc(f.controles)}</td><td class="small">${esc(f.logs)}</td><td class="num">${s.n}</td><td class="num">${s.p}</td><td class="num">${s.s}</td><td class="num">${s.ac}</td></tr>`; }).join('')}</tbody></table></div></section>
-    <div class="grid g-2 mt">
-      <section class="card"><div class="card-h"><h3>Tipos de informação</h3><span class="hint">A classificação acontece aqui, uma vez</span></div>
-        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Tipo</th><th>Classificação</th><th class="num">Eventos</th></tr></thead>
-        <tbody>${E.tipos.slice().sort((a, b) => SENS.indexOf(a.classificacao) - SENS.indexOf(b.classificacao)).map(t => `<tr class="click" data-go="${href(['investigar', 'info', t.id], {})}"><td>${esc(t.nome)}<span class="sub">${esc(t.categoria)}</span></td><td>${clsChip(t.classificacao)}</td><td class="num">${E.eventos.filter(e => e.informacao_id === t.id).length}</td></tr>`).join('')}</tbody></table></div></section>
-      <section class="card"><div class="card-h"><h3>Fontes de log</h3><span class="hint">o que alimenta a rastreabilidade</span></div>
-        <table class="tbl"><tbody>${E.fontes.map(f => `<tr><td>${esc(f.nome)}<span class="sub">${esc(f.dados)}</span></td><td class="small">${esc(f.confiabilidade)}<span class="sub">${esc(f.atualizacao)}</span></td></tr>`).join('')}</tbody></table></section>
-    </div>`;
-  }
-  main.innerHTML = `<div class="head"><div><h1>Governança</h1><p>Como a GerencIA decide, e a prova de que decide certo. Auditoria e Validação conferem a <b>planilha</b> oficial; o Inventário soma o que a <b>coleta</b> detectou. Sem os filtros do topo.</p></div></div>
-    <nav class="tabs">${tabs.map(([k, l, n]) => `<a href="${href(['governanca', k], {})}" ${sub === k ? 'aria-current="page"' : ''}>${l}<span class="n">${n}</span></a>`).join('')}</nav>${body}`;
+  main.innerHTML = `<div class="head"><div><h1>Governança</h1><p>Escolha o tipo de cadastro para consultar o que já existe e use “+ Novo” para incluir. As regras de risco trazem também a ordem de avaliação, a validação e a auditoria.</p></div></div>${vistaCadastros()}`;
   bindRowLinks(main);
+  bindCadastros(main);
+}
+
+// =====================================================================
+// GOVERNANÇA → CADASTROS: classificações, ferramentas, usuários, tipos de informação e regras
+// =====================================================================
+const origemTag = (x) => x.cadastro ? '<span class="src cadastro">Cadastro</span>' : (/^IA-EXT/.test(x.id || '') ? srcTag('coleta') : srcTag('planilha'));
+const proximoId = (lista, pref, tam) => {
+  const nums = lista.map(x => String(x.id || '')).filter(id => id.startsWith(pref) && /^\d+$/.test(id.slice(pref.length))).map(id => +id.slice(pref.length));
+  return pref + String((nums.length ? Math.max(...nums) : 0) + 1).padStart(tam, '0');
+};
+const areasConhecidas = () => [...new Set([...AREAS, ...E.usuarios.map(u => u.area)].filter(a => a && a !== 'Não mapeada'))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+const usoFerr = (fid) => { const ev = E.eventos.filter(e => e.ferramenta_id === fid); return { n: ev.length, p: new Set(ev.map(e => e.usuario_id)).size, s: ev.filter(e => e.sensivel).length, ac: ev.filter(e => e.risco === 'Crítico' || e.risco === 'Alto').length }; };
+const n0 = (v) => v ? num(v) : '<span class="muted">—</span>';
+const CAD_DEF = {
+  classificacoes: {
+    aba: 'Classificações', titulo: 'Classificação da informação', novo: 'Nova classificação', lista: () => E.politica.classificacoes, chave: 'classificacao',
+    ajuda: 'Níveis que a empresa usa para classificar a informação (ex.: Pública, Interna, Confidencial, Crítica).',
+    cols: [['Classificação', x => clsChip(x.classificacao)], ['Definição', x => esc(x.definicao)], ['Risco base', x => esc(x.risco_base)], ['Regra geral', x => `<span class="small">${esc(x.regra_geral)}</span>`], ['Tipos', x => n0(E.tipos.filter(t => t.classificacao === x.classificacao).length), 'num']],
+    campos: () => [{ k: 'classificacao', l: 'Nome', req: 1, ph: 'Ex.: Restrita' }, { k: 'definicao', l: 'Definição', tipo: 'area', req: 1 },
+      { k: 'risco_base', l: 'Risco base', tipo: 'select', ops: ['Baixo', 'Baixo/Médio', 'Médio', 'Alto', 'Crítico'], req: 1 }, { k: 'regra_geral', l: 'Regra geral de uso em IA', tipo: 'area', req: 1 }],
+  },
+  ferramentas: {
+    aba: 'Ferramentas de IA', titulo: 'Ferramenta de IA', novo: 'Nova ferramenta', lista: () => E.ferramentas, chave: 'nome', id: () => proximoId(E.ferramentas, 'IA-', 2),
+    ajuda: 'Ferramentas de IA, status de aprovação e uso de cada uma. Clique no nome para ver o resumo.',
+    abrir: (x) => ['ferramenta', x.id],
+    cols: [['Ferramenta', x => `${esc(x.nome)}<span class="sub">${esc(x.id)} · ${esc(x.tipo)}</span>`], ['Status', x => stTag(x.id)], ['Finalidade aprovada', x => `<span class="small">${esc(x.finalidade)}</span>`], ['Controles', x => `<span class="small">${esc(x.controles)}</span>`], ['Logs', x => esc(x.logs)], ['Eventos', x => n0(usoFerr(x.id).n), 'num'], ['Pessoas', x => n0(usoFerr(x.id).p), 'num'], ['Sensíveis', x => n0(usoFerr(x.id).s), 'num'], ['Alto/crítico', x => n0(usoFerr(x.id).ac), 'num']],
+    campos: () => [{ k: 'nome', l: 'Nome', req: 1, ph: 'Ex.: Assistente de Atendimento' }, { k: 'tipo', l: 'Tipo', tipo: 'select', ops: ['Corporativa', 'Pública'], req: 1 },
+      { k: 'status', l: 'Status', tipo: 'select', ops: ['Aprovada', 'Aprovada condicional', 'Aprovada apenas para conteúdo público', 'Não aprovada'], req: 1 },
+      { k: 'uso_principal', l: 'Uso principal', ph: 'Ex.: Texto/documentos' }, { k: 'finalidade', l: 'Finalidade aprovada', req: 1 },
+      { k: 'controles', l: 'Controles', ph: 'Ex.: SSO; logs; DLP' }, { k: 'logs', l: 'Logs corporativos', tipo: 'select', ops: ['Sim', 'Parcial', 'Não'], req: 1 }],
+    antes: (x) => ({ ...x, aprovada: x.status === 'Não aprovada' ? 0 : 1, publica: x.tipo === 'Pública' ? 1 : 0 }),
+  },
+  usuarios: {
+    aba: 'Usuários e áreas', titulo: 'Usuário', novo: 'Novo usuário', lista: () => E.usuarios.filter(u => !/^USR-EXT/.test(u.id)), chave: 'nome', id: () => proximoId(E.usuarios, 'USR-', 4),
+    ajuda: 'Colaboradores monitorados e a área de cada um. Uma área nova pode ser digitada direto no campo.',
+    cols: [['Usuário', x => `${esc(x.nome)}<span class="sub">${esc(x.id)}</span>`], ['Área', x => esc(x.area)], ['Cargo', x => esc(x.cargo)], ['Modelo', x => esc(x.modelo)], ['Perfil', x => esc(x.perfil)]],
+    campos: () => [{ k: 'nome', l: 'Nome', req: 1 }, { k: 'area', l: 'Área', tipo: 'lista', ops: areasConhecidas(), req: 1, ph: 'Escolha ou digite uma nova' },
+      { k: 'cargo', l: 'Cargo', req: 1 }, { k: 'modelo', l: 'Modelo de trabalho', tipo: 'select', ops: ['Remoto', 'Híbrido', 'Presencial'], req: 1 },
+      { k: 'perfil', l: 'Perfil de acesso', tipo: 'select', ops: ['Padrão', 'Privilegiado', 'Administrador'], req: 1 }],
+  },
+  tipos: {
+    aba: 'Tipos de informação', titulo: 'Tipo de informação', novo: 'Novo tipo', lista: () => E.tipos.filter(t => !/^INF-EXT/.test(t.id)), chave: 'nome', id: () => proximoId(E.tipos, 'INF-', 2),
+    ajuda: 'Que tipo de conteúdo pode aparecer num uso de IA e qual a classificação padrão dele. Clique no nome para ver o resumo.',
+    abrir: (x) => ['info', x.id],
+    cols: [['Tipo', x => `${esc(x.nome)}<span class="sub">${esc(x.id)}</span>`], ['Categoria', x => esc(x.categoria)], ['Classificação', x => clsChip(x.classificacao)], ['Área típica', x => esc(x.area_tipica)], ['Eventos', x => n0(E.eventos.filter(e => e.informacao_id === x.id).length), 'num']],
+    campos: () => [{ k: 'nome', l: 'Nome', req: 1, ph: 'Ex.: Extrato bancário de cliente' },
+      { k: 'categoria', l: 'Categoria', tipo: 'lista', ops: [...new Set(E.tipos.map(t => t.categoria))].sort(), req: 1 },
+      { k: 'classificacao', l: 'Classificação padrão', tipo: 'select', ops: E.politica.classificacoes.map(c => c.classificacao), req: 1 },
+      { k: 'area_tipica', l: 'Área típica', tipo: 'lista', ops: areasConhecidas() }],
+  },
+  regras: {
+    aba: 'Regras de risco', titulo: 'Regra de risco', novo: 'Nova regra', lista: () => E.politica.regras, chave: 'texto', id: () => proximoId([...E.politica.regras, ...(E.politica.propostas || [])], 'R', 2),
+    ajuda: 'Regras da política de uso de IA. Uma regra nova entra na política; para classificar eventos, ela precisa ser incluída no motor de risco.',
+    cols: [['Regra', x => ruleChip(x.id)], ['Tema', x => esc(x.tema)], ['Texto da regra', x => esc(x.texto)], ['Nível', x => riskChip(x.nivel)], ['Ação', x => `<span class="small">${esc(x.acao)}</span>`], ['Usos na base', x => n0(x.usos_base), 'num'], ['Usos no motor', x => n0(x.usos_total), 'num']],
+    campos: () => [{ k: 'tema', l: 'Tema', req: 1, ph: 'Ex.: Dados de cartão' }, { k: 'texto', l: 'Texto da regra', tipo: 'area', req: 1 },
+      { k: 'nivel', l: 'Nível de risco', tipo: 'select', ops: RISCOS, req: 1 }, { k: 'acao', l: 'Ação esperada', tipo: 'area', req: 1 }],
+    extra: () => extraRegras(),
+  },
+  fontes: {
+    aba: 'Fontes de log', titulo: 'Fonte de log', novo: 'Nova fonte', lista: () => E.fontes, chave: 'nome', id: () => proximoId(E.fontes, 'SRC-', 2),
+    ajuda: 'Sistemas que alimentam a rastreabilidade (logs, proxy, DLP, SSO) e a confiabilidade de cada um.',
+    cols: [['Fonte', x => `${esc(x.nome)}<span class="sub">${esc(x.id)}</span>`], ['Dados disponíveis', x => `<span class="small">${esc(x.dados)}</span>`], ['Formato', x => esc(x.formato)], ['Confiabilidade', x => esc(x.confiabilidade)], ['Atualização', x => esc(x.atualizacao)]],
+    campos: () => [{ k: 'nome', l: 'Nome', req: 1, ph: 'Ex.: Logs do e-mail corporativo' }, { k: 'dados', l: 'Dados disponíveis', tipo: 'area', req: 1 },
+      { k: 'formato', l: 'Formato', tipo: 'select', ops: ['Estruturado', 'Semiestruturado', 'Não estruturado'], req: 1 },
+      { k: 'confiabilidade', l: 'Confiabilidade', tipo: 'select', ops: ['Alta', 'Média/Alta', 'Média', 'Baixa'], req: 1 },
+      { k: 'atualizacao', l: 'Atualização', tipo: 'select', ops: ['Contínua', 'Diária', 'Semanal', 'Mensal'], req: 1 }],
+  },
+};
+function extraRegras() {
+  const P = E.politica, c = E.meta.concordancia;
+  const nOk = E.validacao.filter(v => v.passou).length, nDiv = E.indicadores.filter(i => i.divergente).length;
+  const bloco = (titulo, resumo, corpo, aberto) => `<details class="grp mt"${aberto ? ' open' : ''}><summary><b>${titulo}</b><span class="cnt">${resumo}</span></summary><div style="padding:0 16px 16px">${corpo}</div></details>`;
+  return bloco('Ordem de avaliação das regras', 'da primeira à última', `<ol style="margin:0;padding-left:22px;line-height:1.9">${P.precedencia.map(x => `<li>${esc(x)}</li>`).join('')}</ol>`)
+    + ((P.propostas || []).length ? bloco('Regras propostas pela auditoria', `${P.propostas.length} lacunas que nenhuma regra cobre`, P.propostas.map(x => `<p style="margin:0 0 10px">${ruleChip(x.id)} <b>${esc(x.regra)}</b> ${riskChip(x.nivel)}<br><span class="small">Ação: ${esc(x.acao)}</span><br><span class="muted small">${esc(x.porque)}</span></p>`).join('')) : '')
+    + bloco('Validação do motor', `${nOk}/${E.validacao.length} casos reproduzidos · ${pct(c.nivel / c.total)} mesmo nível · ${pct(c.regra / c.total)} mesma regra`,
+      E.validacao.map(v => `<details class="grp"><summary><span class="rule">${esc(v.caso)}</span> <b>${esc(v.informacao)}</b> <span class="muted small">${esc(v.ferramenta)} · ${esc(v.area)}</span><span class="cnt">esperado <b>${esc(v.esperado)}</b> · obtido ${riskChip(v.obtido)} ${ruleChip(v.regra)} ${v.passou ? '<span class="meta dentro">✓ passou</span>' : '<span class="meta fora">✕ falhou</span>'}</span></summary>
+        <div style="padding:0 14px 12px"><p class="small" style="margin:0 0 6px"><b>Justificativa:</b> ${esc(v.justificativa)}</p><ol class="chain">${(v.achados || []).map(x => `<li class="${RK[x.nivel] || ''}"><b>${esc(x.regra)} · ${esc(x.titulo)}</b>${esc(x.motivo)}</li>`).join('')}</ol></div></details>`).join(''))
+    + bloco('Auditoria da base', `${nDiv}/${E.indicadores.length} indicadores divergem · ${E.auditoria.length} achados`,
+      `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Indicador</th><th class="num">Declarado</th><th class="num">Apurado</th><th>Situação</th><th>Observação</th></tr></thead>
+       <tbody>${E.indicadores.map(i => `<tr><td>${esc(i.nome)}</td><td class="num">${esc(i.declarado)}</td><td class="num"><b>${esc(i.apurado)}</b></td><td>${i.divergente ? '<span class="meta fora">≠ diverge</span>' : '<span class="meta dentro">✓ confere</span>'}</td><td class="small">${esc(i.observacao)}</td></tr>`).join('')}</tbody></table></div>
+       <h4 style="margin:18px 0 8px;font-size:14px">Achados</h4>
+       ${E.auditoria.map(a => `<details class="grp"><summary><span class="rule">${esc(a.id)}</span> <b>${esc(a.titulo)}</b><span class="cnt">gravidade ${esc(a.gravidade)} · ${(a.eventos || []).length} evento(s)</span></summary>
+        <div style="padding:0 14px 12px"><p style="margin:0 0 6px">${esc(a.resumo)}</p><p class="muted small" style="margin:0 0 6px">${esc(a.consequencia)}</p><p class="small" style="margin:0 0 8px"><b>Evidência:</b> ${esc(a.evidencia)}</p>
+        <div class="qchips" style="margin:0">${(a.eventos || []).slice(0, 40).map(id => `<a href="${link(['investigar', 'evento', id])}">${esc(id)}</a>`).join('')}${(a.eventos || []).length > 40 ? `<span>+ ${a.eventos.length - 40}</span>` : ''}</div></div></details>`).join('')}`);
+}
+function vistaCadastros() {
+  const k = CAD_DEF[route.q.tipo] ? route.q.tipo : 'classificacoes';
+  const def = CAD_DEF[k];
+  const lista = def.lista();
+  const novos = lista.filter(x => x.cadastro).length;
+  const sub = `<div class="seg" role="group" aria-label="Tipo de cadastro" style="flex-wrap:wrap">${Object.entries(CAD_DEF).map(([kk, d]) => `<button type="button" data-cad="${kk}" aria-pressed="${kk === k}">${d.aba}</button>`).join('')}</div>`;
+  return `<div class="toolbar" style="justify-content:space-between">${sub}
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" id="cad-exp">⇩ Exportar cadastros</button><button class="btn primary" type="button" id="cad-novo" title="${esc(def.novo)}">+ Novo</button></div></div>
+    <section class="card"><div class="card-h"><h3>${def.aba}</h3><span class="hint">${esc(def.ajuda)}</span></div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr>${def.cols.map(c => `<th${c[2] ? ' class="num"' : ''}>${c[0]}</th>`).join('')}<th>Origem</th><th></th></tr></thead>
+      <tbody>${lista.map((x, i) => `<tr${def.abrir ? ` class="click" data-go="${href(['investigar', ...def.abrir(x)], {})}"` : ''}>${def.cols.map(c => `<td${c[2] ? ' class="num"' : ''}>${c[1](x)}</td>`).join('')}<td>${origemTag(x)}</td>
+        <td class="num" style="white-space:nowrap">${x.cadastro ? `<button class="linkbtn" type="button" data-edit="${i}">Editar</button><button class="linkbtn" type="button" data-del="${i}">Excluir</button>` : '<span class="muted small">somente leitura</span>'}</td></tr>`).join('')}</tbody></table></div>
+      <p class="demo">Itens de origem ficam como referência e não podem ser alterados aqui. ${novos ? '' : 'Ainda não há cadastros novos neste tipo. '}Demonstração: os cadastros ficam salvos neste navegador.</p>
+    </section>${def.extra ? def.extra() : ''}`;
+}
+function bindCadastros(main) {
+  const k = CAD_DEF[route.q.tipo] ? route.q.tipo : 'classificacoes';
+  const def = CAD_DEF[k]; const lista = def.lista();
+  main.querySelectorAll('[data-cad]').forEach(b => b.onclick = () => setQ({ tipo: b.dataset.cad }));
+  main.querySelector('#cad-novo').onclick = () => formCadastro(k, null);
+  main.querySelectorAll('[data-edit]').forEach(b => b.onclick = (ev) => { ev.stopPropagation(); formCadastro(k, lista[+b.dataset.edit]); });
+  main.querySelectorAll('[data-del]').forEach(b => b.onclick = (ev) => {
+    ev.stopPropagation();
+    const x = lista[+b.dataset.del];
+    if (!confirm(`Excluir “${x[def.chave]}” dos cadastros?`)) return;
+    CAD[k] = CAD[k].filter(y => (def.id ? y.id !== x.id : y[def.chave] !== x[def.chave]));
+    salvarCad(); location.reload();
+  });
+  main.querySelector('#cad-exp').onclick = () => {
+    const blob = new Blob([JSON.stringify({ exportado_em: agora(), por: quem(), ...CAD }, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'gerencia-cadastros.json'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+}
+function formCadastro(k, item) {
+  const def = CAD_DEF[k]; const campos = def.campos();
+  const el = document.getElementById('modal');
+  closeModal();
+  el.hidden = false; document.body.style.overflow = 'hidden';
+  const campo = (c) => {
+    const v = item ? (item[c.k] ?? '') : '';
+    const att = `id="cf-${c.k}" name="${c.k}" ${c.req ? 'required' : ''} ${c.ph ? `placeholder="${esc(c.ph)}"` : ''}`;
+    if (c.tipo === 'area') return `<textarea ${att}>${esc(v)}</textarea>`;
+    if (c.tipo === 'select') return `<select ${att}><option value="">Escolha…</option>${c.ops.map(o => `<option ${o === v ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select>`;
+    if (c.tipo === 'lista') return `<input ${att} list="dl-${c.k}" value="${esc(v)}" autocomplete="off"><datalist id="dl-${c.k}">${c.ops.map(o => `<option value="${esc(o)}">`).join('')}</datalist>`;
+    return `<input ${att} value="${esc(v)}" autocomplete="off">`;
+  };
+  el.innerHTML = `<div class="mback" data-mclose></div>
+    <div class="mbox mform" role="dialog" aria-modal="true" aria-label="${esc(item ? 'Editar ' : '') + def.titulo}">
+      <div class="mhead"><span class="mkind">${item ? 'Editar' : def.novo}</span><button class="mx" type="button" data-mclose aria-label="Fechar">×</button></div>
+      <form class="mbody cform" novalidate>
+        ${def.id ? `<p class="muted small" style="margin:0 0 12px">Código: <b>${esc(item ? item.id : def.id())}</b></p>` : ''}
+        ${campos.map(c => `<label><span>${esc(c.l)}${c.req ? ' <span class="req">*</span>' : ''}</span>${campo(c)}</label>`).join('')}
+        <p class="cerr" id="cf-erro" hidden></p>
+        <div class="acts"><button class="btn" type="button" data-mclose>Cancelar</button><button class="btn primary" type="submit">${item ? 'Salvar alterações' : 'Cadastrar'}</button></div>
+      </form>
+    </div>`;
+  el.querySelectorAll('[data-mclose]').forEach(b => b.onclick = closeModal);
+  const f = el.querySelector('form');
+  const primeiro = f.querySelector('input,select,textarea'); if (primeiro) primeiro.focus();
+  f.onsubmit = (ev) => {
+    ev.preventDefault();
+    const val = {}; campos.forEach(c => { val[c.k] = (f.elements[c.k].value || '').trim(); });
+    const erro = (m) => { const e = el.querySelector('#cf-erro'); e.textContent = m; e.hidden = false; };
+    const falta = campos.filter(c => c.req && !val[c.k]).map(c => c.l);
+    if (falta.length) return erro(`Preencha: ${falta.join(', ')}.`);
+    const dup = def.lista().some(x => x !== item && norm(x[def.chave]) === norm(val[def.chave]));
+    if (dup) return erro(`Já existe um cadastro com esse ${def.campos().find(c => c.k === def.chave).l.toLowerCase()}.`);
+    let novo = { ...(item ? { id: item.id } : (def.id ? { id: def.id() } : {})), ...val, criado_por: quem(), criado_em: item ? item.criado_em : agora() };
+    if (item) novo.alterado_em = agora();
+    if (def.antes) novo = def.antes(novo);
+    delete novo.cadastro;
+    if (item) CAD[k] = CAD[k].map(y => ((def.id ? y.id === item.id : y[def.chave] === item[def.chave]) ? novo : y));
+    else CAD[k].push(novo);
+    if (!salvarCad()) return erro('Este navegador não permite salvar. Abra o painel em uma janela normal (não anônima).');
+    location.reload();
+  };
 }
 
 function bindRowLinks(root) { root.querySelectorAll('tr[data-go]').forEach(tr => tr.onclick = () => { const m = tr.dataset.go.match(RX_ENT); if (m) openModal(m[1], decodeURIComponent(m[2])); else location.hash = tr.dataset.go; }); }
@@ -1211,14 +1442,20 @@ function bindRowLinks(root) { root.querySelectorAll('tr[data-go]').forEach(tr =>
 // MODAL — resumo de informação, pessoa, ferramenta, área ou evento sem sair da página
 // =====================================================================
 const MODAL = { stack: [] };
-const KIND_NOME = { info: 'Informação', pessoa: 'Pessoa', ferramenta: 'Ferramenta', area: 'Área', evento: 'Evento' };
+const KIND_NOME = { info: 'Informação', pessoa: 'Pessoa', ferramenta: 'Ferramenta', area: 'Área', evento: 'Evento', alerta: 'Alerta' };
 function entidadeHTML(kind, id) {
+  if (kind === 'alerta') {
+    const a = ALT[id]; const ev = a ? EVT[a.evento_id] : null;
+    if (!a) return '<div class="card empty-state">Alerta não encontrado.</div>';
+    return `<div class="mtitle"><h2>${esc(a.informacao)} → ${esc(a.ferramenta)}</h2><p>${riskChip(a.risco)} <span>${esc(a.status)} · ${esc(a.responsavel)}</span></p></div>
+      ${MODAL.aviso ? `<p class="note" style="margin:0 0 14px">${MODAL.aviso}</p>` : ''}
+      <div class="grid g-2 malerta"><div class="card">${evidencia(ev, a)}${a.evidencia ? `<p class="note">Evidência do alerta: ${esc(a.evidencia)}</p>` : ''}</div><div class="card">${blocoTratamento(a, ev)}</div></div>`;
+  }
   if (kind === 'evento') {
     const e = EVT[id];
     const a = e ? E.alertas.find(x => x.evento_id === id) : null;
     return `<div class="mtitle"><h2>${e ? esc(e.informacao) + ' → ' + esc(e.ferramenta) : esc(id)}</h2></div>
-      <div class="card">${evidencia(e, a)}</div>
-      ${a ? `<div class="mfoot"><a href="${href(['alertas'], { ...gq(), status: a.status, sel: a.id })}">Tratar na fila de alertas →</a></div>` : ''}`;
+      <div class="grid g-2 malerta"><div class="card">${evidencia(e, a)}</div><div class="card">${a ? `<div class="trat"><h3>Alerta ${esc(a.id)}</h3><p class="muted small" style="margin:0 0 12px">${esc(a.status)} · ${esc(a.responsavel)}</p><button class="btn primary" type="button" data-ver-alerta="${esc(a.id)}">Ver tratamento do alerta</button></div>` : blocoTratamento(null, e)}</div></div>`;
   }
   const K = KINDS[kind];
   const evs = fEventos().filter(e => K.match(e, id)).sort((a, b) => b.ts.localeCompare(a.ts));
@@ -1278,6 +1515,10 @@ function drawModal() {
       <div class="mbody">${entidadeHTML(kind, id)}</div>
     </div>`;
   el.querySelectorAll('[data-mclose]').forEach(b => b.onclick = closeModal);
+  const body = el.querySelector('.mbody');
+  if (kind === 'alerta' && ALT[id]) bindTratamento(body, ALT[id], EVT[ALT[id].evento_id]);
+  if (kind === 'evento' && EVT[id] && !E.alertas.some(x => x.evento_id === id)) bindTratamento(body, null, EVT[id]);
+  body.querySelectorAll('[data-ver-alerta]').forEach(x => x.onclick = () => openModal('alerta', x.dataset.verAlerta));
   const v = el.querySelector('[data-mvoltar]'); if (v) v.onclick = () => { MODAL.stack.pop(); drawModal(); };
   el.querySelector('.mx').focus();
   el.scrollTop = 0;
@@ -1285,7 +1526,7 @@ function drawModal() {
 function closeModal() {
   const el = document.getElementById('modal');
   if (el.hidden) return;
-  el.hidden = true; el.innerHTML = ''; MODAL.stack = []; document.body.style.overflow = '';
+  el.hidden = true; el.innerHTML = ''; MODAL.stack = []; MODAL.aviso = ''; document.body.style.overflow = '';
 }
 // links para informação/pessoa/ferramenta/área/evento abrem o modal em vez de trocar de página
 const RX_ENT = /^#\/investigar\/(info|pessoa|ferramenta|area|evento)\/([^?]+)/;
@@ -1314,6 +1555,15 @@ const RESP_POR_REGRA = { R03: 'Segurança', R06: 'Segurança', R04: 'Privacidade
 const DESFECHOS = ['Risco confirmado, ação aplicada', 'Uso autorizado, exceção registrada', 'Falso positivo', 'Escalado para Jurídico/Privacidade'];
 const ACOES = ['Colaborador orientado', 'Credencial revogada e rotacionada', 'Acesso à ferramenta bloqueado', 'Conteúdo removido da ferramenta', 'Comunicado à Privacidade (LGPD)', 'Nenhuma ação necessária'];
 const agora = () => { const d = new Date(); const p = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}:00`; };
+function gerarAlertasColeta() {
+  // cada evento da coleta vira um cartão no quadro; começa em Aberto até alguém classificar
+  E.eventos.filter(e => e.fonte === 'coleta' && !E.alertas.some(a => a.evento_id === e.id)).forEach(ev => {
+    const a = { id: 'ALT-' + ev.id, evento_id: ev.id, ts: dtBR(ev.ts), data: ev.data, iso: ev.ts.slice(0, 16), usuario_id: ev.usuario_id, area: ev.area, ferramenta: ev.ferramenta,
+      informacao: ev.informacao, sensibilidade: ev.sensibilidade, risco: ev.risco, regra: ev.regra, evidencia: '', status: 'Aberto',
+      responsavel: RESP_POR_REGRA[ev.regra] || 'Gestor da área', ferramenta_id: ev.ferramenta_id, informacao_id: ev.informacao_id, fonte: ev.fonte };
+    E.alertas.push(a); ALT[a.id] = a;
+  });
+}
 function aplicarTrat() {
   Object.values(TRAT).filter(t => t.novo && !ALT[t.id]).forEach(t => {
     const ev = EVT[t.evento_id]; if (!ev) return;
@@ -1322,24 +1572,28 @@ function aplicarTrat() {
       ferramenta_id: ev.ferramenta_id, informacao_id: ev.informacao_id, fonte: ev.fonte };
     E.alertas.push(a); ALT[a.id] = a;
   });
+  gerarAlertasColeta();
   E.alertas.forEach(a => { const t = TRAT[a.id]; if (t) { a.status = t.status; a.responsavel = t.resp || a.responsavel; a.trat = t; } });
 }
 function registrar(id, para, extra = {}) {
   const a = ALT[id]; if (!a) return;
   const t = TRAT[id] || (TRAT[id] = { id, hist: [] });
   t.hist = t.hist || [];
-  t.hist.push({ ts: agora(), de: a.status, para, por: 'Você (demonstração)', nota: extra.nota || '' });
+  t.hist.push({ ts: agora(), de: a.status, para, por: quem(), nota: extra.nota || '' });
   Object.assign(t, { status: para, resp: extra.resp || t.resp || a.responsavel }, extra.campos || {});
+  if (para === 'Tratado') MODAL.aviso = '';
   salvarTrat(); aplicarTrat(); render();
+  if (!document.getElementById('modal').hidden) drawModal();
 }
 function abrirAlertaDe(evId) {
   const ev = EVT[evId]; if (!ev) return;
   const n = Object.values(TRAT).filter(t => t.novo).length + 1;
   const id = 'ALT-D' + String(n).padStart(3, '0');
   TRAT[id] = { id, novo: true, evento_id: evId, status: 'Aberto', resp: RESP_POR_REGRA[ev.regra] || 'Gestor da área',
-    hist: [{ ts: agora(), de: '—', para: 'Aberto', por: 'Você (demonstração)', nota: 'Alerta aberto a partir de evento sem alerta' }] };
+    hist: [{ ts: agora(), de: '—', para: 'Aberto', por: quem(), nota: 'Alerta aberto a partir de evento sem alerta' }] };
   salvarTrat(); aplicarTrat();
-  setQ({ status: 'Aberto', sel: id, page: '' });
+  if (!document.getElementById('modal').hidden) { MODAL.stack[MODAL.stack.length - 1] = ['alerta', id]; render(); drawModal(); }
+  else setQ({ sel: id });
 }
 function blocoTratamento(a, ev) {
   if (!a) {
@@ -1392,10 +1646,67 @@ function bindTratamento(root, a, ev) {
   }
 }
 
+// =====================================================================
+// ACESSO (login)
+// Demonstração: a conferência é feita no navegador e não protege os dados, que já estão neste arquivo.
+// Na operação, o acesso deve passar pelo SSO da empresa, no servidor. A senha de teste está em ACESSO-TESTE.md.
+// =====================================================================
+const ACESSOS = [{ email: 'admin', nome: 'Administrador', perfil: 'Administrador', hash: '0b0a4da25c4689307a147b112806cd25b982e7e50eb0d7644a6b0facacab3d26' }];
+const SAL = 'gerencia-v1';
+let SESSAO = null;
+try { SESSAO = JSON.parse(sessionStorage.getItem('gerencia-sessao') || localStorage.getItem('gerencia-sessao') || 'null'); } catch (e) { SESSAO = null; }
+const quem = () => (SESSAO ? SESSAO.nome : 'Usuário');
+async function hashSenha(email, senha) {
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${SAL}:${email.trim().toLowerCase()}:${senha}`));
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+function telaLogin() {
+  const tpl = document.getElementById('tpl-logo-h'); const logo = tpl ? tpl.innerHTML : '<b>GerencIA</b>';
+  const w = document.createElement('div'); w.id = 'login';
+  w.innerHTML = `<div class="lg-box">
+      <div class="lg-brand">${logo}</div>
+      <form class="lg-form" novalidate>
+        <h1>Entrar</h1>
+        <label>E-mail<input name="email" type="email" autocomplete="username" required></label>
+        <label>Senha<input name="senha" type="password" autocomplete="current-password" required></label>
+        <label class="lg-chk"><input name="manter" type="checkbox"> Manter conectado neste computador</label>
+        <p class="cerr" hidden></p>
+        <button class="btn primary" type="submit">Entrar</button>
+        <p class="demo">Ambiente de demonstração · acesso de teste.</p>
+      </form>
+    </div>`;
+  document.body.appendChild(w);
+  const f = w.querySelector('form'); f.elements.email.focus();
+  f.onsubmit = async (ev) => {
+    ev.preventDefault();
+    const err = w.querySelector('.cerr'); err.hidden = true;
+    const email = f.elements.email.value.trim().toLowerCase(), senha = f.elements.senha.value;
+    if (!email || !senha) { err.textContent = 'Preencha e-mail e senha.'; err.hidden = false; return; }
+    if (!(window.crypto && crypto.subtle)) { err.textContent = 'Este navegador bloqueou a verificação. Abra pelo link http://localhost ou https.'; err.hidden = false; return; }
+    const h = await hashSenha(email, senha);
+    const u = ACESSOS.find(a => a.email === email && a.hash === h);
+    if (!u) { err.textContent = 'E-mail ou senha incorretos.'; err.hidden = false; f.elements.senha.value = ''; f.elements.senha.focus(); return; }
+    SESSAO = { email: u.email, nome: u.nome, perfil: u.perfil, desde: agora() };
+    try { (f.elements.manter.checked ? localStorage : sessionStorage).setItem('gerencia-sessao', JSON.stringify(SESSAO)); } catch (e) { /* segue só nesta aba */ }
+    w.remove(); iniciar();
+  };
+}
+function sair() {
+  try { sessionStorage.removeItem('gerencia-sessao'); localStorage.removeItem('gerencia-sessao'); } catch (e) { /* ok */ }
+  location.reload();
+}
+function renderUsuario() {
+  const el = document.getElementById('usuario'); if (!el || !SESSAO) return;
+  el.innerHTML = `<div class="u-av">${esc(SESSAO.nome.split(' ').map(p => p[0]).slice(0, 2).join(''))}</div><div class="u-tx"><b>${esc(SESSAO.nome)}</b><span>${esc(SESSAO.perfil)}</span></div><button type="button" class="u-sair" id="u-sair">Sair</button>`;
+  el.querySelector('#u-sair').onclick = sair;
+}
+function iniciar() { document.body.classList.remove('bloq'); renderUsuario(); render(); }
+
 // ---------------- render ----------------
 const VISTAS = { acompanhamento: vistaAcompanhamento, investigar: vistaInvestigar, alertas: vistaAlertas, governanca: vistaGovernanca };
 let lastPath = '';
 function render() {
+  if (!SESSAO) return;
   parseHash();
   const v = VISTAS[route.path[0]] || vistaAcompanhamento;
   renderNav();
@@ -1408,8 +1719,6 @@ function render() {
   lastPath = route.path.join('/');
   document.getElementById('tip').hidden = true;
 }
-document.getElementById('disc').textContent = E.meta.aviso;
-document.getElementById('foot').textContent = `${E.meta.aviso} Fonte: ${E.meta.fonte}. Gerado em ${dtBR(E.meta.gerado_em)}.`;
 window.addEventListener('hashchange', () => { closeModal(); render(); });
 
 
@@ -1426,7 +1735,7 @@ document.addEventListener('mousemove', (ev) => {
   tip.style.left = x + 'px'; tip.style.top = y + 'px';
 });
 aplicarTrat();
-render();
+if (SESSAO) iniciar(); else { document.body.classList.add('bloq'); telaLogin(); }
 </script>
 </body>
 </html>
