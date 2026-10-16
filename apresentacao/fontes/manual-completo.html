@@ -110,8 +110,8 @@ bash llm-local/rodar-llm-local.sh      <span class="c"># sobe o modelo em 127.0.
 Invoke-WebRequest "https://raw.githubusercontent.com/lucibad/espia-starkbank/main/borda/pacotes/GerencIA-Agente-Estacao.zip" -OutFile GerencIA.zip
 Expand-Archive GerencIA.zip -DestinationPath C:\GerencIA -Force
 cd C:\GerencIA\GerencIA-Agente-Estacao\servico
-powershell -ExecutionPolicy Bypass -File .\instalar-servico.ps1 -Coletor "http://10.211.55.2:8765" -Senha "UmaSenhaQueVoceLembre"</div>
-    <p>O instalador acha/instala o Python, instala <code>pywin32</code>/<code>psutil</code>, registra o serviço (início automático), endurece a ACL e guarda a senha.</p>
+powershell -ExecutionPolicy Bypass -File .\instalar-servico.ps1 -Coletor "http://macbook-pro.local:8765" -Senha "UmaSenhaQueVoceLembre"</div>
+    <p>O instalador acha/instala o Python, registra o serviço (início automático), endurece a ACL, guarda a senha e adiciona uma <b>exclusão do Windows Defender</b> para a pasta — sem desligar a proteção.</p>
   </div></div>
   <div class="step"><div class="n">2</div><div>
     <h3>Conferir</h3>
@@ -151,6 +151,7 @@ powershell -ExecutionPolicy Bypass -File .\ATUALIZAR-EXTENSAO.ps1</div>
     <li>Painel → <b>Captura</b>: a tabela <b>Usuário × IA</b> mostra a busca, com <b>Origem</b> (Extensão/Agente), <b>Classificação</b> (Detectores/Qwen3) e o vínculo <b>↔ prompt + resposta</b>.</li>
     <li>Card <b>Conteúdo capturado</b>: o texto digitado e a resposta da IA.</li>
     <li>Vista <b>Rastrear</b>: busca reversa da informação.</li>
+    <li>Painel → <b>Governança → Estações</b>: cada máquina conectada com o <b>farol</b> do agente e da extensão (verde = no ar) e alerta de <b>extensão desabilitada</b>.</li>
   </ul>
   <div class="foot"><span>GerencIA · governança de IA</span><span>Manual de instalação · pág. 3</span></div>
 </div>
@@ -169,6 +170,7 @@ powershell -ExecutionPolicy Bypass -File .\ATUALIZAR-EXTENSAO.ps1</div>
     <tr><td>Firefox: “Agente sem conexão”</td><td>Permissão de rede do Firefox é manual: <code>about:addons</code> → Permissões → ligar acesso aos sites.</td></tr>
     <tr><td>Agente gerando centenas de capturas/dia</td><td>Versão antiga. Reinstale: dedup por uso (8h) + cache de DNS como autoridade (sem falso-positivo de CDN).</td></tr>
     <tr><td>Esqueci a senha do serviço</td><td><code>.\resetar-senha.ps1</code> (como admin, sem a antiga) ou <code>sc delete GerenciaSensor</code> e reinstale.</td></tr>
+    <tr><td>Estações: farol “Sem sinal” com tudo instalado</td><td>Versões antigas não enviam heartbeat. Atualize o agente e a extensão para a build atual (<b>0.3.0</b>) — o farol acende em ~1 min.</td></tr>
   </table>
 
   <h2>Implantação em massa (GPO / Intune)</h2>

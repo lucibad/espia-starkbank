@@ -6,7 +6,7 @@
 
 // Constantes de bootstrap (fonte única em config.js; inline aqui porque
 // importScripts não é confiável entre Chrome e Firefox).
-const AGENTE_PADRAO = "http://10.211.55.2:8765";
+const AGENTE_PADRAO = "http://macbook-pro.local:8765";
 const HOST_NATIVO = "com.starkbank.rastro.identidade";
 
 const api = (typeof browser !== "undefined") ? browser : chrome;
