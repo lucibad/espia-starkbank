@@ -411,11 +411,14 @@ def ingerir(con: sqlite3.Connection, corpo: dict, usuario: str, identidade_fonte
         from . import classificador_local as cl   # import tardio: sem custo se não usar
         r = cl.classificar(conteudo)
         if r:
-            if r["confianca"] >= cl.MIN_CONF:
+            # Resolvido pelo Qwen3 só quando ele dá uma CATEGORIA real com confiança.
+            # Se ele não conseguiu categorizar (ou ficou abaixo do limiar), o item
+            # fica PENDENTE de análise (resíduo para humano / Nível 2).
+            if r["confianca"] >= cl.MIN_CONF and r["tipo"] != "Conteúdo não classificado":
                 tipo, sens = r["tipo"], r["sensibilidade"]
                 classificado_por = "llm-local"
             else:
-                classificado_por = "llm-local-baixa-confianca"   # candidato ao Nível 2
+                classificado_por = "llm-local-baixa-confianca"   # pendente (candidato ao Nível 2)
 
     # Normaliza a ferramenta: extensão e agente usam nomes/domínios diferentes
     # para a mesma IA; aqui unificamos para o canônico (a fonte segue separada).
