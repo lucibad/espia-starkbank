@@ -1,0 +1,188 @@
+<title>GerencIA · Dossiê Final</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+  :root{
+    --paper:#f4f6f2; --surface:#fff; --ink:#16211c; --muted:#586a60; --line:#dde3db; --line2:#c9d2c7;
+    --green:#1c6b4d; --forest:#0f3b2c; --wash:#e8f1ea; --amber:#a9660f; --awash:#f7efe0;
+    --red:#a3312a; --rwash:#f6e9e7; --roxo:#6a2a78; --roxo-bg:#f3e6f6;
+    --serif:"Fraunces",Georgia,serif; --sans:"Inter",system-ui,sans-serif; --mono:"JetBrains Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6}
+  .wrap{max-width:940px;margin:0 auto;padding:clamp(28px,5vw,64px) clamp(20px,5vw,56px) 100px}
+  header.top{border-bottom:2px solid var(--forest);padding-bottom:22px;margin-bottom:34px}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--green);font-weight:500;margin:0 0 12px}
+  h1{font-family:var(--serif);font-weight:500;font-size:clamp(36px,6vw,60px);line-height:1.02;letter-spacing:-.015em;margin:0;text-wrap:balance}
+  .sub{font-size:clamp(16px,2vw,21px);color:var(--muted);margin:18px 0 0;max-width:64ch;line-height:1.5}
+  .meta{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:18px;letter-spacing:.04em}
+  h2{font-family:var(--serif);font-weight:500;font-size:clamp(23px,3.2vw,32px);letter-spacing:-.01em;margin:46px 0 8px;padding-top:24px;border-top:1px solid var(--line);text-wrap:balance}
+  h2 .n{font-family:var(--mono);font-size:13px;color:var(--green);font-weight:500;display:block;margin-bottom:6px;letter-spacing:.14em}
+  h3{font-size:16.5px;font-weight:600;margin:22px 0 6px}
+  p{margin:0 0 13px;max-width:76ch}
+  b{font-weight:600} .g{color:var(--forest);font-weight:600}
+  code{font-family:var(--mono);font-size:12.5px;background:#eaeee8;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+  ul{margin:6px 0 14px;padding-left:22px} li{margin:6px 0;max-width:74ch}
+  .lead{background:var(--forest);color:#eaf3ee;border-radius:16px;padding:clamp(22px,3vw,32px);margin:26px 0}
+  .lead p{margin:0;color:#eaf3ee;max-width:72ch;font-size:18px;line-height:1.5}
+  .lead b{color:#fff}
+  .grid{display:grid;gap:14px;margin:18px 0}
+  .g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:760px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h4{margin:0 0 6px;font-size:14.5px;font-weight:600}
+  .card p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.5}
+  .stat{display:flex;flex-direction:column;gap:3px}
+  .stat b{font-family:var(--serif);font-weight:500;font-size:clamp(26px,3.6vw,38px);line-height:1;color:var(--forest);font-variant-numeric:tabular-nums}
+  .stat span{font-size:12.5px;color:var(--muted);line-height:1.35}
+  .tag{font-family:var(--mono);font-size:10.5px;font-weight:500;padding:2px 8px;border-radius:999px;display:inline-block;margin-bottom:9px}
+  .t-green{background:var(--wash);color:var(--forest)} .t-amber{background:var(--awash);color:var(--amber)}
+  .t-red{background:var(--rwash);color:var(--red)} .t-roxo{background:var(--roxo-bg);color:var(--roxo)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th{background:var(--forest);color:#eaf3ee;text-align:left;padding:8px 11px;font-weight:500;font-size:12px}
+  td{padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:nth-child(even) td{background:#fbfcfa}
+  .ok{color:var(--forest);font-weight:600}
+  .fluxo{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:16px 0;font-family:var(--mono);font-size:12.5px}
+  .fluxo .et{background:var(--surface);border:1px solid var(--line2);border-radius:8px;padding:8px 12px}
+  .fluxo .ar{color:var(--green);font-weight:600}
+  .niv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:baseline;margin:10px 0}
+  .niv .k{font-family:var(--mono);font-size:12px;color:var(--green);font-weight:500;white-space:nowrap}
+  .niv .v{font-size:14px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .foot{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  @media print{
+    @page{size:A4;margin:15mm}
+    body{background:#fff;font-size:10.5pt;-webkit-print-color-adjust:exact;print-color-adjust:exact} .wrap{padding:0;max-width:none}
+    h2{margin-top:22px;padding-top:12px;page-break-inside:avoid} .card,.lead,table{page-break-inside:avoid}
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">ITA Challenge Sprint · Semana 5 · Dossiê final e proposta de valor</p>
+    <h1>GerencIA — governança de IA<br>que a empresa pode provar.</h1>
+    <p class="sub">O dossiê reúne as cinco semanas: do problema ao protótipo que roda, do papel da IA
+      aos resultados dos testes, do impacto à viabilidade e aos próximos passos.</p>
+    <p class="meta">Desafio 2 · Stark Bank · base oficial: 650 eventos · 14 regras · 15/15 do gabarito · 98,8% de concordância · dados fictícios</p>
+  </header>
+
+  <div class="lead"><p><b>A proposta de valor em uma frase:</b> a GerencIA transforma “achamos que estamos
+    seguros no uso de IA” em “conseguimos provar onde não estamos” — rastreando a <b>informação</b> (não o clique),
+    reaplicando a política com <b>IA auditável</b> e mantendo o conteúdo <b>dentro do perímetro</b>.</p></div>
+
+  <section>
+    <h2><span class="n">01 · Problema e recorte</span>A decisão que precisa melhorar</h2>
+    <p>A empresa já registra o uso de IA, mas <b>não confia no registro</b>: a classificação é confiada, não
+      verificada, e não há linhagem ligando uma informação às ferramentas e pessoas por onde passou. O recorte do
+      Sprint: <b>rastrear a informação</b>, reaplicar a política de risco com cadeia de evidência e auditar a
+      rotulagem — sobre a base oficial do desafio, mais a captura ao vivo na borda. Fora do escopo: bloqueio ativo,
+      substituir o DLP existente, e detecção de paráfrase.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">02 · Evidências</span>O problema está na própria base</h2>
+    <div class="grid g3">
+      <div class="card"><div class="stat"><b>7 / 10</b><span>indicadores declarados divergem do apurado</span></div></div>
+      <div class="card"><div class="stat"><b>6,8% → 16,6%</b><span>eventos críticos: subnotificação de ~2,4×</span></div></div>
+      <div class="card"><div class="stat"><b>6</b><span>achados de auditoria (A-01…A-06), verificáveis célula a célula</span></div></div>
+    </div>
+    <p>Entre os achados: 38 eventos cuja regra citada engana o auditor; 18 em que a obrigação de LGPD some do
+      registro; 6 das 14 regras que nunca disparam; 47 alertas “tratados” sem data (SLA não apurável).</p>
+  </section>
+
+  <section>
+    <h2><span class="n">03 · Solução e protótipo</span>Não é mockup — já roda</h2>
+    <p>O protótipo V1 lê a planilha, aplica as 14 regras, audita, monta o painel e recebe capturas ao vivo das
+      estações, com um comando. Reproduz <b class="g">15/15</b> dos casos do gabarito e concorda com o nível de
+      risco da base em <b class="g">98,8%</b>; os dois motores (Python e navegador) batem em tudo.</p>
+    <div class="grid g3">
+      <div class="card"><h4>Rastrear</h4><p>Busca reversa: da informação para ferramentas, pessoas e vezes.</p></div>
+      <div class="card"><h4>Motor R01–R14</h4><p>Risco por precedência, com cadeia de evidência por evento.</p></div>
+      <div class="card"><h4>Auditoria + Validação</h4><p>Indicadores recalculados, os 6 achados, e 15/15.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">04 · Papel da IA</span>Três níveis, em cascata — e auditável</h2>
+    <div class="niv">
+      <div class="k">Nível 0 · borda</div><div class="v"><b>Detectores determinísticos</b> — CPF/CNPJ (dígito), cartão (Luhn), credenciais + fingerprint. Instantâneo, explicável.</div>
+      <div class="k">Nível 1 · on-premise</div><div class="v"><b>Qwen3 (llamafile), no servidor</b> — classifica tipo + sensibilidade do texto livre em ~0,3 s. <b>O conteúdo não sai da máquina.</b></div>
+      <div class="k">Nível 2 · nuvem</div><div class="v"><b>Claude (claude-opus-5)</b> — só o resíduo de baixa confiança; devolve aprendizado aos níveis locais.</div>
+    </div>
+    <p>A IA é o <b>núcleo</b> (classifica, decide, rastreia) e é <b>aceitável em Compliance</b> porque decide por
+      regras explícitas com evidência — cada captura grava <b>como foi classificada</b> (<code>classificado_por</code>).</p>
+  </section>
+
+  <section>
+    <h2><span class="n">05 · Arquitetura e dados</span>On-premise, do edge ao painel</h2>
+    <div class="fluxo">
+      <span class="et">Borda (extensão · agente · proxy)</span><span class="ar">→</span>
+      <span class="et">Coletor (identidade no SO)</span><span class="ar">→</span>
+      <span class="et">Núcleo (motor + Qwen3 ⇄ nuvem)</span><span class="ar">→</span>
+      <span class="et">Base unificada</span><span class="ar">→</span>
+      <span class="et">Painel</span>
+    </div>
+    <p><b>Dados:</b> legado (650 eventos, 160 alertas, 8 ferramentas, 20 tipos, 72 usuários, 14 regras; fictícios) +
+      presente (capturas ao vivo, identidade resolvida no SO, origem marcada). Núcleo em <b>VLAN sem saída</b>; só a
+      <b>DMZ</b> de notificação fala com fora. A solução <b>mede a qualidade</b> da rotulagem — é assim que acha os 6 achados.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">06 · Resultados dos testes</span>Validado em estação real</h2>
+    <p>Além do gabarito (15/15) e da paridade dos motores, a solução foi exercitada <b>numa estação Windows real</b>
+      (Parallels), com o Mac como servidor:</p>
+    <table>
+      <thead><tr><th>Teste</th><th>Resultado</th></tr></thead>
+      <tbody>
+        <tr><td>Agente instalado como serviço do Windows</td><td class="ok">Running / Automatic, sobe no boot</td></tr>
+        <tr><td>Extensão capturando conteúdo (prompt + resposta)</td><td class="ok">OK, com busca única (par_id)</td></tr>
+        <tr><td>Identidade do usuário logado</td><td class="ok">resolvida pelo host nativo (multiusuário), não falsificável</td></tr>
+        <tr><td>Classificação Nível 0 (CPF em prompt real)</td><td class="ok">“Dado pessoal (CPF)” / Crítica, na hora</td></tr>
+        <tr><td>Classificação Nível 1 (Qwen3 local)</td><td class="ok">tipo + sensibilidade em ~0,3 s, on-premise</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:13.5px;color:var(--muted)">Os testes também expuseram e <b>corrigiram</b> atritos reais de
+      campo: falso-positivo de CDN (resolvido com cache de DNS como autoridade), flood do agente (dedup por uso, 8 h),
+      identidade por ID fixo da extensão, e as frições de implantação no Windows (Python, execution policy, ACL pt-BR).</p>
+  </section>
+
+  <section>
+    <h2><span class="n">07 · Impacto</span>O que muda para o negócio</h2>
+    <div class="grid g2">
+      <div class="card"><span class="tag t-green">Confiança</span><h4>Governança que fecha auditoria</h4><p>Indicadores apurados com evidência no lugar de números que erram 2,4×; meta de zerar as 7 divergências.</p></div>
+      <div class="card"><span class="tag t-green">LGPD</span><h4>Obrigação no registro</h4><p>Detecta dado pessoal em IA pública e marca a resposta de privacidade — o A-02 mostra onde isso some hoje.</p></div>
+      <div class="card"><span class="tag t-green">Privacidade</span><h4>Conteúdo no perímetro</h4><p>Nível 0 e 1 classificam on-premise; a nuvem só vê o resíduo ambíguo.</p></div>
+      <div class="card"><span class="tag t-green">Linhagem</span><h4>Busca reversa da informação</h4><p>Partir de um documento sensível e ver toda a sua trajetória — a pergunta norteadora do desafio.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">08 · Viabilidade</span>Implementável de verdade</h2>
+    <ul>
+      <li><b>Sem dependência de nuvem</b> no caminho comum: o núcleo e o Qwen3 (Nível 1) rodam no servidor da empresa; Python puro, sem <code>pip install</code> para o núcleo.</li>
+      <li><b>Implantação em massa</b> pronta: instalador do agente como serviço + <b>GPO/Intune</b> (silencioso, detecção, desinstalação), extensão com ID fixo e host de identidade por usuário.</li>
+      <li><b>Custo baixo:</b> a maioria é resolvida nos Níveis 0 e 1 (custo zero de inferência externa); o LLM na nuvem é exceção.</li>
+      <li><b>Testado no ambiente-alvo</b> (Windows real), não só em laboratório.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="n">09 · Adoção, riscos e próximos passos</span>Do piloto à escala</h2>
+    <div class="grid g3">
+      <div class="card"><span class="tag t-green">Adoção</span><h4>Piloto → onda</h4><p>Começar por uma área (ex.: Financeiro), com aviso de monitoramento; expandir por GPO/Intune após validar.</p></div>
+      <div class="card"><span class="tag t-amber">Riscos</span><h4>Limites honestos</h4><p>Senha do serviço barra usuário/admin casual, não o admin determinado (exige MDM/EDR); MITM é opt-in; modelo local pequeno (há limiar + Nível 2).</p></div>
+      <div class="card"><span class="tag t-roxo">Próximos passos</span><h4>Fase 2</h4><p>Assinar a extensão, fingerprint em LSH para escala, ligar o Nível 2, fechar a paridade de hash e o fluxo de LGPD.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">Critério da Semana 5</span>Viabilidade e potencial de negócio</h2>
+    <div class="grid g2">
+      <div class="card"><span class="tag t-green">01</span><h4>Viabilidade de implementação</h4><p>On-premise, Python puro no núcleo, deploy por GPO/Intune, testado em estação Windows real.</p></div>
+      <div class="card"><span class="tag t-green">02</span><h4>Impacto e business case</h4><p>Governança auditável (zerar 7 divergências), LGPD no registro, privacidade por desenho, linhagem da informação.</p></div>
+      <div class="card"><span class="tag t-green">03</span><h4>Adoção e próximos passos</h4><p>Piloto por área → onda via GPO/Intune; riscos nomeados; fase 2 definida.</p></div>
+      <div class="card"><span class="tag t-green">04</span><h4>Material final vende a ideia</h4><p>Dossiê que liga problema → evidência → protótipo que roda → resultados reais → viabilidade, com números verificáveis.</p></div>
+    </div>
+  </section>
+
+  <div class="foot"><span>GerencIA · rastreabilidade e governança de IA</span><span>Desafio 2 · Stark Bank · ITA Challenge Sprint · Dossiê final</span></div>
+</div>

@@ -1,0 +1,126 @@
+<title>GerencIA · Roteiro do Pitch</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap');
+  :root{
+    --bg:#0a0d0b; --bg2:#10150f; --card:#121a12; --line:#223022;
+    --ink:#eaf3ee; --muted:#8fa699; --green:#36d16a; --green2:#1c6b4d; --amber:#e0b64a;
+    --serif:"Fraunces",Georgia,serif; --sans:"Inter",system-ui,sans-serif; --mono:"JetBrains Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6}
+  .wrap{max-width:860px;margin:0 auto;padding:clamp(26px,5vw,56px) clamp(20px,5vw,48px) 90px}
+  header{border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:12px}
+  .eb{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--green);margin:0 0 10px}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(32px,5.4vw,50px);line-height:1.02;letter-spacing:-.015em;margin:0}
+  h1 em{font-style:normal;color:var(--green)}
+  .tot{font-family:var(--mono);font-size:13px;color:var(--muted);margin-top:14px}
+  .tot b{color:var(--ink)}
+  .dica{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:18px 0 8px;font-size:14px;color:var(--muted)}
+  .dica b{color:var(--ink)}
+  .seg{margin:30px 0;border-top:1px solid var(--line);padding-top:22px}
+  .cab{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+  .dur{font-family:var(--mono);font-weight:500;font-size:14px;color:#0a0d0b;background:var(--green);border-radius:999px;padding:3px 12px}
+  .nome{font-family:var(--serif);font-weight:600;font-size:26px;letter-spacing:-.01em}
+  .tc{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-left:auto}
+  .fala{font-size:19px;line-height:1.72;color:var(--ink);max-width:62ch}
+  .fala .hl{color:var(--green);font-weight:600}
+  .palco{display:block;font-family:var(--mono);font-size:13px;color:var(--amber);background:rgba(224,182,74,.08);
+         border-left:3px solid var(--amber);border-radius:0 8px 8px 0;padding:6px 12px;margin:10px 0}
+  .nota{font-size:13.5px;color:var(--muted);margin-top:10px;font-style:italic}
+  .foot{margin-top:50px;padding-top:16px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  @media print{
+    @page{size:A4;margin:14mm}
+    :root{--bg:#fff;--bg2:#f4f6f2;--card:#fff;--line:#dde3db;--ink:#16211c;--muted:#5a6a62;--green:#1c6b4d;--amber:#a9660f}
+    body{-webkit-print-color-adjust:exact;print-color-adjust:exact} .wrap{padding:0;max-width:none}
+    .seg{page-break-inside:avoid} .dur{color:#fff;background:#1c6b4d}
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eb">GerencIA · Desafio 2 · Stark Bank · roteiro de apresentação</p>
+    <h1>Roteiro do <em>pitch</em> de 5 minutos</h1>
+    <p class="tot">7 blocos · <b>total 5:40</b> · ritmo ~150 palavras/min · o que está em <span style="color:var(--amber)">âmbar</span> é marcação de palco (não se fala)</p>
+  </header>
+
+  <div class="dica"><b>Antes de começar:</b> painel já aberto na tela, coletor rodando, Qwen3 no ar. Respire, olhe para a banca, e comece pelo problema — sem slide de “quem somos”.</div>
+
+  <div class="seg">
+    <div class="cab"><span class="dur">45s</span><span class="nome">Problema</span><span class="tc">0:00 – 0:45</span></div>
+    <p class="fala">Imagine o Stark Bank hoje. Dezenas de pessoas usando ChatGPT, Gemini e Copilot no trabalho — e informação
+    sensível indo junto: CPF de cliente, chave de API, projeção de resultado. A empresa até registra esse uso. Mas quando
+    a gente olhou a base real do desafio, achou uma coisa incômoda: <span class="hl">a empresa não consegue confiar no
+    próprio registro.</span> Sete de cada dez indicadores que ela declara divergem do que a base mostra. Ela acredita ter
+    6,8% de eventos críticos — <span class="hl">são 16,6%.</span> Ou seja: a governança de IA decide sobre números que
+    erram por mais de duas vezes.</p>
+  </div>
+
+  <div class="seg">
+    <div class="cab"><span class="dur">45s</span><span class="nome">Insight</span><span class="tc">0:45 – 1:30</span></div>
+    <p class="fala">E aí está o nosso insight. Quase toda solução para isso rastreia o <b>uso</b> — “o usuário X abriu a
+    ferramenta Y às 14h”. É log de atividade. A gente virou a pergunta: <span class="hl">rastrear a informação.</span>
+    “A chave secreta apareceu em cinco ferramentas, com trinta pessoas, trinta e cinco vezes — três em IA pública.” Isso
+    é linhagem do dado, não log. E o segundo insight: <span class="hl">não confiar na classificação que já veio pronta.</span>
+    O sistema reaplica a política, recalcula e audita a própria rotulagem. Foi assim que ele encontrou seis falhas que
+    ninguém tinha visto.</p>
+  </div>
+
+  <div class="seg">
+    <div class="cab"><span class="dur">60s</span><span class="nome">Solução</span><span class="tc">1:30 – 2:30</span></div>
+    <p class="fala">A solução é a <span class="hl">GerencIA</span>, com três camadas. Na borda, três sensores: uma
+    <b>extensão</b> de navegador que vê o conteúdo digitado; um <b>agente</b> que roda como serviço do Windows e detecta
+    uso de IA em qualquer aplicativo; e, opcional, um <b>proxy</b> para conteúdo fora do navegador. Tudo vai para um
+    <b>coletor central, on-premise</b>, que resolve quem é o usuário pelo login do Windows — a página nunca decide isso.
+    No meio, o cérebro: uma <span class="hl">cascata de IA em três níveis.</span> Primeiro, detectores determinísticos
+    pegam CPF, cartão e credencial, na hora e auditável. O que eles não resolvem sobe para um modelo <b>Qwen3 que roda no
+    próprio servidor</b> — o conteúdo não sai da empresa. Só o resíduo ambíguo vai para a nuvem. No fim, um painel com
+    busca reversa, alertas com evidência e indicadores recalculados.</p>
+  </div>
+
+  <div class="seg">
+    <div class="cab"><span class="dur">60s</span><span class="nome">Demo</span><span class="tc">2:30 – 3:30</span></div>
+    <span class="palco">▸ Compartilhe a tela no painel, vista Captura.</span>
+    <p class="fala">Deixa eu mostrar rodando. Esse é o painel ao vivo. Vou simular uma estação: um analista do Financeiro
+    digita no ChatGPT “trace o perfil do cliente”, com um CPF.
+    <span class="palco">▸ A captura aparece na lista Usuário × IA.</span>
+    Repare: em segundos a captura aparece aqui, <span class="hl">já com o usuário certo</span> — lido do Windows, não
+    falsificável. O conteúdo foi classificado como Dado Pessoal, Crítico, pela regra R02, porque o ChatGPT não é
+    aprovado.
+    <span class="palco">▸ Abra o card “Conteúdo capturado”.</span>
+    E aqui está o texto exato enviado — o prompt e a resposta vinculados na mesma busca. Agora a parte que vende:
+    <span class="palco">▸ Abra a vista Rastrear e busque “dado de cliente”.</span>
+    a busca reversa. Pergunto onde foi parar dado de cliente, e ele me mostra <span class="hl">todas as ferramentas,
+    pessoas e vezes.</span> É a pergunta do desafio, respondida.</p>
+  </div>
+
+  <div class="seg">
+    <div class="cab"><span class="dur">60s</span><span class="nome">Evidência</span><span class="tc">3:30 – 4:30</span></div>
+    <p class="fala">E isso não é promessa — é medido. Rodamos a GerencIA contra a base oficial: seiscentos e cinquenta
+    eventos, quatorze regras. Ela <span class="hl">reproduz quinze de quinze</span> casos do gabarito, sem exceção, e
+    concorda com o nível de risco em <span class="hl">98,8%.</span> As divergências não são erro — são exatamente os seis
+    achados de auditoria: trinta e oito eventos cuja regra citada engana o auditor, dezoito em que a obrigação de LGPD
+    some do registro, seis das quatorze regras que nunca disparam. E, diferente de muito protótipo de Sprint, não
+    paramos no laboratório: <span class="hl">instalamos numa estação Windows real</span> — o agente como serviço, a
+    extensão capturando conteúdo com identidade, o modelo local classificando. Funciona no ambiente de verdade.</p>
+  </div>
+
+  <div class="seg">
+    <div class="cab"><span class="dur">30s</span><span class="nome">Viabilidade</span><span class="tc">4:30 – 5:00</span></div>
+    <p class="fala">Sobre viabilidade: o núcleo roda em <b>Python puro</b>, sem dependência de nuvem. O modelo que
+    classifica o conteúdo roda <span class="hl">no servidor da empresa</span> — privacidade por desenho. A instalação em
+    massa é por <b>GPO ou Intune</b>, o mesmo que a TI já usa. E o custo é baixo: a maioria resolve nos níveis locais, a
+    nuvem é exceção. É <span class="hl">implantável agora</span>, não um conceito.</p>
+  </div>
+
+  <div class="seg">
+    <div class="cab"><span class="dur">40s</span><span class="nome">Valor</span><span class="tc">5:00 – 5:40</span></div>
+    <p class="fala">O valor em uma frase: a GerencIA transforma <span class="hl">“achamos que estamos seguros no uso de
+    IA” em “conseguimos provar onde não estamos”.</span> Ela dá à Compliance uma governança que fecha auditoria, devolve
+    a obrigação de LGPD ao registro e mantém o conteúdo dentro do perímetro. Para um banco, isso não é luxo — é a
+    diferença entre um vazamento e uma resposta com evidência. O próximo passo é um piloto numa área e, a partir dele, a
+    empresa inteira. Obrigado.</p>
+    <p class="nota">Deixe os 20s de folga (5:40 → 6:00) para a banca começar as perguntas, ou para repetir a frase de valor olhando para eles.</p>
+  </div>
+
+  <div class="foot"><span>GerencIA · rastreabilidade e governança de IA</span><span>Roteiro do pitch · 5 min</span></div>
+</div>
