@@ -14,9 +14,32 @@ param(
   [string]$Url  = "https://raw.githubusercontent.com/lucibad/espia-starkbank/main/borda/pacotes/gerencia-extensao-chrome-edge-0.3.0.zip"
 )
 $ErrorActionPreference = "Stop"
+$Base = Split-Path -Parent $Dest    # ex.: C:\GerencIA
+
+# --- Exclusao do Windows Defender para a pasta ------------------------------
+# O host nativo (.py/.bat/.ps1) + o registro por script disparam o heuristico do
+# Defender (FALSO-positivo): ele pode APAGAR os arquivos da extensao. A exclusao
+# de pasta evita isso SEM desligar a protecao. Precisa de admin; sem admin, o
+# script segue e mostra o comando para rodar manualmente (uma vez).
+function Add-ExclusaoDefender($caminho) {
+  try {
+    $admin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+    if (-not $admin) { return $false }
+    Add-MpPreference -ExclusionPath $caminho -ErrorAction Stop
+    return $true
+  } catch { return $false }
+}
+if (Add-ExclusaoDefender $Base) {
+  Write-Host "Defender: exclusao adicionada para $Base (protecao segue ativa)." -ForegroundColor DarkGray
+} else {
+  Write-Host "AVISO: sem exclusao do Defender para '$Base'. O antivirus pode apagar a extensao." -ForegroundColor Yellow
+  Write-Host "       Rode UMA VEZ num PowerShell COMO ADMINISTRADOR:" -ForegroundColor Yellow
+  Write-Host "         Add-MpPreference -ExclusionPath '$Base'" -ForegroundColor Yellow
+}
 
 if (-not $Zip) {
-  $Zip = Join-Path $env:TEMP "gerencia-extensao.zip"
+  New-Item -ItemType Directory -Force -Path $Base | Out-Null
+  $Zip = Join-Path $Base "gerencia-extensao.zip"   # dentro da pasta excluida
   Write-Host "Baixando a extensao mais recente..." -ForegroundColor Cyan
   [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
   Invoke-WebRequest -Uri $Url -OutFile $Zip -UseBasicParsing

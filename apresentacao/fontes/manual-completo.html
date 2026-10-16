@@ -171,6 +171,7 @@ powershell -ExecutionPolicy Bypass -File .\ATUALIZAR-EXTENSAO.ps1</div>
     <tr><td>Agente gerando centenas de capturas/dia</td><td>Versão antiga. Reinstale: dedup por uso (8h) + cache de DNS como autoridade (sem falso-positivo de CDN).</td></tr>
     <tr><td>Esqueci a senha do serviço</td><td><code>.\resetar-senha.ps1</code> (como admin, sem a antiga) ou <code>sc delete GerenciaSensor</code> e reinstale.</td></tr>
     <tr><td>Estações: farol “Sem sinal” com tudo instalado</td><td>Versões antigas não enviam heartbeat. Atualize o agente e a extensão para a build atual (<b>0.3.0</b>) — o farol acende em ~1 min.</td></tr>
+    <tr><td>Defender apaga a extensão (“vírus detectado”)</td><td>Falso-positivo (host nativo + script). Como <b>admin</b>, uma vez: <code>Add-MpPreference -ExclusionPath 'C:\GerencIA'</code>; restaure em <i>Segurança do Windows → Histórico de proteção</i> e rode o atualizador de novo (ele já tenta a exclusão).</td></tr>
   </table>
 
   <h2>Implantação em massa (GPO / Intune)</h2>
