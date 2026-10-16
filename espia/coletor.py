@@ -160,6 +160,29 @@ class Coletor(BaseHTTPRequestHandler):
                                "capturas": n, "painel": str(po.DIR_PAINEL / "painel.html")})
         if rota == "/api/eventos":
             return self._json({"itens": _eventos_recentes()})
+        if rota == "/api/conteudo":
+            from urllib.parse import parse_qs, urlparse
+            cap = parse_qs(urlparse(self.path).query).get("cap", [""])[0]
+            if not cap:
+                return self._json({"code": "faltou_cap"}, 400)
+            con = _conectar()
+            try:
+                row = con.execute("SELECT par_id,prompt,resposta FROM capturas WHERE cap_id=?",
+                                  (cap,)).fetchone()
+                par = (row[0] if row else "") or ""
+                prompt = (row[1] if row else "") or ""
+                resposta = (row[2] if row else "") or ""
+                if par:  # junta o par (prompt + resposta da mesma busca)
+                    for _p, pr, rp in con.execute(
+                            "SELECT par_id,prompt,resposta FROM capturas WHERE par_id=?", (par,)):
+                        if not prompt and pr:
+                            prompt = pr
+                        if not resposta and rp:
+                            resposta = rp
+            finally:
+                con.close()
+            return self._json({"cap": cap, "prompt": prompt, "resposta": resposta,
+                               "tem": bool(prompt or resposta)})
         if rota == "/api/inventario":
             con = _conectar()
             inv = cp.inventario(con)

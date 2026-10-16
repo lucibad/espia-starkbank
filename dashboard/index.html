@@ -1009,8 +1009,27 @@ function fichaEvento(e) {
       <dt>Registro</dt><dd>${esc(e.origem)} <span class="muted small">(origem do registro)</span></dd>
     </dl>
     ${e.evidencia_base ? `<p class="note">Evidência na origem: ${esc(e.evidencia_base)}</p>` : ''}
+    ${e.fonte === 'coleta' ? `<div class="card" style="margin-top:12px;background:var(--wash)" id="ficha-conteudo" data-cap="${esc(e.id)}"><p class="muted small">Carregando o conteúdo capturado…</p></div>` : ''}
     <div class="linkrow"><a href="${link(['investigar', 'info', e.informacao_id])}">Onde mais esta informação foi usada →</a></div>
   </div>`;
+}
+
+// Carrega, sob demanda e só quando o painel é servido pelo COLETOR, o conteúdo
+// real capturado (o que o usuário digitou e a resposta da IA). Fora do coletor
+// (arquivo/Pages) o conteúdo não existe — por privacidade, não é publicado.
+function carregarConteudoFicha(box) {
+  const cap = box.dataset.cap;
+  fetch('/api/conteudo?cap=' + encodeURIComponent(cap))
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(d => {
+      if (!d.prompt && !d.resposta) { box.innerHTML = '<p class="muted small">Sem conteúdo registrado para este evento.</p>'; return; }
+      const mesma = d.prompt && d.resposta && d.prompt.trim() === d.resposta.trim();
+      box.innerHTML = `<div class="card-h"><h3 style="font-size:12.5px">Conteúdo capturado</h3></div>
+        ${d.prompt ? `<p class="muted small" style="margin:6px 0 2px">Digitado pelo usuário</p><p class="mono small" style="white-space:pre-wrap;margin:0">${esc(d.prompt)}</p>` : ''}
+        ${(d.resposta && !mesma) ? `<p class="muted small" style="margin:10px 0 2px">Resposta da IA</p><p class="mono small" style="white-space:pre-wrap;margin:0">${esc(d.resposta)}</p>` : ''}
+        ${(!d.prompt && d.resposta) ? `<p class="muted small" style="margin:6px 0 2px">Resposta da IA</p><p class="mono small" style="white-space:pre-wrap;margin:0">${esc(d.resposta)}</p>` : ''}`;
+    })
+    .catch(() => { box.innerHTML = '<p class="muted small">O conteúdo completo (o que foi digitado e a resposta) aparece quando o painel é servido pelo <b>coletor</b> (on-premise). Fora dele, por privacidade, só a prévia mascarada acima.</p>'; });
 }
 
 // =====================================================================
@@ -1658,6 +1677,7 @@ function drawModal() {
   if (kind === 'evento' && EVT[id] && !E.alertas.some(x => x.evento_id === id)) bindTratamento(body, null, EVT[id]);
   body.querySelectorAll('[data-ver-alerta]').forEach(x => x.onclick = () => openModal('alerta', x.dataset.verAlerta));
   body.querySelectorAll('[data-abrir-evento]').forEach(x => x.onclick = () => { MODAL.ficha = (MODAL.ficha === x.dataset.abrirEvento ? null : x.dataset.abrirEvento); drawModal(); });
+  const fc = body.querySelector('#ficha-conteudo'); if (fc) carregarConteudoFicha(fc);
   const v = el.querySelector('[data-mvoltar]'); if (v) v.onclick = () => { MODAL.stack.pop(); drawModal(); };
   el.querySelector('.mx').focus();
   el.scrollTop = 0;
