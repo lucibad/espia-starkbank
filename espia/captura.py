@@ -104,6 +104,61 @@ INVENTARIO_SEMENTE = {
     "x.com": ("Grok (xAI)", "Não aprovada"),
 }
 
+# --- Normalização de ferramenta -------------------------------------------
+# A extensão e o agente nomeiam a MESMA IA de formas diferentes (ex.: "ChatGPT"
+# vs "ChatGPT (OpenAI)", domínio chatgpt.com vs openai.com). Para o painel não
+# duplicar a ferramenta, normalizamos NA INGESTÃO para um nome e um domínio
+# canônicos, por sufixo de domínio. A separação por `fonte_captura` é mantida.
+# Sufixo de domínio → (nome canônico, domínio canônico alinhado ao inventário).
+CANON_DOMINIOS = {
+    "chatgpt.com": ("ChatGPT (OpenAI)", "chatgpt.com"),
+    "openai.com": ("ChatGPT (OpenAI)", "chatgpt.com"),
+    "claude.ai": ("Claude (Anthropic)", "claude.ai"),
+    "anthropic.com": ("Claude (Anthropic)", "claude.ai"),
+    "gemini.google.com": ("Gemini (Google)", "gemini.google.com"),
+    "generativelanguage.googleapis.com": ("Gemini (Google)", "gemini.google.com"),
+    "copilot.microsoft.com": ("Copilot (Microsoft)", "copilot.microsoft.com"),
+    "m365.cloud.microsoft": ("Copilot (Microsoft)", "copilot.microsoft.com"),
+    "deepseek.com": ("DeepSeek", "chat.deepseek.com"),
+    "perplexity.ai": ("Perplexity", "perplexity.ai"),
+    "poe.com": ("Poe", "poe.com"),
+    "huggingface.co": ("HuggingChat", "huggingface.co"),
+    "meta.ai": ("Meta AI", "meta.ai"),
+    "grok.com": ("Grok (xAI)", "grok.com"),
+    "x.ai": ("Grok (xAI)", "grok.com"),
+    "x.com": ("Grok (xAI)", "grok.com"),
+    "cursor.com": ("Cursor", "cursor.com"),
+    "cursor.sh": ("Cursor", "cursor.com"),
+}
+# Nomes curtos que a extensão às vezes manda sem domínio utilizável.
+CANON_NOMES = {
+    "chatgpt": ("ChatGPT (OpenAI)", "chatgpt.com"),
+    "claude": ("Claude (Anthropic)", "claude.ai"),
+    "gemini": ("Gemini (Google)", "gemini.google.com"),
+    "copilot": ("Copilot (Microsoft)", "copilot.microsoft.com"),
+    "deepseek": ("DeepSeek", "chat.deepseek.com"),
+    "perplexity": ("Perplexity", "perplexity.ai"),
+    "poe": ("Poe", "poe.com"),
+    "huggingchat": ("HuggingChat", "huggingface.co"),
+    "meta ai": ("Meta AI", "meta.ai"),
+    "grok": ("Grok (xAI)", "grok.com"),
+    "cursor": ("Cursor", "cursor.com"),
+}
+
+
+def canonizar_ferramenta(dominio: str, ferramenta: str) -> tuple[str, str]:
+    """(nome, domínio) canônicos. Casa por sufixo de domínio; se não houver
+    domínio, tenta pelo nome curto. Sem correspondência, devolve o original."""
+    d = str(dominio or "").strip().lower().replace("https://", "").replace("http://", "").split("/")[0]
+    if d:
+        for suf, (nome, dom) in CANON_DOMINIOS.items():
+            if d == suf or d.endswith("." + suf):
+                return nome, dom
+    f = str(ferramenta or "").strip().lower()
+    if f in CANON_NOMES:
+        return CANON_NOMES[f]
+    return ferramenta, dominio
+
 
 def inventario(con: sqlite3.Connection) -> dict:
     """{dominio: {nome, status}}. Semeia na primeira vez."""
@@ -256,6 +311,11 @@ def ingerir(con: sqlite3.Connection, corpo: dict, usuario: str, identidade_fonte
             else:
                 classificado_por = "llm-local-baixa-confianca"   # candidato ao Nível 2
 
+    # Normaliza a ferramenta: extensão e agente usam nomes/domínios diferentes
+    # para a mesma IA; aqui unificamos para o canônico (a fonte segue separada).
+    nome_fer, dom_canon = canonizar_ferramenta(
+        corpo.get("dominio"), corpo.get("ferramenta") or corpo.get("dominio"))
+
     cur = con.execute(
         """INSERT INTO capturas (ts,recebido_em,usuario,identidade_fonte,maquina,dominio,
              ferramenta,status_fer,forma,qtd,tipo,sens,finalidade,deteccoes,fingerprint,
@@ -264,8 +324,8 @@ def ingerir(con: sqlite3.Connection, corpo: dict, usuario: str, identidade_fonte
         (
             ts, agora, _texto(usuario, 64) or "não identificado", _texto(identidade_fonte, 20),
             _texto(corpo.get("maquina"), 64),
-            _texto(corpo.get("dominio"), 120),
-            _texto(corpo.get("ferramenta") or corpo.get("dominio"), 80),
+            _texto(dom_canon, 120),
+            _texto(nome_fer, 80),
             _texto(corpo.get("status_fer"), 60),
             _texto(corpo.get("forma") or "Prompt", 40), qtd,
             tipo, sens,
