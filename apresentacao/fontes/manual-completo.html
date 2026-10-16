@@ -133,6 +133,11 @@ powershell -ExecutionPolicy Bypass -File .\instalar-servico.ps1 -Coletor "http:/
 Invoke-WebRequest "https://raw.githubusercontent.com/lucibad/espia-starkbank/main/borda/extensao/ATUALIZAR-EXTENSAO.ps1" -OutFile ATUALIZAR-EXTENSAO.ps1
 powershell -ExecutionPolicy Bypass -File .\ATUALIZAR-EXTENSAO.ps1</div>
     <p>Deve imprimir <code>versao: 0.3.0</code>, <code>captura conteudo: SIM</code>.</p>
+    <p><b>Alternativa (PowerShell direto, como administrador)</b> — a 1ª linha evita o falso-positivo do Defender:</p>
+    <div class="cmd">New-Item -ItemType Directory -Force -Path C:\GerencIA | Out-Null
+Add-MpPreference -ExclusionPath "C:\GerencIA"   <span class="c"># 1x, mantém o antivírus ligado</span>
+Invoke-WebRequest "https://raw.githubusercontent.com/lucibad/espia-starkbank/main/borda/pacotes/gerencia-extensao-chrome-edge-0.3.0.zip" -OutFile C:\GerencIA\ext.zip
+Expand-Archive C:\GerencIA\ext.zip -DestinationPath C:\GerencIA\extensao -Force</div>
   </div></div>
   <div class="step"><div class="n">2</div><div>
     <h3>Carregar no navegador</h3>
@@ -141,10 +146,10 @@ powershell -ExecutionPolicy Bypass -File .\ATUALIZAR-EXTENSAO.ps1</div>
   </div></div>
   <div class="step"><div class="n">3</div><div>
     <h3>Confirmar e testar</h3>
-    <p><b>Feche e reabra o navegador</b> (para reler o host nativo) e dê <b>F5</b> na aba da IA. No popup da extensão: <b>Agente conectado</b> e <b>Usuário</b> com o nome real. Faça uma busca no ChatGPT e veja o conteúdo no painel → <b>Captura → Conteúdo capturado</b>.</p>
+    <p><b>Feche e reabra o navegador</b> e dê <b>F5</b> na aba da IA. No popup: <b>Agente conectado</b> e o <b>Usuário</b> real. Faça uma busca e veja no painel → <b>Captura → Conteúdo capturado</b>.</p>
   </div></div>
 
-  <div class="note"><b>Identidade multiusuário:</b> o ID da extensão é fixo (chave no manifesto). Cada usuário do Windows roda o <code>ATUALIZAR-EXTENSAO.ps1</code> uma vez (registra o host nativo no perfil dele) — e aparece com o próprio nome.</div>
+  <div class="note"><b>Multiusuário:</b> o ID da extensão é fixo; cada usuário roda o <code>ATUALIZAR-EXTENSAO.ps1</code> uma vez e passa a aparecer com o próprio nome.</div>
 
   <h2>Verificação de ponta a ponta</h2>
   <ul>
