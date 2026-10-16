@@ -151,6 +151,8 @@ class Evento:
     risco_espia: str | None = None
     regra_espia: str | None = None
     fatores: list = field(default_factory=list)
+    # quem capturou (só capturas ao vivo): extensao | agente | mitm (vazio = planilha)
+    fonte_captura: str = ""
 
     @property
     def data(self) -> str:

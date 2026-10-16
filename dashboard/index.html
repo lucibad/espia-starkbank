@@ -733,6 +733,9 @@ const FONTE = {
   planilha: { l: 'Planilha', full: 'Planilha oficial do desafio (carga legada)' },
   coleta: { l: 'Coleta', full: 'Coleta — registrada pelo coletor da GerencIA' },
 };
+// Origem da captura ao vivo (extensão/agente/proxy) — mostrada no campo Fonte do evento.
+const ORIGEM_CAP = { extensao: 'Extensão (navegador)', agente: 'Agente (serviço)', mitm: 'Proxy (MITM)' };
+const origemFonte = (e) => (e.fonte === 'coleta' && ORIGEM_CAP[e.fonte_captura]) ? ORIGEM_CAP[e.fonte_captura] : FONTE[e.fonte].full;
 const srcTag = (f) => FONTE[f] ? `<span class="src ${f}" title="${esc(FONTE[f].full)}">${FONTE[f].l}</span>` : '';
 const AREAS = [...new Set(E.eventos.map(e => e.area))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
@@ -973,14 +976,11 @@ function evidencia(e, a) {
   return `<div class="ev">
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${riskChip(e.risco)} ${srcTag(e.fonte)}</div>
     <dl>
-      <dt>Fonte</dt><dd>${srcTag(e.fonte)} <span class="muted small">${esc(FONTE[e.fonte].full)}</span></dd>
+      <dt>Fonte</dt><dd>${srcTag(e.fonte)} <span class="muted small">${esc(origemFonte(e))}</span></dd>
       <dt>Quem</dt><dd><a href="${link(['investigar', 'pessoa', e.usuario_id])}">${esc(nomeUsr(e.usuario_id))}</a><span class="muted small"> · ${esc(e.area)}${u ? ' · ' + esc(u.cargo) : ''}</span></dd>
       <dt>Onde</dt><dd><a href="${link(['investigar', 'ferramenta', e.ferramenta_id])}">${esc(f ? f.nome : e.ferramenta)}</a> ${stTag(e.ferramenta_id)}</dd>
       <dt>Quando</dt><dd class="mono">${dtBR(e.ts)}${e.fora_horario ? ' <span class="muted small">(fora do horário)</span>' : ''}</dd>
       <dt>O quê</dt><dd><a href="${link(['investigar', 'info', e.informacao_id])}">${esc(e.informacao)}</a> ${clsChip(e.sensibilidade)}</dd>
-      <dt>Como</dt><dd>${esc(e.forma_uso)} · ${num(e.qtd)} item(ns)</dd>
-      <dt>Para quê</dt><dd>${esc(e.finalidade)}</dd>
-      <dt>Registro</dt><dd>${esc(e.origem)} <span class="muted small">(origem do registro)</span></dd>
       ${a ? `<dt>Alerta</dt><dd>${esc(a.status)} · ${esc(a.responsavel)}</dd>` : ''}
     </dl>
     <h3 style="font-size:13.5px">Por que isto é risco</h3>

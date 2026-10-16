@@ -551,7 +551,7 @@ def anexar_a_base(con: sqlite3.Connection, base: bo.Base) -> int:
     try:
         rows = con.execute(
             """SELECT cap_id,ts,usuario,identidade_fonte,dominio,ferramenta,status_fer,forma,qtd,
-                      tipo,sens,finalidade,deteccoes,previa FROM capturas ORDER BY seq"""
+                      tipo,sens,finalidade,deteccoes,previa,fonte_captura FROM capturas ORDER BY seq"""
         ).fetchall()
     except sqlite3.OperationalError:
         return 0
@@ -559,7 +559,7 @@ def anexar_a_base(con: sqlite3.Connection, base: bo.Base) -> int:
     inv = inventario(con)
     n = 0
     for (cap_id, ts, usuario, fonte, dominio, ferramenta, status_fer, forma, qtd,
-         tipo, sens, finalidade, deteccoes_json, previa) in rows:
+         tipo, sens, finalidade, deteccoes_json, previa, fonte_captura) in rows:
         try:
             deteccoes = json.loads(deteccoes_json or "[]")
         except json.JSONDecodeError:
@@ -579,6 +579,7 @@ def anexar_a_base(con: sqlite3.Connection, base: bo.Base) -> int:
             evidencias_declaradas=_evidencia(deteccoes, fonte, previa),
             acao_sugerida="",
             origem_registro=ORIGEM_CAPTURA,
+            fonte_captura=(fonte_captura or ""),
         ))
         n += 1
     return n
