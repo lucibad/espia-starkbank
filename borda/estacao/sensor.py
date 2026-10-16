@@ -218,6 +218,9 @@ def _dom_base(nome: str) -> str:
     return nome
 
 
+VERSAO = "1.0"
+
+
 def _enviar(evt: dict) -> bool:
     if not COLETOR:
         return False
@@ -232,6 +235,21 @@ def _enviar(evt: dict) -> bool:
         except Exception:
             continue
     return False
+
+
+def _heartbeat(usuario: str) -> None:
+    """Avisa o coletor que o agente está vivo nesta máquina (para o farol da aba
+    Estações), mesmo quando não há detecção. Silencioso em caso de falha."""
+    if not COLETOR:
+        return
+    corpo = json.dumps({"maquina": MAQUINA, "fonte": "agente",
+                        "usuario": usuario, "versao": VERSAO}).encode("utf-8")
+    try:
+        req = urllib.request.Request(COLETOR + "/api/heartbeat", data=corpo,
+                                     headers={"Content-Type": "application/json"})
+        urllib.request.urlopen(req, timeout=6).close()
+    except Exception:
+        pass
 
 
 def _usuario_logado() -> str:
@@ -279,6 +297,7 @@ def varrer(imprimir: bool = False) -> int:
     """
     _reindexar()
     usuario = _usuario_logado()
+    _heartbeat(usuario)          # "estou vivo" a cada varredura (farol da aba Estações)
     agora = time.time()
     cache = _cache_dns()                     # {host: nome} no Windows; {} fora
     novos = 0

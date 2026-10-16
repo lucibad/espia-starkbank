@@ -76,6 +76,17 @@ CREATE TABLE IF NOT EXISTS cadastros (
   chave TEXT PRIMARY KEY,
   valor TEXT NOT NULL
 );
+-- Estações conectadas: cada sensor (agente) e cada extensão mandam um "estou
+-- vivo" (heartbeat) periódico. Uma linha por (maquina, fonte) com o último
+-- contato — é o que alimenta o farol da aba Estações.
+CREATE TABLE IF NOT EXISTS estacoes (
+  maquina   TEXT NOT NULL,
+  fonte     TEXT NOT NULL,          -- agente | extensao
+  usuario   TEXT,
+  versao    TEXT,
+  ultimo_hb TEXT NOT NULL,          -- ISO local do último heartbeat
+  PRIMARY KEY (maquina, fonte)
+);
 """
 
 CADASTROS_CHAVE = "gerencia-cadastros-v1"
@@ -242,6 +253,101 @@ def _espelhar_ferramentas_no_inventario(con: sqlite3.Connection, ferramentas: li
             mudou = True
     if mudou:
         gravar_inventario(con, inv)
+
+
+# Limiares do farol (segundos). Agente faz heartbeat a cada varredura (~60s);
+# a extensão, a cada ~5 min. Online = contato fresco; instável = atrasado; offline.
+HB_AGENTE = (180, 900)       # <180s online · <900s instável · senão offline
+HB_EXTENSAO = (600, 1800)    # <600s online · <1800s instável · senão offline
+FONTES_ESTACAO = ("agente", "extensao")
+
+
+def registrar_heartbeat(con: sqlite3.Connection, maquina: str, fonte: str,
+                        usuario: str = "", versao: str = "") -> None:
+    """Upsert do 'estou vivo' de um agente/extensão numa estação."""
+    maquina = _texto(maquina, 64) or "desconhecida"
+    fonte = fonte if fonte in FONTES_ESTACAO else "agente"
+    with con:
+        con.execute(
+            """INSERT INTO estacoes (maquina, fonte, usuario, versao, ultimo_hb)
+               VALUES (?,?,?,?,?)
+               ON CONFLICT(maquina, fonte) DO UPDATE SET
+                 usuario=excluded.usuario, versao=excluded.versao, ultimo_hb=excluded.ultimo_hb""",
+            (maquina, fonte, _texto(usuario, 64), _texto(versao, 32),
+             dt.datetime.now().replace(microsecond=0).isoformat()))
+
+
+def _idade_seg(iso: str | None) -> float | None:
+    if not iso:
+        return None
+    try:
+        return (dt.datetime.now() - dt.datetime.fromisoformat(iso)).total_seconds()
+    except (ValueError, TypeError):
+        return None
+
+
+def _farol(idade: float | None, limites: tuple) -> str:
+    if idade is None:
+        return "ausente"
+    on, instavel = limites
+    if idade < on:
+        return "online"
+    if idade < instavel:
+        return "instavel"
+    return "offline"
+
+
+def estacoes_status(con: sqlite3.Connection) -> list[dict]:
+    """Uma linha por máquina: faróis do agente e da extensão, 'extensão
+    desabilitada' (heartbeat + inferência) e últimos contatos."""
+    maquinas: dict[str, dict] = {}
+
+    def _m(nome):
+        return maquinas.setdefault(nome or "desconhecida", {
+            "maquina": nome or "desconhecida", "usuario": "",
+            "hb_agente": None, "hb_extensao": None,
+            "versao_agente": "", "versao_extensao": "",
+            "ult_evt_agente": None, "ult_evt_extensao": None, "ult_uso_ia": None})
+
+    # Heartbeats
+    for r in con.execute("SELECT maquina, fonte, usuario, versao, ultimo_hb FROM estacoes"):
+        m = _m(r[0])
+        if r[1] == "agente":
+            m["hb_agente"] = r[4]; m["versao_agente"] = r[3] or ""
+        elif r[1] == "extensao":
+            m["hb_extensao"] = r[4]; m["versao_extensao"] = r[3] or ""
+        if r[2]:
+            m["usuario"] = r[2]
+    # Último evento por máquina/fonte (e último uso de IA visto pelo agente)
+    for r in con.execute(
+            """SELECT maquina, fonte_captura, MAX(COALESCE(recebido_em, ts)) ult
+               FROM capturas GROUP BY maquina, fonte_captura"""):
+        m = _m(r[0])
+        if r[1] == "agente":
+            m["ult_evt_agente"] = r[2]; m["ult_uso_ia"] = r[2]
+        elif r[1] == "extensao":
+            m["ult_evt_extensao"] = r[2]
+
+    saida = []
+    for m in maquinas.values():
+        fa = _farol(_idade_seg(m["hb_agente"]), HB_AGENTE)
+        fe = _farol(_idade_seg(m["hb_extensao"]), HB_EXTENSAO)
+        # Inferência: agente vivo (ou viu uso de IA há pouco) e extensão sem
+        # heartbeat/fresco => extensão provavelmente desabilitada na estação.
+        agente_ativo = fa in ("online", "instavel")
+        uso_ia_recente = (_idade_seg(m["ult_uso_ia"]) or 1e9) < HB_AGENTE[1]
+        ext_sem_sinal = fe in ("offline", "ausente")
+        desabilitada = bool((agente_ativo or uso_ia_recente) and ext_sem_sinal)
+        saida.append({
+            "maquina": m["maquina"], "usuario": m["usuario"],
+            "farol_agente": fa, "farol_extensao": ("desabilitada" if desabilitada else fe),
+            "extensao_desabilitada": desabilitada,
+            "versao_agente": m["versao_agente"], "versao_extensao": m["versao_extensao"],
+            "ultimo_agente": m["hb_agente"] or m["ult_evt_agente"],
+            "ultimo_extensao": m["hb_extensao"] or m["ult_evt_extensao"],
+        })
+    saida.sort(key=lambda x: x["maquina"].lower())
+    return saida
 
 
 def garantir_esquema(con: sqlite3.Connection) -> None:

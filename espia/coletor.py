@@ -173,6 +173,11 @@ class Coletor(BaseHTTPRequestHandler):
             con.close()
             return self._json({**cad, "status_validos": list(cp.STATUS_VALIDOS),
                                "editavel": not self._remoto()})
+        if rota == "/api/estacoes":
+            con = _conectar()
+            itens = cp.estacoes_status(con)
+            con.close()
+            return self._json({"itens": itens, "gerado_em": cp.dt.datetime.now().replace(microsecond=0).isoformat()})
         if rota in ("/governanca", "/2.0", "/painel-novo", "/painel-novo.html"):
             # Painel unificado: a Governança editável + central agora vive no painel
             # canônico servido em "/". Mantemos a rota antiga como redirecionamento.
@@ -198,6 +203,17 @@ class Coletor(BaseHTTPRequestHandler):
 
     def do_POST(self):
         rota = self.path.split("?")[0]
+        if rota == "/api/heartbeat":
+            # "Estou vivo" do agente/extensão — vem da rede, não exige ser local.
+            corpo = self._corpo()
+            try:
+                con = _conectar()
+                cp.registrar_heartbeat(con, corpo.get("maquina", ""), corpo.get("fonte", ""),
+                                       corpo.get("usuario", ""), corpo.get("versao", ""))
+                con.close()
+            except Exception as e:
+                return self._json({"code": "erro_heartbeat", "message": str(e)[:160]}, 400)
+            return self._json({"ok": True})
         if rota == "/api/inventario":
             # Só o admin, na máquina do coletor, muda o que é aprovado.
             if self._remoto():

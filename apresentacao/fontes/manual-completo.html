@@ -71,8 +71,8 @@
   <p>Base: <code>https://raw.githubusercontent.com/lucibad/espia-starkbank/main/</code></p>
   <table>
     <tr><td>Agente da estação</td><td><code>borda/pacotes/GerencIA-Agente-Estacao.zip</code></td></tr>
-    <tr><td>Extensão Chrome/Edge</td><td><code>borda/pacotes/gerencia-extensao-chrome-edge-0.2.2.zip</code></td></tr>
-    <tr><td>Extensão Firefox (.xpi)</td><td><code>borda/pacotes/gerencia-extensao-firefox-0.2.2.xpi</code></td></tr>
+    <tr><td>Extensão Chrome/Edge</td><td><code>borda/pacotes/gerencia-extensao-chrome-edge-0.3.0.zip</code></td></tr>
+    <tr><td>Extensão Firefox (.xpi)</td><td><code>borda/pacotes/gerencia-extensao-firefox-0.3.0.xpi</code></td></tr>
     <tr><td>Atualizador da extensão</td><td><code>borda/extensao/ATUALIZAR-EXTENSAO.ps1</code></td></tr>
   </table>
   <div class="foot"><span>GerencIA · governança de IA</span><span>Manual de instalação · pág. 1</span></div>
@@ -132,11 +132,11 @@ powershell -ExecutionPolicy Bypass -File .\instalar-servico.ps1 -Coletor "http:/
     <div class="cmd">cd $env:USERPROFILE\Downloads
 Invoke-WebRequest "https://raw.githubusercontent.com/lucibad/espia-starkbank/main/borda/extensao/ATUALIZAR-EXTENSAO.ps1" -OutFile ATUALIZAR-EXTENSAO.ps1
 powershell -ExecutionPolicy Bypass -File .\ATUALIZAR-EXTENSAO.ps1</div>
-    <p>Deve imprimir <code>versao: 0.2.2</code>, <code>captura conteudo: SIM</code>.</p>
+    <p>Deve imprimir <code>versao: 0.3.0</code>, <code>captura conteudo: SIM</code>.</p>
   </div></div>
   <div class="step"><div class="n">2</div><div>
     <h3>Carregar no navegador</h3>
-    <p><b>Edge/Chrome:</b> <code>edge://extensions</code> → Modo do desenvolvedor → Remover o antigo → <b>Carregar sem pacote</b> → <code>C:\GerencIA\extensao</code> (deve aparecer <b>0.2.2</b>).</p>
+    <p><b>Edge/Chrome:</b> <code>edge://extensions</code> → Modo do desenvolvedor → Remover o antigo → <b>Carregar sem pacote</b> → <code>C:\GerencIA\extensao</code> (deve aparecer <b>0.3.0</b>).</p>
     <p><b>Firefox:</b> <code>about:debugging</code> → Este Firefox → <b>Carregar extensão temporária</b> → selecione <code>C:\GerencIA\extensao\manifest.json</code>. Depois, em <code>about:addons</code> → Permissões → <b>ligue</b> o acesso aos sites (no Firefox a permissão de rede é manual).</p>
   </div></div>
   <div class="step"><div class="n">3</div><div>

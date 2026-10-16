@@ -1313,9 +1313,64 @@ function vistaAlertas(main) { return vistaQuadro(main); }
 // GOVERNANÇA — Política, Inventário, Auditoria, Validação
 // =====================================================================
 function vistaGovernanca(main) {
+  if (route.q.tipo === 'estacoes') {
+    main.innerHTML = `<div class="head"><div><h1>Governança</h1><p>Estações conectadas ao servidor — farol do agente e da extensão por máquina, com alerta de extensão desabilitada.</p></div></div>${subTabsGov('estacoes')}${vistaEstacoes()}`;
+    bindSubTabsGov(main);
+    bindEstacoes(main);
+    return;
+  }
   main.innerHTML = `<div class="head"><div><h1>Governança</h1><p>Escolha o tipo de cadastro para consultar o que já existe e use “+ Novo” para incluir. As regras de risco trazem também a ordem de avaliação, a validação e a auditoria.</p></div></div>${vistaCadastros()}`;
   bindRowLinks(main);
   bindCadastros(main);
+}
+
+// Liga só os botões de sub-aba (usado na vista Estações, que não tem cadastro).
+function bindSubTabsGov(main) {
+  main.querySelectorAll('[data-cad]').forEach(b => b.onclick = () => setQ({ tipo: b.dataset.cad }));
+}
+
+// =====================================================================
+// GOVERNANÇA → ESTAÇÕES: máquinas conectadas, farol do agente e da extensão
+// =====================================================================
+const _FAROL = {
+  online:       ['#1f9d57', 'No ar'],
+  instavel:     ['#e0a81e', 'Instável'],
+  offline:      ['#c0392b', 'Offline'],
+  ausente:      ['#8a94a6', 'Sem sinal'],
+  desabilitada: ['#c0392b', 'Desabilitada'],
+};
+function farolHTML(estado) {
+  const [cor, txt] = _FAROL[estado] || _FAROL.ausente;
+  return `<span style="display:inline-flex;align-items:center;gap:7px;white-space:nowrap">
+    <span style="width:10px;height:10px;border-radius:50%;background:${cor};box-shadow:0 0 0 3px ${cor}22"></span>${txt}</span>`;
+}
+function vistaEstacoes() {
+  return `<section class="card"><div class="card-h"><h3>Estações conectadas</h3>
+      <span class="hint">Atualiza sozinho. O farol vem do “estou vivo” (heartbeat) de cada agente e extensão.</span></div>
+    <div id="estacoes-corpo" class="tbl-wrap"><p class="muted" style="padding:14px">Carregando…</p></div>
+    <p class="demo">“Extensão desabilitada” aparece quando o agente está no ar mas a extensão não dá sinal (ou o agente vê uso de IA sem captura de conteúdo). Disponível quando o painel é servido pelo coletor.</p>
+    </section>`;
+}
+function bindEstacoes(main) {
+  const corpo = main.querySelector('#estacoes-corpo');
+  if (!corpo) return;
+  const pinta = (itens) => {
+    if (!itens.length) { corpo.innerHTML = '<p class="muted" style="padding:14px">Nenhuma estação se conectou ainda. Instale o agente/extensão e aguarde o primeiro sinal.</p>'; return; }
+    corpo.innerHTML = `<table class="tbl"><thead><tr><th>Máquina</th><th>Usuário</th><th>Agente</th><th>Extensão</th><th>Último contato</th></tr></thead>
+      <tbody>${itens.map(e => `<tr${e.extensao_desabilitada ? ' style="background:#c0392b10"' : ''}>
+        <td><b>${esc(e.maquina)}</b></td>
+        <td>${esc(e.usuario || '—')}</td>
+        <td>${farolHTML(e.farol_agente)}${e.versao_agente ? ` <span class="muted small">v${esc(e.versao_agente)}</span>` : ''}</td>
+        <td>${farolHTML(e.farol_extensao)}${e.versao_extensao ? ` <span class="muted small">v${esc(e.versao_extensao)}</span>` : ''}</td>
+        <td class="muted small">${e.ultimo_agente || e.ultimo_extensao ? dtBR((e.ultimo_agente || '') > (e.ultimo_extensao || '') ? e.ultimo_agente : e.ultimo_extensao) : '—'}</td>
+      </tr>`).join('')}</tbody></table>`;
+  };
+  const carregar = () => fetch('/api/estacoes').then(r => r.ok ? r.json() : Promise.reject())
+    .then(d => pinta(d.itens || []))
+    .catch(() => { corpo.innerHTML = '<p class="muted" style="padding:14px">Esta tela precisa ser servida pelo <b>coletor</b> (ex.: http://macbook-pro.local:8765) para listar as estações ao vivo.</p>'; });
+  carregar();
+  clearInterval(window._estTimer);
+  window._estTimer = setInterval(() => { if (location.hash.includes('estacoes')) carregar(); else clearInterval(window._estTimer); }, 20000);
 }
 
 // =====================================================================
@@ -1401,12 +1456,18 @@ function extraRegras() {
         <div style="padding:0 14px 12px"><p style="margin:0 0 6px">${esc(a.resumo)}</p><p class="muted small" style="margin:0 0 6px">${esc(a.consequencia)}</p><p class="small" style="margin:0 0 8px"><b>Evidência:</b> ${esc(a.evidencia)}</p>
         <div class="qchips" style="margin:0">${(a.eventos || []).slice(0, 40).map(id => `<a href="${link(['investigar', 'evento', id])}">${esc(id)}</a>`).join('')}${(a.eventos || []).length > 40 ? `<span>+ ${a.eventos.length - 40}</span>` : ''}</div></div></details>`).join('')}`);
 }
+// Tira de sub-abas da Governança — os tipos de cadastro + Estações (ao vivo).
+function subTabsGov(ativo) {
+  const bot = Object.entries(CAD_DEF).map(([kk, d]) => `<button type="button" data-cad="${kk}" aria-pressed="${kk === ativo}">${d.aba}</button>`).join('')
+    + `<button type="button" data-cad="estacoes" aria-pressed="${ativo === 'estacoes'}">Estações</button>`;
+  return `<div class="seg" role="group" aria-label="Seção de governança" style="flex-wrap:wrap">${bot}</div>`;
+}
 function vistaCadastros() {
   const k = CAD_DEF[route.q.tipo] ? route.q.tipo : 'classificacoes';
   const def = CAD_DEF[k];
   const lista = def.lista();
   const novos = lista.filter(x => x.cadastro).length;
-  const sub = `<div class="seg" role="group" aria-label="Tipo de cadastro" style="flex-wrap:wrap">${Object.entries(CAD_DEF).map(([kk, d]) => `<button type="button" data-cad="${kk}" aria-pressed="${kk === k}">${d.aba}</button>`).join('')}</div>`;
+  const sub = subTabsGov(k);
   return `<div class="toolbar" style="justify-content:space-between">${sub}
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" id="cad-exp">⇩ Exportar cadastros</button><button class="btn primary" type="button" id="cad-novo" title="${esc(def.novo)}">+ Novo</button></div></div>
     <section class="card"><div class="card-h"><h3>${def.aba}</h3><span class="hint">${esc(def.ajuda)}</span></div>

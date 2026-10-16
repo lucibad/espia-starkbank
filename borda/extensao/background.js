@@ -12,6 +12,7 @@ const HOST_NATIVO = "com.starkbank.rastro.identidade";
 const api = (typeof browser !== "undefined") ? browser : chrome;
 
 let usuarioCache = null;     // { usuario, fonte } — resolvido uma vez por sessão
+let maquinaCache = "";       // nome da máquina (do host nativo) — para a aba Estações
 let enviados = 0;            // espelho em memória; o valor durável fica em storage,
                              // porque o navegador mata o service worker e zeraria o contador
 api.storage.local.get(["enviados"]).then((s) => { enviados = s.enviados || 0; }).catch(() => {});
@@ -31,13 +32,14 @@ async function getAgente() {
   }
 }
 
-// Pergunta ao host nativo do Windows quem é o usuário logado (%USERNAME%).
-function usuarioNativo() {
+// Pergunta ao host nativo do Windows quem é o usuário logado (%USERNAME%) e a
+// máquina (%COMPUTERNAME%). Devolve o objeto inteiro do host (ou null).
+function identidadeNativa() {
   return new Promise((resolve) => {
     try {
       api.runtime.sendNativeMessage(HOST_NATIVO, { pedido: "usuario" }, (resp) => {
         if (api.runtime.lastError || !resp || !resp.usuario) return resolve(null);
-        resolve(String(resp.usuario));
+        resolve(resp);
       });
     } catch (e) { resolve(null); }
   });
@@ -45,14 +47,30 @@ function usuarioNativo() {
 
 async function resolverUsuario() {
   if (usuarioCache) return usuarioCache;
-  const nativo = await usuarioNativo();
+  const nativo = await identidadeNativa();
   if (nativo) {
-    usuarioCache = { usuario: nativo, fonte: "nativo" };
+    usuarioCache = { usuario: String(nativo.usuario), fonte: "nativo" };
+    if (nativo.maquina) maquinaCache = String(nativo.maquina);
   } else {
     const { declarado } = await getAgente();
     usuarioCache = { usuario: declarado || "não identificado", fonte: "declarado" };
   }
   return usuarioCache;
+}
+
+// Nome da máquina para o heartbeat: do host nativo quando houver; senão, um id
+// estável guardado neste navegador (modo sem host nativo, ex.: Mac central).
+async function resolverMaquina() {
+  if (maquinaCache) return maquinaCache;
+  await resolverUsuario();                 // tenta preencher via host nativo
+  if (maquinaCache) return maquinaCache;
+  try {
+    const s = await api.storage.local.get(["maquina"]);
+    if (s.maquina) { maquinaCache = s.maquina; return maquinaCache; }
+    maquinaCache = "navegador-" + Math.random().toString(36).slice(2, 8);
+    await api.storage.local.set({ maquina: maquinaCache });
+  } catch (e) { maquinaCache = "navegador"; }
+  return maquinaCache;
 }
 
 async function enviar(evento) {
@@ -87,8 +105,34 @@ function badge(n) {
   } catch (e) {}
 }
 
+// Heartbeat: avisa o coletor que a extensão está ATIVA nesta máquina. É o que
+// acende o farol verde na aba Estações; a ausência dele (com o agente vivo)
+// sinaliza extensão desabilitada.
+async function enviarHeartbeat() {
+  const { url } = await getAgente();
+  const ident = await resolverUsuario();
+  const maquina = await resolverMaquina();
+  let versao = "";
+  try { versao = api.runtime.getManifest().version; } catch (e) {}
+  const corpo = JSON.stringify({ maquina, fonte: "extensao", usuario: ident.usuario, versao });
+  try {
+    await fetch(url.replace(/\/+$/, "") + "/api/heartbeat",
+                { method: "POST", headers: { "Content-Type": "application/json" }, body: corpo });
+  } catch (e) { /* coletor fora do ar: tenta no próximo alarme */ }
+}
+
+// Alarme periódico (~5 min) + um disparo ao iniciar/instalar.
+try {
+  api.alarms.create("heartbeat", { periodInMinutes: 5 });
+  api.alarms.onAlarm.addListener((a) => { if (a.name === "heartbeat") enviarHeartbeat(); });
+} catch (e) {}
+try { api.runtime.onStartup.addListener(enviarHeartbeat); } catch (e) {}
+try { api.runtime.onInstalled.addListener(enviarHeartbeat); } catch (e) {}
+enviarHeartbeat();   // primeiro sinal assim que o service worker sobe
+
 api.runtime.onMessage.addListener((msg, sender, sendResposta) => {
   if (msg && msg.tipo === "evento") {
+    enviarHeartbeat();   // toda captura também confirma que a extensão está viva
     enviar(msg.evento).then((r) => { try { sendResposta(r); } catch (e) {} });
     return true;  // resposta assíncrona
   }
