@@ -34,6 +34,41 @@ Pede uma **senha** (guardada como PBKDF2-SHA256 em `HKLM\SOFTWARE\GerencIA`,
 legível só por SYSTEM/Admin). Instala pywin32 + psutil, registra o serviço como
 **LocalSystem**, início automático, reinício se cair, e endurece a ACL.
 
+## Antivírus / Windows Defender
+
+O agente roda um Python como serviço LocalSystem que lê conexões de rede
+(`netstat`/psutil) e o cache de DNS. Alguns antivírus — o Defender incluído —
+podem marcar esse comportamento como suspeito e **bloquear o serviço**. O jeito
+seguro de evitar isso **sem desligar a proteção** é uma **exclusão de pasta**
+para o diretório onde o pacote do agente foi instalado (ex.: `C:\GerencIA`):
+
+```powershell
+# Como Administrador, na máquina (ajuste o caminho para onde o pacote foi copiado)
+Add-MpPreference -ExclusionPath "C:\GerencIA"
+Add-MpPreference -ExclusionProcess "python.exe"      # opcional: o processo do agente
+```
+
+Para conferir o que já está excluído:
+
+```powershell
+(Get-MpPreference).ExclusionPath
+(Get-MpPreference).ExclusionProcess
+```
+
+**Em massa (GPO/Intune):** a mesma exclusão existe como política — *Computer
+Configuration → Administrative Templates → Windows Components → Microsoft
+Defender Antivirus → Exclusions → Path Exclusions* (GPO), ou um perfil
+*Endpoint security → Antivirus → Exclusions* (Intune). Distribua a exclusão
+**junto** com o pacote do agente, antes de ligar o serviço.
+
+> **Alternativa só para teste** — desliga a proteção em tempo real da máquina
+> inteira (não recomendado em produção, reduz a segurança de tudo):
+> ```powershell
+> Set-MpPreference -DisableRealtimeMonitoring $true    # reverter: $false
+> ```
+> Prefira sempre a exclusão de pasta: ela mantém o antivírus ativo para o resto
+> da estação e cobre só o agente.
+
 ## Operar
 
 ```powershell

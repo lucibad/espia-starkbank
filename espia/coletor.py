@@ -167,6 +167,21 @@ class Coletor(BaseHTTPRequestHandler):
             return self._json({"itens": [{"dominio": d, **m} for d, m in sorted(inv.items())],
                                "status_validos": list(cp.STATUS_VALIDOS),
                                "editavel": not self._remoto()})
+        if rota == "/api/cadastros":
+            con = _conectar()
+            cad = cp.ler_cadastros(con)
+            con.close()
+            return self._json({**cad, "status_validos": list(cp.STATUS_VALIDOS),
+                               "editavel": not self._remoto()})
+        if rota in ("/governanca", "/2.0", "/painel-novo", "/painel-novo.html"):
+            # Painel unificado: a Governança editável + central agora vive no painel
+            # canônico servido em "/". Mantemos a rota antiga como redirecionamento.
+            self.send_response(302)
+            self._cors()
+            self.send_header("Location", "/#/governanca")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
         if rota in ("/", "/painel", "/painel.html"):
             painel = po.DIR_PAINEL / "painel.html"
             if not painel.exists():
@@ -197,6 +212,22 @@ class Coletor(BaseHTTPRequestHandler):
                 return self._json({"code": "erro_inventario", "message": str(e)[:160]}, 400)
             _agendar_regeneracao(0.5)   # o status novo reclassifica as capturas
             return self._json({"ok": True, "itens": len(inv), "painel_em": "~1s"})
+        if rota == "/api/cadastros":
+            # Edição central: só na máquina do coletor. Vale para todos os navegadores.
+            if self._remoto():
+                return self._json({"code": "somente_local",
+                                   "message": "cadastros só são editáveis na máquina do coletor"}, 403)
+            corpo = self._corpo()
+            try:
+                con = _conectar()
+                cad = cp.gravar_cadastros(con, corpo)   # grava + espelha no inventário
+                con.close()
+            except Exception as e:
+                return self._json({"code": "erro_cadastros", "message": str(e)[:160]}, 400)
+            _agendar_regeneracao(0.5)   # mudança de status de ferramenta reclassifica capturas
+            return self._json({"ok": True,
+                               "secoes": {k: len(v) for k, v in cad.items()},
+                               "painel_em": "~1s"})
         if rota not in ("/eventos", "/api/ingest"):
             return self._json({"code": "not_found"}, 404)
         corpo = self._corpo()

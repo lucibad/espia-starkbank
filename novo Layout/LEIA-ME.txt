@@ -1,0 +1,11 @@
+GerencIA — telas do painel
+
+painel-novo.html       Painel completo com os dados já embutidos. Abre com dois cliques.
+index.html             Fonte do painel para o pacote espia-telas (substitui o index.html atual).
+                       Precisa do dados.js na mesma pasta.
+previa-cadastro.html   Prévia das telas de Pessoas e máquinas (dados de exemplo; nada é gravado).
+                       Precisa do dados.js na mesma pasta.
+dados.js               Dados gerados pelo pipeline (650 eventos da planilha + 12 da coleta).
+
+Mantenha todos os arquivos na mesma pasta.
+O tratamento de alertas feito no painel fica salvo só no navegador em que foi feito (demonstração).

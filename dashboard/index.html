@@ -643,14 +643,57 @@ if (!E) {
 // Para levar ao pipeline, use "Exportar cadastros" (JSON) na aba Governança → Cadastros.
 const CKEY = 'gerencia-cadastros-v1';
 const CAD = { classificacoes: [], ferramentas: [], usuarios: [], tipos: [], regras: [], fontes: [] };
-try { const g = JSON.parse(localStorage.getItem(CKEY) || '{}') || {}; Object.keys(CAD).forEach(k => { if (Array.isArray(g[k])) CAD[k] = g[k]; }); } catch (e) { /* sem armazenamento: só os da planilha */ }
-const salvarCad = () => { try { localStorage.setItem(CKEY, JSON.stringify(CAD)); return true; } catch (e) { return false; } };
-CAD.classificacoes.forEach(x => E.politica.classificacoes.push({ ...x, cadastro: true }));
-CAD.ferramentas.forEach(x => E.ferramentas.push({ ...x, cadastro: true }));
-CAD.usuarios.forEach(x => E.usuarios.push({ ...x, cadastro: true }));
-CAD.tipos.forEach(x => E.tipos.push({ ...x, cadastro: true }));
-CAD.regras.forEach(x => E.politica.regras.push({ usos_base: 0, usos_principal: 0, usos_total: 0, ...x, cadastro: true }));
-CAD.fontes.forEach(x => E.fontes.push({ ...x, cadastro: true }));
+// Origem dos cadastros: se este painel foi servido pelo COLETOR, os cadastros são
+// CENTRAIS — um só conjunto para todos os navegadores, e mudar o status de uma
+// ferramenta reclassifica as capturas no motor. Fora do coletor (arquivo local ou
+// GitHub Pages), caem no localStorage deste navegador (modo demonstração).
+let CAD_SERVER = false, CAD_EDITAVEL = true;
+try {
+  const x = new XMLHttpRequest();
+  x.open('GET', '/api/cadastros', false);   // síncrono: o boot do painel é síncrono
+  x.send();
+  if (x.status === 200) {
+    const g = JSON.parse(x.responseText) || {};
+    Object.keys(CAD).forEach(k => { if (Array.isArray(g[k])) CAD[k] = g[k]; });
+    CAD_SERVER = true; CAD_EDITAVEL = g.editavel !== false;
+  }
+} catch (e) { /* não é o coletor: segue para o localStorage */ }
+if (!CAD_SERVER) {
+  try { const g = JSON.parse(localStorage.getItem(CKEY) || '{}') || {}; Object.keys(CAD).forEach(k => { if (Array.isArray(g[k])) CAD[k] = g[k]; }); } catch (e) { /* sem armazenamento: só os da planilha */ }
+}
+const salvarCad = () => {
+  let ok = true;
+  try { localStorage.setItem(CKEY, JSON.stringify(CAD)); } catch (e) { ok = false; }
+  if (CAD_SERVER && CAD_EDITAVEL) {
+    try {
+      const x = new XMLHttpRequest();
+      x.open('POST', '/api/cadastros', true);   // central: o coletor grava e regenera (~1s)
+      x.setRequestHeader('Content-Type', 'application/json');
+      x.send(JSON.stringify(CAD));
+    } catch (e) { /* mantém ao menos o espelho local */ }
+  }
+  return ok;
+};
+// Mescla os cadastros salvos: se o item casar com um da base (planilha/coleta) por id
+// ou nome, ele SOBRESCREVE aquele item (editado); senão entra como cadastro novo.
+const _normCad = s => String(s == null ? '' : s).trim().toLowerCase();
+const _CADMAP = {
+  classificacoes: [E.politica.classificacoes, null, 'classificacao', {}],
+  ferramentas:    [E.ferramentas, 'id', 'nome', {}],
+  usuarios:       [E.usuarios, 'id', 'nome', {}],
+  tipos:          [E.tipos, 'id', 'nome', {}],
+  regras:         [E.politica.regras, 'id', 'texto', { usos_base: 0, usos_principal: 0, usos_total: 0 }],
+  fontes:         [E.fontes, 'id', 'nome', {}],
+};
+Object.entries(_CADMAP).forEach(([k, [arr, idk, chk, extra]]) => {
+  (CAD[k] || []).forEach(x => {
+    let base = null;
+    if (idk && x[idk] != null) base = arr.find(y => y[idk] === x[idk] && !y.cadastro);
+    if (!base && chk) base = arr.find(y => _normCad(y[chk]) === _normCad(x[chk]) && !y.cadastro && !y.editado);
+    if (base) Object.assign(base, x, { editado: true });     // override de item da base
+    else arr.push({ ...extra, ...x, cadastro: true });        // cadastro novo
+  });
+});
 
 
 // ---------------- constantes ----------------
@@ -1369,8 +1412,8 @@ function vistaCadastros() {
     <section class="card"><div class="card-h"><h3>${def.aba}</h3><span class="hint">${esc(def.ajuda)}</span></div>
       <div class="tbl-wrap"><table class="tbl"><thead><tr>${def.cols.map(c => `<th${c[2] ? ' class="num"' : ''}>${c[0]}</th>`).join('')}<th>Origem</th><th></th></tr></thead>
       <tbody>${lista.map((x, i) => `<tr${def.abrir ? ` class="click" data-go="${href(['investigar', ...def.abrir(x)], {})}"` : ''}>${def.cols.map(c => `<td${c[2] ? ' class="num"' : ''}>${c[1](x)}</td>`).join('')}<td>${origemTag(x)}</td>
-        <td class="num" style="white-space:nowrap">${x.cadastro ? `<button class="linkbtn" type="button" data-edit="${i}">Editar</button><button class="linkbtn" type="button" data-del="${i}">Excluir</button>` : '<span class="muted small">somente leitura</span>'}</td></tr>`).join('')}</tbody></table></div>
-      <p class="demo">Itens de origem ficam como referência e não podem ser alterados aqui. ${novos ? '' : 'Ainda não há cadastros novos neste tipo. '}Demonstração: os cadastros ficam salvos neste navegador.</p>
+        <td class="num" style="white-space:nowrap"><button class="linkbtn" type="button" data-edit="${i}">Editar</button>${x.cadastro ? `<button class="linkbtn" type="button" data-del="${i}">Excluir</button>` : (x.editado ? `<button class="linkbtn" type="button" data-rev="${i}">Reverter</button>` : '')}</td></tr>`).join('')}</tbody></table></div>
+      <p class="demo">Os itens da base também podem ser editados — a alteração vira um ajuste que sobrescreve o original (marcado como <b>editado</b>); “Reverter” volta ao valor da base. ${novos ? '' : ''}${CAD_SERVER ? 'As alterações são <b>centrais</b> (ficam no servidor para todos) e mudar o status de uma ferramenta reclassifica as capturas.' : 'As alterações ficam salvas neste navegador; use “Exportar cadastros” para levá-las ao pipeline.'}</p>
     </section>${def.extra ? def.extra() : ''}`;
 }
 function bindCadastros(main) {
@@ -1384,6 +1427,13 @@ function bindCadastros(main) {
     const x = lista[+b.dataset.del];
     if (!confirm(`Excluir “${x[def.chave]}” dos cadastros?`)) return;
     CAD[k] = CAD[k].filter(y => (def.id ? y.id !== x.id : y[def.chave] !== x[def.chave]));
+    salvarCad(); location.reload();
+  });
+  main.querySelectorAll('[data-rev]').forEach(b => b.onclick = (ev) => {
+    ev.stopPropagation();
+    const x = lista[+b.dataset.rev];
+    if (!confirm(`Reverter “${x[def.chave]}” para o valor da base? A sua edição será descartada.`)) return;
+    CAD[k] = CAD[k].filter(y => (def.id ? y.id !== x.id : norm(y[def.chave]) !== norm(x[def.chave])));
     salvarCad(); location.reload();
   });
   main.querySelector('#cad-exp').onclick = () => {
@@ -1428,9 +1478,13 @@ function formCadastro(k, item) {
     let novo = { ...(item ? { id: item.id } : (def.id ? { id: def.id() } : {})), ...val, criado_por: quem(), criado_em: item ? item.criado_em : agora() };
     if (item) novo.alterado_em = agora();
     if (def.antes) novo = def.antes(novo);
-    delete novo.cadastro;
-    if (item) CAD[k] = CAD[k].map(y => ((def.id ? y.id === item.id : y[def.chave] === item[def.chave]) ? novo : y));
-    else CAD[k].push(novo);
+    delete novo.cadastro; delete novo.editado;
+    if (item) {
+      // Upsert: se já há um registro no store, substitui; senão (1ª edição de um
+      // item da base) entra como novo registro — a mesclagem o aplica como override.
+      const casa = y => (def.id ? y.id === item.id : norm(y[def.chave]) === norm(item[def.chave]));
+      CAD[k] = CAD[k].some(casa) ? CAD[k].map(y => (casa(y) ? novo : y)) : [...CAD[k], novo];
+    } else CAD[k].push(novo);
     if (!salvarCad()) return erro('Este navegador não permite salvar. Abra o painel em uma janela normal (não anônima).');
     location.reload();
   };

@@ -57,6 +57,8 @@ switch ($Acao) {
     & $Py @A (Join-Path $Aqui "servico_win.py") remove
     Remove-Item $reg -Recurse -Force -ErrorAction SilentlyContinue
     [Environment]::SetEnvironmentVariable("GERENCIA_COLETOR",$null,"Machine")
+    # Desfaz a exclusao do Defender que o instalador adicionou (best-effort).
+    try { Remove-MpPreference -ExclusionPath $Aqui -ErrorAction SilentlyContinue } catch {}
     Write-Host "Servico desinstalado e senha removida." -ForegroundColor Green
   }
 }

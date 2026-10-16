@@ -1,0 +1,1432 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiB2aWV3Qm94PSIwIDAgMTIwLjAwIDEyMC4wMCI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMCAwLjAwKSBzY2FsZSgxLjAwMDAwKSI+PGxpbmUgeDE9Ijc2IiB5MT0iNzYiIHgyPSIxMDQiIHkyPSIxMDQiIHN0cm9rZT0iIzFGMjczMyIgc3Ryb2tlLXdpZHRoPSIxOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNTIiIGN5PSI1MiIgcj0iMzQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzNCNkZFMCIgc3Ryb2tlLXdpZHRoPSIxOCIvPjxyZWN0IHg9IjQwIiB5PSI0MCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiByeD0iNCIgZmlsbD0iIzdEQjNGNyIvPjwvZz48L3N2Zz4=">
+<title>GerencIA</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Red+Hat+Text:wght@400;500;600;700&family=Red+Hat+Display:wght@600;700;800&display=swap">
+<style>
+/* ===== Tokens — paleta "Grafite" (referência: Opção 1 · Grafite / Main.dc.html) =====
+   Convenções mantidas: cor = risco; densidade de cinza = classificação da informação. */
+:root {
+  --bg: #F4F6FA; --surface: #ffffff; --surface-2: #F1F4F9;
+  --line: #E3E8F0; --line-2: #EDF1F7; --border: #D3DAE6;
+  --ink-h: #1F2733; --ink: #262F3D; --ink-2: #4A5565; --ink-3: #667085; --ink-4: #8A94A6;
+  --side: #1F2733; --side-muted: #C9D3E3; --side-faint: #8E9AB0; --nav-active: #3B6FE0;
+  --logo-bg: #3B6FE0; --logo-accent: #7DB3F7;
+  --primary: #3B6FE0; --primary-soft: #E8EFFC;
+  --accent: var(--primary); --accent-soft: var(--primary-soft);
+  --bar: #3B6FE0; --bar-soft: #E3E8F0; --spark: #3B6FE0;
+
+  --sev-Critico: #1A3170; --sev-Critico-bg: #DCE5F7; --sev-Critico-ink: #1A3170; --crit-hero: #9CC5FA;
+  --sev-Alto: #2F5FCC;    --sev-Alto-bg: #E8EFFC;    --sev-Alto-ink: #1E4FB5;
+  --sev-Medio: #5F96EE;   --sev-Medio-bg: #EEF4FD;   --sev-Medio-ink: #2F5FCC;
+  --sev-Baixo: #AAB7CC;   --sev-Baixo-bg: #F1F4F9;   --sev-Baixo-ink: #4A5565;
+  --sev-Revisar: #8A94A6; --sev-Revisar-bg: #EEF0F4; --sev-Revisar-ink: #4A5565;
+
+  --sens-crit: #262F3D; --sens-conf: #9AA6BA;
+  --cls-Critica: #262F3D; --cls-Critica-ink: #ffffff;
+  --cls-Confidencial: #E3E8F0; --cls-Confidencial-ink: #262F3D;
+  --cls-Interna: #F1F4F9; --cls-Interna-ink: #4A5565;
+  --cls-Publica: #ffffff; --cls-Publica-ink: #667085;
+
+  --ok: #3B6FE0; --ok-ink: #1E4FB5; --ok-bg: #E8EFFC; --ok-ring: #DCE8FB; --real-dot: #9CC5FA;
+  --shadow: inset 0 0 0 1px #e8eaee;
+  --shadow-lift: inset 0 0 0 1px #e8eaee, 0 8px 16px -8px rgba(19,23,26,.12);
+
+  --f-display: "Red Hat Display", system-ui, sans-serif;
+  --f-body: "Red Hat Text", system-ui, sans-serif;
+  --f-mono: "Red Hat Text", system-ui, sans-serif;
+  --r: 16px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.5; font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+a { color: var(--primary); text-decoration: none; font-weight: 600; }
+a:hover { text-decoration: underline; }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; color: var(--ink-h); }
+button, input, select { font: inherit; color: inherit; }
+.mono { font-variant-numeric: tabular-nums; }
+.muted { color: var(--ink-3); }
+.small { font-size: 12px; }
+
+/* ===== Layout: menu lateral escuro + conteúdo ===== */
+.app { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
+.side { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: var(--side); color: #fff; padding: 28px 20px; display: flex; flex-direction: column; gap: 28px; }
+.brand { display: flex; flex-direction: column; gap: 8px; }
+.logo-svg { width: 168px; height: auto; display: block; }
+.brand-t small { font-size: 12px; color: var(--side-muted); }
+.logo { width: 40px; height: 40px; border-radius: 12px; background: var(--logo-bg); display: grid; place-items: center; flex: none; }
+.brand-t b { display: block; font-family: var(--f-display); font-weight: 800; font-size: 22px; letter-spacing: -0.01em; line-height: 1.15; }
+.brand-t b span { color: var(--logo-accent); }
+.brand-t small { font-size: 12px; color: var(--side-muted); }
+.nav { display: flex; flex-direction: column; gap: 4px; }
+.nav a { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; color: var(--side-muted); font-weight: 500; font-size: 15px; white-space: nowrap; }
+.nav a svg { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.nav a:hover { background: rgba(255,255,255,.06); color: #fff; text-decoration: none; }
+.nav a[aria-current="page"] { background: var(--nav-active); color: #fff; font-weight: 600; }
+.nav .badge { margin-left: auto; background: var(--sev-Critico); color: #fff; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+.side-sec { font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--side-faint); margin-bottom: 10px; }
+.fontes { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.fontes a { display: flex; justify-content: space-between; align-items: baseline; color: var(--side-muted); font-size: 13px; font-weight: 500; border-radius: 6px; padding: 2px 6px; margin: 0 -6px; }
+.fontes a:hover { background: rgba(255,255,255,.08); text-decoration: none; }
+.fontes a[aria-pressed="true"] { background: rgba(255,255,255,.12); color: #fff; }
+.fontes a b { font-size: 20px; color: #fff; font-weight: 700; }
+.fontes .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--logo-accent); margin-right: 6px; }
+.fbar { height: 6px; border-radius: 999px; background: rgba(255,255,255,.14); overflow: hidden; }
+.fbar i { display: block; height: 100%; background: var(--logo-accent); }
+.fontes .cap { font-size: 12px; color: var(--side-faint); line-height: 1.4; }
+.disc { margin-top: auto; font-size: 12px; color: var(--side-faint); line-height: 1.5; }
+.content { min-width: 0; display: flex; flex-direction: column; }
+
+/* ===== Cabeçalho ===== */
+.top { position: sticky; top: 0; z-index: 20; background: #fff; border-bottom: 1px solid var(--line); }
+.top-in { padding: 14px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+.top-in .ctx { font-size: 14px; color: var(--ink-2); flex: 1 1 240px; }
+.top-in .ctx i { font-style: normal; color: #9fa5ad; }
+.search { position: relative; flex: 0 1 420px; min-width: 220px; }
+.search label { display: flex; align-items: center; gap: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+.search label:focus-within { border-color: var(--primary); background: #fff; }
+.search input { border: 0; background: transparent; outline: none; font-size: 14px; color: var(--ink); width: 100%; }
+.coletor { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ok-ink); font-weight: 600; background: var(--ok-bg); padding: 8px 12px; border-radius: 999px; white-space: nowrap; }
+.coletor::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+.coletor.off { color: var(--ink-2); background: var(--surface-2); }
+.coletor.off::before { background: var(--ink-4); }
+.sugg { position: absolute; top: 48px; left: 0; right: 0; z-index: 30; background: #fff; border-radius: 12px; box-shadow: var(--shadow), 0 12px 28px -8px rgba(19,23,26,.2); max-height: 380px; overflow: auto; padding: 6px; }
+.sugg a { display: flex; gap: 8px; align-items: baseline; padding: 8px 10px; border-radius: 8px; color: var(--ink); font-weight: 500; }
+.sugg a:hover, .sugg a.on { background: var(--primary-soft); text-decoration: none; }
+.sugg .k { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; color: var(--ink-3); text-transform: uppercase; width: 82px; flex: none; }
+.sugg .empty { padding: 10px; color: var(--ink-3); }
+
+/* ===== Página ===== */
+main { padding: 28px 32px 48px; max-width: 1320px; width: 100%; }
+.head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 24px; }
+.head h1 { font-size: 36px; font-weight: 800; letter-spacing: -0.02em; }
+.head p { margin: 6px 0 0; font-size: 15px; color: var(--ink-2); max-width: 78ch; }
+.head .right { margin-left: auto; }
+.crumb { font-size: 13px; color: var(--ink-3); margin-bottom: 6px; }
+.hctl { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.seg { display: flex; background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
+.seg button { min-height: 36px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent; color: var(--primary); font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.seg button span { opacity: .7; font-weight: 500; }
+.seg button[aria-pressed="true"] { background: var(--primary); color: #fff; font-weight: 700; }
+.fbtn { display: flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--border); background: #fff; color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer; }
+.fbtn[aria-expanded="true"] { border-color: var(--primary); }
+.fbtn .n { background: var(--primary); color: #fff; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 1px 7px; }
+.fpanel { background: #fff; border-radius: var(--r); box-shadow: var(--shadow); padding: 16px 20px; display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: flex-end; margin: -8px 0 20px; }
+.fpanel label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+.fpanel select, .fpanel input { height: 40px; border: 1px solid var(--border); border-radius: 10px; background: #fff; padding: 0 10px; min-width: 170px; font-size: 14px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: -8px 0 20px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; background: #fff; box-shadow: inset 0 0 0 1px var(--border); color: var(--ink); border-radius: 999px; padding: 4px 6px 4px 12px; font-size: 13px; font-weight: 600; }
+.chip button { border: 0; background: transparent; cursor: pointer; color: var(--ink-3); padding: 0 6px; font-size: 16px; line-height: 1; }
+.linkbtn { border: 0; background: none; color: var(--primary); cursor: pointer; font-size: 13px; font-weight: 700; padding: 4px; }
+
+.grid { display: grid; gap: 16px; }
+.g-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.g-3-1 { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+.mt { margin-top: 16px; }
+.card { background: #fff; border-radius: var(--r); box-shadow: var(--shadow); padding: 24px; min-width: 0; }
+.card-h { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 4px; margin-bottom: 16px; align-items: start; }
+.card-h h3 { grid-column: 1; font-size: 18px; font-weight: 700; }
+.card-h .hint { grid-column: 1; font-size: 13px; color: var(--ink-3); }
+.card-h .r, .card-h .legend { grid-column: 2; grid-row: 1 / span 2; margin: 0; font-size: 13px; font-weight: 700; white-space: nowrap; }
+.sub-h { font-size: 14px; font-weight: 700; color: var(--ink-h); margin: 6px 0 10px; font-family: var(--f-body); }
+
+/* ===== Hero de metas ===== */
+.hero { background: var(--side); border-radius: 20px; padding: 28px; color: #fff; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; align-items: center; margin-bottom: 16px; }
+.hero h2 { color: #fff; font-size: 28px; font-weight: 700; line-height: 1.2; }
+.hero p { margin: 0; font-size: 14px; color: var(--side-muted); line-height: 1.5; }
+.hero .flag { display: inline-flex; align-self: flex-start; align-items: center; gap: 8px; background: var(--sev-Critico); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 6px 12px; border-radius: 999px; }
+.hero .flag.ok { background: var(--ok); }
+.hero .lead { display: flex; flex-direction: column; gap: 10px; }
+.hero .m { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px; color: #fff; }
+.hero .m .l { font-size: 13px; color: var(--side-muted); }
+.hero .m .v { display: flex; align-items: baseline; gap: 10px; }
+.hero .m .v b { font-family: var(--f-display); font-size: 40px; font-weight: 800; line-height: 1.05; }
+.hero .m .v span { font-size: 13px; color: var(--crit-hero); }
+.hero .m .v span.ok { color: var(--real-dot); }
+.hero .m .track { position: relative; height: 8px; border-radius: 999px; background: rgba(255,255,255,.14); }
+.hero .m .track i { display: block; height: 100%; border-radius: 999px; background: var(--crit-hero); }
+.hero .m .track i.ok { background: var(--real-dot); }
+.hero .m .track u { position: absolute; top: -4px; width: 2px; height: 16px; background: var(--real-dot); }
+.hero .m .f { font-size: 12px; color: var(--side-faint); }
+.hero .m a.go { align-self: flex-start; display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 8px; background: #fff; color: var(--side); font-size: 13px; font-weight: 700; }
+
+/* ===== Cards de indicadores ===== */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 16px; }
+.kpi { background: #fff; border-radius: var(--r); box-shadow: var(--shadow-lift); padding: 22px; display: flex; flex-direction: column; gap: 10px; color: var(--ink); min-width: 0; font-weight: 400; }
+a.kpi:hover { text-decoration: none; box-shadow: inset 0 0 0 1px var(--border), 0 10px 20px -8px rgba(19,23,26,.18); }
+.kpi-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.kpi .lab { font-size: 14px; font-weight: 600; color: var(--ink-2); }
+.kpi .val { font-family: var(--f-display); font-size: 40px; font-weight: 800; color: var(--ink-h); line-height: 1; }
+.kpi .val small { font-family: var(--f-body); font-size: 16px; font-weight: 600; color: var(--ink-2); margin-left: 8px; }
+.kpi .foot { font-size: 13px; color: var(--ink-2); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.kpi svg.sp { width: 100%; height: 44px; display: block; }
+.ico { width: 32px; height: 32px; border-radius: 8px; background: var(--primary-soft); color: var(--primary); display: grid; place-items: center; flex: none; }
+.ico svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.stack { display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: var(--line); gap: 2px; margin-top: 6px; }
+.stack i { display: block; height: 100%; }
+.meta { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+.meta.fora { background: var(--sev-Critico-bg); color: var(--sev-Critico-ink); }
+.meta.dentro { background: var(--ok-bg); color: var(--ok-ink); }
+.pill-n { background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); padding: 3px 8px; border-radius: 999px; color: var(--ink-2); font-size: 12px; }
+
+/* ===== Etiquetas ===== */
+.risk { display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; min-width: 64px; }
+.risk.Critico { background: var(--sev-Critico-bg); color: var(--sev-Critico-ink); }
+.risk.Alto { background: var(--sev-Alto-bg); color: var(--sev-Alto-ink); }
+.risk.Medio { background: var(--sev-Medio-bg); color: var(--sev-Medio-ink); }
+.risk.Baixo { background: var(--sev-Baixo-bg); color: var(--sev-Baixo-ink); box-shadow: inset 0 0 0 1px var(--line); }
+.risk.Revisar { background: var(--sev-Revisar-bg); color: var(--sev-Revisar-ink); }
+.cls { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.cls.Critica { background: var(--cls-Critica); color: var(--cls-Critica-ink); }
+.cls.Confidencial { background: var(--cls-Confidencial); color: var(--cls-Confidencial-ink); }
+.cls.Interna { background: var(--cls-Interna); color: var(--cls-Interna-ink); box-shadow: inset 0 0 0 1px var(--line); }
+.cls.Publica { background: var(--cls-Publica); color: var(--cls-Publica-ink); box-shadow: inset 0 0 0 1px var(--border); }
+.st { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; display: inline-block; }
+.st.ok { background: var(--ok-bg); color: var(--ok-ink); }
+.st.cond { background: var(--sev-Medio-bg); color: var(--sev-Medio-ink); }
+.st.nao { background: var(--sev-Critico-bg); color: var(--sev-Critico-ink); }
+.rule { font-size: 11px; font-weight: 700; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); border-radius: 6px; padding: 1px 6px; color: var(--ink-2); }
+.src { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+.src.planilha { background: var(--surface-2); color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--line); }
+.src.coleta { background: var(--primary-soft); color: #2453C0; }
+.src.coleta::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--primary); }
+
+/* ===== Legenda ===== */
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; font-weight: 500; color: var(--ink-2); margin-top: 10px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+/* ===== Barras horizontais ===== */
+.hb { display: grid; grid-template-columns: minmax(120px, 38%) minmax(0, 1fr) 52px; gap: 12px; align-items: center; }
+.hb .l { font-size: 14px; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+.hb .l > small { font-weight: 400; }
+.hb .t { height: 12px; display: flex; gap: 2px; }
+.hb .t > i { display: block; height: 100%; min-width: 2px; border-radius: 3px; }
+.hb .v { font-size: 14px; font-weight: 700; text-align: right; color: var(--ink-h); }
+.hb .v em { font-style: normal; font-weight: 700; color: var(--sev-Critico-ink); }
+.hb .v small { font-weight: 500; color: var(--ink-2); font-size: 13px; }
+.hb a.row { display: contents; color: inherit; font-weight: inherit; }
+.hb a.row:hover .l { text-decoration: underline; }
+.thin { display: flex; flex-direction: column; gap: 14px; }
+.thin a { display: flex; flex-direction: column; gap: 6px; color: var(--ink); font-weight: 600; }
+.thin a:hover { text-decoration: none; }
+.thin a:hover .nm { text-decoration: underline; }
+.thin .hd { position: static; display: flex; justify-content: space-between; align-items: center; gap: 8px; background: none; border: 0; font-size: 14px; }
+.thin .hd span { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.thin .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.thin .bar { display: flex; height: 8px; gap: 2px; background: var(--surface-2); border-radius: 999px; }
+.thin .bar i { display: block; height: 100%; border-radius: 999px; }
+
+/* tiles de situação */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
+.tile { border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 4px; color: var(--ink-h); background: var(--surface-2); }
+a.tile:hover { text-decoration: none; box-shadow: inset 0 0 0 1px var(--border); }
+.tile span { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.tile b { font-family: var(--f-display); font-size: 28px; font-weight: 800; }
+.tile.crit { background: var(--sev-Critico-bg); } .tile.crit span { color: var(--sev-Critico-ink); }
+.tile.med { background: var(--sev-Medio-bg); } .tile.med span { color: var(--sev-Medio-ink); }
+.tile.coleta { background: var(--primary-soft); } .tile.coleta span { color: #2453C0; }
+.tile.line { background: #fff; box-shadow: inset 0 0 0 1px var(--line); }
+.rbar { display: grid; grid-template-columns: 130px minmax(0, 1fr) 36px; align-items: center; gap: 12px; font-size: 14px; }
+.rbar span:first-child { color: #373d42; }
+.rbar .tr { height: 10px; border-radius: 999px; background: var(--primary-soft); }
+.rbar .tr i { display: block; height: 100%; border-radius: 999px; background: var(--primary); }
+.rbar b { text-align: right; }
+.infonote { display: flex; gap: 10px; align-items: flex-start; background: var(--surface-2); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--ink-2); line-height: 1.45; margin-top: 14px; }
+.infonote svg { flex: none; margin-top: 1px; }
+
+/* ===== Gráficos ===== */
+.chart { width: 100%; height: auto; display: block; }
+.chart text { font-family: var(--f-body); font-size: 11px; fill: var(--ink-4); }
+.chart .hov rect.hit { fill: transparent; cursor: pointer; }
+.chart .hov:hover rect.hit { fill: rgba(55,61,66,.05); }
+.chart .hov line.x { stroke: var(--ink-4); stroke-dasharray: 2 3; opacity: 0; }
+.chart .hov:hover line.x { opacity: 1; }
+.cols { display: flex; gap: 10px; }
+.cols .yax { display: flex; flex-direction: column; justify-content: space-between; height: 200px; font-size: 11px; color: var(--ink-4); text-align: right; width: 26px; flex: none; }
+.cols .plot { flex: 1; min-width: 0; }
+.cols .bars { height: 200px; display: flex; align-items: flex-end; gap: 8px; border-bottom: 1px solid var(--border); background-image: linear-gradient(var(--line-2) 1px, transparent 1px); background-size: 100% 50px; }
+.cols .bars button { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column-reverse; justify-content: flex-start; padding: 0; border: 0; background: transparent; cursor: pointer; transition: opacity .3s ease-out; border-radius: 4px; }
+.cols .bars button.dim { opacity: .35; }
+.cols .bars button.sel { outline: 2px solid var(--primary); outline-offset: 3px; }
+.cols .bars button i { display: block; width: 100%; }
+.cols .bars button i + i { border-bottom: 2px solid #fff; }
+.cols .bars button i:last-child { border-radius: 4px 4px 0 0; }
+.cols .xax { display: flex; gap: 8px; height: 22px; align-items: flex-end; }
+.cols .xax span { flex: 1; min-width: 0; font-size: 11px; color: var(--ink-4); text-align: center; white-space: nowrap; }
+.detail { background: var(--surface-2); border-radius: 12px; padding: 14px 16px; display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; font-size: 14px; margin-top: 16px; }
+.detail strong { color: var(--ink-h); }
+.detail .c { color: var(--sev-Critico-ink); font-weight: 600; }
+.detail a { margin-left: auto; }
+
+/* ===== Tabelas ===== */
+.tbl-wrap { overflow-x: auto; }
+table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tbl th { text-align: left; font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; padding: 10px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; background: #fff; }
+.tbl td { padding: 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tbl td.num, .tbl th.num { text-align: right; }
+.tbl tr.click { cursor: pointer; }
+.tbl tr.click:hover td { background: var(--surface-2); }
+.tbl tr.sel td { background: var(--primary-soft); }
+.tbl .sub { display: block; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+
+/* ===== Abas ===== */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 20px; overflow-x: auto; }
+.tabs a { padding: 10px 14px; color: var(--ink-2); border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; font-weight: 600; font-size: 14px; }
+.tabs a:hover { text-decoration: none; color: var(--ink-h); }
+.tabs a[aria-current="page"] { color: var(--ink-h); border-bottom-color: var(--primary); font-weight: 700; }
+.tabs .n { font-size: 12px; font-weight: 600; color: var(--ink-3); margin-left: 6px; background: var(--surface-2); border-radius: 999px; padding: 1px 7px; }
+
+/* ===== Alertas: lista + gaveta ===== */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 16px; align-items: start; }
+.drawer { position: sticky; top: 92px; max-height: calc(100vh - 110px); overflow: auto; }
+.drawer .close { display: none; }
+.pager { display: flex; align-items: center; gap: 8px; justify-content: flex-end; margin-top: 12px; font-size: 13px; color: var(--ink-3); }
+.pager a, .pager span.off { padding: 6px 12px; border-radius: 8px; background: #fff; box-shadow: inset 0 0 0 1px var(--border); }
+.pager span.off { opacity: .45; }
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+.toolbar input, .toolbar select { height: 42px; border: 1px solid var(--border); border-radius: 10px; background: #fff; padding: 0 12px; font-size: 14px; }
+.btn { height: 42px; border: 1px solid var(--border); border-radius: 10px; background: #fff; padding: 0 14px; cursor: pointer; color: var(--ink); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.btn:hover { border-color: var(--primary); text-decoration: none; }
+
+/* Evidência */
+.ev dl { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 10px 12px; margin: 14px 0; font-size: 14px; }
+.ev dt { color: var(--ink-3); font-size: 13px; }
+.ev dd { margin: 0; }
+.ev h3 { font-size: 15px; }
+.chain { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 8px; }
+.chain li { border-radius: 10px; padding: 10px 12px 10px 14px; background: var(--surface-2); box-shadow: inset 3px 0 0 var(--bar); font-size: 13px; }
+.chain li.Critico { box-shadow: inset 3px 0 0 var(--sev-Critico); }
+.chain li.Alto { box-shadow: inset 3px 0 0 var(--sev-Alto); }
+.chain li.Medio { box-shadow: inset 3px 0 0 var(--sev-Medio); }
+.chain li.Revisar { box-shadow: inset 3px 0 0 var(--sev-Revisar); }
+.chain b { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 4px; color: var(--ink-h); }
+.chain .acao { margin-top: 4px; color: var(--ink-2); }
+.note { background: var(--surface-2); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--ink-2); line-height: 1.45; }
+.linkrow { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; font-size: 13px; }
+
+/* Listas de eventos */
+.alist { display: flex; flex-direction: column; }
+.alist a { display: flex; gap: 12px; align-items: center; padding: 11px 0; border-top: 1px solid var(--line); color: var(--ink); font-weight: 400; }
+.alist a:hover { text-decoration: none; }
+.alist a:hover .what b { text-decoration: underline; }
+.alist .aico { width: 36px; height: 36px; flex: none; border-radius: 10px; background: var(--sev-Critico-bg); color: var(--sev-Critico); display: grid; place-items: center; }
+.alist .aico svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.alist .what { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.alist .what b { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.alist .what small { font-size: 12px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.alist .when { font-size: 12px; color: var(--ink-3); flex: none; }
+
+/* Investigar */
+.bigsearch { position: relative; max-width: 640px; }
+.bigsearch label { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 0 16px; height: 52px; }
+.bigsearch label:focus-within { border-color: var(--primary); }
+.bigsearch input { border: 0; outline: none; background: transparent; width: 100%; font-size: 16px; }
+.bigsearch .sugg { top: 56px; }
+.qchips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; font-size: 13px; color: var(--ink-3); }
+.qchips a { background: #fff; box-shadow: inset 0 0 0 1px var(--border); border-radius: 999px; padding: 4px 12px; color: var(--ink); font-weight: 600; }
+.flows { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+details.grp { border-radius: 12px; margin-bottom: 10px; background: #fff; box-shadow: var(--shadow); }
+details.grp > summary { cursor: pointer; padding: 12px 14px; display: flex; gap: 10px; align-items: center; list-style: none; flex-wrap: wrap; }
+details.grp > summary::-webkit-details-marker { display: none; }
+details.grp > summary::before { content: "▸"; color: var(--ink-3); transition: transform .15s; }
+details.grp[open] > summary::before { transform: rotate(90deg); }
+details.grp > summary .cnt { margin-left: auto; font-size: 13px; color: var(--ink-3); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.tl { list-style: none; margin: 0; padding: 0 14px 10px; }
+.tl li { display: grid; grid-template-columns: 110px minmax(0, 1fr) auto; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13px; align-items: center; }
+.tl .d { font-size: 12px; color: var(--ink-3); }
+.tl .x { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+
+.empty-state { padding: 40px; text-align: center; color: var(--ink-3); }
+#tip { position: fixed; z-index: 50; pointer-events: none; background: var(--ink-h); color: #fff; font-size: 12px; padding: 10px 12px; border-radius: 10px; max-width: 280px; line-height: 1.5; box-shadow: 0 10px 24px rgba(0,0,0,.2); }
+#tip .row { display: flex; justify-content: space-between; gap: 14px; }
+#tip i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; }
+footer { padding: 0 32px 32px; font-size: 12px; color: var(--ink-3); max-width: 1320px; }
+
+/* ===== Responsivo ===== */
+@media (max-width: 1180px) {
+  .split { grid-template-columns: minmax(0, 1fr); }
+  .drawer { position: fixed; inset: 0; max-height: none; z-index: 40; border-radius: 0; }
+  .drawer .close { display: inline-flex; }
+  .drawer:not(.open) { display: none; }
+  .g-3-1 { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 900px) {
+  .g-2, .flows { grid-template-columns: minmax(0, 1fr); }
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .side { position: static; height: auto; flex-direction: row; align-items: center; gap: 14px; padding: 12px 16px; overflow-x: auto; }
+  .brand-t small, .side > div:not(.brand), .disc { display: none; }
+  .logo-svg { width: 110px; }
+  .nav { flex-direction: row; }
+  .nav a { padding: 8px 12px; font-size: 14px; }
+  .top-in { padding: 12px 16px; }
+  .top-in .ctx { display: none; }
+  .search { flex: 1 1 100%; }
+  main { padding: 20px 16px 40px; }
+  footer { padding: 0 16px 24px; }
+  .head h1 { font-size: 28px; }
+}
+@media (max-width: 560px) {
+  .kpis { grid-template-columns: minmax(0, 1fr); }
+  .hb { grid-template-columns: minmax(96px, 40%) minmax(0, 1fr) 44px; }
+  .tl li { grid-template-columns: 1fr; gap: 4px; }
+  .tl .x { justify-content: flex-start; }
+  .rbar { grid-template-columns: 100px minmax(0, 1fr) 30px; }
+  .hero { padding: 20px; }
+  .cols .bars { gap: 3px; }
+  .fpanel label, .fpanel select, .fpanel input { width: 100%; }
+}
+
+/* ===== v5: modal, rotina da fila, paleta limpa (azul/cinza; vermelho só para alerta em aberto) ===== */
+:root { --alert: #C62828; --alert-bg: #FDECEC; --alert-ink: #A61B1B; --st-aberto: #C62828; --st-analise: #5F96EE; --st-tratado: #C9D1DD; }
+.nav .badge { background: var(--alert); }
+.hero .flag { background: var(--alert); }
+.hero .flag.ok { background: var(--primary); }
+.tile.crit { background: var(--alert-bg); } .tile.crit span { color: var(--alert-ink); }
+.tile.med { background: var(--primary-soft); } .tile.med span { color: var(--ok-ink); }
+.alist .aico { background: var(--alert-bg); color: var(--alert); }
+.meta.fora { background: #E8EFFC; color: #1A3170; }
+.meta.dentro { background: var(--surface-2); color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--line); }
+.risk.Critico { background: #1A3170; color: #fff; }
+.risk.Alto { background: #DCE5F7; color: #1A3170; }
+.risk.Medio { background: #EEF4FD; color: #2F5FCC; }
+.risk.Baixo { background: var(--surface-2); color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--line); }
+.risk.Revisar { background: #EEF0F4; color: #4A5565; box-shadow: inset 0 0 0 1px #D3DAE6; }
+.st.ok { background: var(--primary-soft); color: #1E4FB5; }
+.st.cond { background: var(--surface-2); color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--border); }
+.st.nao { background: #262F3D; color: #fff; }
+.hb .v em { color: #1A3170; }
+.detail .c { color: #1A3170; }
+.fbtn .n { background: var(--primary); }
+.fpanel .fsearch { position: relative; flex: 1 1 320px; }
+.fpanel .fsearch input { width: 100%; }
+.fpanel .fsearch .sugg { top: 66px; }
+
+/* Modal */
+#modal[hidden] { display: none; }
+#modal { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-start; justify-content: center; padding: 40px 20px; overflow-y: auto; }
+#modal .mback { position: fixed; inset: 0; background: rgba(19, 23, 26, .45); }
+#modal .mbox { position: relative; background: var(--bg); border-radius: 20px; width: min(980px, 100%); box-shadow: 0 24px 60px rgba(19,23,26,.3); }
+#modal .mhead { display: flex; align-items: center; gap: 10px; padding: 16px 20px; background: #fff; border-radius: 20px 20px 0 0; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 2; }
+#modal .mkind { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+#modal .mx { margin-left: auto; width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border); background: #fff; cursor: pointer; font-size: 20px; line-height: 1; color: var(--ink-2); }
+#modal .mbody { padding: 22px 24px 26px; }
+#modal .mtitle h2 { font-size: 26px; font-weight: 800; }
+#modal .mtitle p { margin: 6px 0 18px; color: var(--ink-2); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+#modal .kpis { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+#modal .kpi { padding: 16px; box-shadow: var(--shadow); }
+#modal .kpi .val { font-size: 30px; }
+#modal .flows { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+#modal .hb { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 32px; }
+#modal .mfoot { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; font-size: 13px; }
+
+/* Rotina da fila */
+.rotina { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
+.rotina div { background: #fff; border-radius: 14px; box-shadow: var(--shadow); padding: 14px 16px; font-size: 13px; color: var(--ink-2); line-height: 1.45; }
+.rotina b { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-h); margin-bottom: 4px; }
+.rotina b i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.rotina .seta { color: var(--ink-4); }
+
+/* Tratamento no painel lateral */
+.trat { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.trat h3 { font-size: 15px; margin-bottom: 10px; }
+.steps { display: flex; gap: 6px; margin-bottom: 14px; }
+.steps span { flex: 1; text-align: center; font-size: 12px; font-weight: 700; padding: 6px 4px; border-radius: 8px; background: var(--surface-2); color: var(--ink-3); }
+.steps span.done { background: var(--primary-soft); color: #1E4FB5; }
+.steps span.cur { background: var(--primary); color: #fff; }
+.steps span.cur.aberto { background: var(--alert); }
+.trat label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--ink-2); margin-bottom: 10px; }
+.trat select, .trat textarea { border: 1px solid var(--border); border-radius: 10px; background: #fff; padding: 8px 10px; font-size: 14px; font-family: inherit; }
+.trat textarea { min-height: 70px; resize: vertical; }
+.trat .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.btn.primary:hover { background: #2F5FCC; color: #fff; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.trat .res { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 6px 10px; font-size: 13px; margin-bottom: 12px; }
+.trat .res dt { color: var(--ink-3); } .trat .res dd { margin: 0; }
+.hist2 { list-style: none; padding: 0; margin: 10px 0 0; font-size: 12px; color: var(--ink-2); border-left: 2px solid var(--line); }
+.hist2 li { padding: 2px 0 8px 12px; }
+.hist2 b { color: var(--ink-h); }
+.demo { font-size: 11.5px; color: var(--ink-3); margin-top: 10px; }
+@media (max-width: 900px) { .rotina { grid-template-columns: minmax(0, 1fr); } #modal { padding: 0; } #modal .mbox { border-radius: 0; min-height: 100vh; } #modal .mhead { border-radius: 0; } }
+.card-h .legend { grid-column: 1 / -1; grid-row: auto; justify-self: start; margin-top: 8px; white-space: normal; font-weight: 500; }
+
+/* logo vertical (pacote GerencIA-logo-A, versão negativo); no celular, só o símbolo */
+.brand { align-items: center; gap: 0; padding: 4px 0 8px; }
+.logo-v { width: 196px; height: auto; display: block; }
+.logo-m { display: none; width: 34px; height: 34px; }
+@media (max-width: 900px) { .brand { padding: 0; } .logo-v { display: none; } .logo-m { display: block; } }
+
+/* ===== v7: menu lateral enxuto e proporcional à largura da janela ===== */
+.app { grid-template-columns: clamp(176px, 15vw, 220px) minmax(0, 1fr); }
+.side { padding: clamp(16px, 1.6vw, 22px) clamp(10px, 1vw, 14px); gap: clamp(14px, 1.6vw, 22px); }
+.brand { align-items: center; gap: 6px; padding: 2px 0 4px; }
+.logo-v { width: clamp(88px, 7.5vw, 116px); }
+.brand .tag { font-size: clamp(10px, .75vw, 11px); line-height: 1.3; color: var(--side-muted); text-align: center; letter-spacing: .01em; }
+.nav { gap: 2px; }
+.nav a { gap: 10px; padding: clamp(7px, .6vw, 9px) 10px; font-size: clamp(12.5px, .9vw, 13.5px); border-radius: 8px; }
+.nav a svg { width: 16px; height: 16px; }
+.nav .badge { font-size: 11px; padding: 1px 7px; }
+.nav .subnav { margin-left: 26px; }
+.nav .subnav a { font-size: clamp(12px, .85vw, 13px); padding: 6px 10px; }
+.side-sec { font-size: 10px; letter-spacing: .12em; margin-bottom: 8px; padding: 0 2px; }
+.fontes { padding: 10px; gap: 7px; border-radius: 10px; }
+.fontes a { font-size: 12.5px; }
+.fontes a b { font-size: 14px; }
+.fontes .cap { font-size: 11px; }
+.fbar { height: 4px; }
+.disc { font-size: 11px; }
+/* conteúdo acompanha a largura da janela */
+main { padding: clamp(18px, 2.2vw, 28px) clamp(16px, 2.4vw, 32px) 48px; }
+.head h1 { font-size: clamp(24px, 2.4vw, 34px); }
+.hero { padding: clamp(18px, 2vw, 28px); gap: clamp(14px, 1.6vw, 24px); }
+.hero h2 { font-size: clamp(20px, 1.9vw, 28px); }
+.hero .m .v b { font-size: clamp(28px, 2.6vw, 40px); }
+.kpi .val { font-size: clamp(28px, 2.6vw, 40px); }
+.kpis { grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+@media (max-width: 1100px) { .g-3-1 { grid-template-columns: minmax(0, 1fr); } .split { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 900px) { .app { grid-template-columns: minmax(0, 1fr); } .side { padding: 10px 14px; gap: 12px; } .brand .tag { display: none; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><svg class="logo-v" role="img" aria-label="GerencIA — Rastreabilidade e Governança" xmlns="http://www.w3.org/2000/svg" viewBox="34 30 498 312"><g transform="translate(183.05 25.00) scale(1.66667)"><line x1="76" y1="76" x2="104" y2="104" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round"/><circle cx="52" cy="52" r="34" fill="none" stroke="#5B8DEF" stroke-width="18"/><rect x="40" y="40" width="24" height="24" rx="4" fill="#9CC5FA"/></g><path fill="#FFFFFF" d="M84.512 335.896Q74.32 335.896 66.728 332.516Q59.135999999999996 329.136 54.196 323.41600000000005Q49.256 317.696 46.864000000000004 310.728Q44.472 303.76 44.472 296.79200000000003V294.504Q44.472 287.32800000000003 46.864000000000004 280.46400000000006Q49.256 273.6 54.092 267.98400000000004Q58.928 262.36800000000005 66.156 259.04Q73.384 255.71200000000002 82.848 255.71200000000002Q93.144 255.71200000000002 101.048 259.50800000000004Q108.952 263.30400000000003 113.73599999999999 270.01200000000006Q118.52 276.72 119.24799999999999 285.56H102.19200000000001Q101.568 281.40000000000003 98.916 278.28000000000003Q96.264 275.16 92.156 273.39200000000005Q88.048 271.624 82.848 271.624Q77.856 271.624 73.95599999999999 273.39200000000005Q70.056 275.16 67.3 278.384Q64.544 281.608 63.14 286.028Q61.736000000000004 290.44800000000004 61.736000000000004 295.752Q61.736000000000004 301.264 63.244 305.788Q64.752 310.312 67.66399999999999 313.588Q70.576 316.86400000000003 74.892 318.63200000000006Q79.208 320.40000000000003 84.512 320.40000000000003Q91.584 320.40000000000003 96.78399999999999 317.488Q100.112 315.61600000000004 102.19200000000001 313.016V306.672H82.328V294.40000000000003H124.136V306.672H117.896V319.56800000000004Q113.008 327.47200000000004 104.428 331.684Q95.848 335.896 84.512 335.896Z"/><path fill="#FFFFFF" d="M157.32799999999997 335.896Q150.048 335.896 144.48399999999998 333.4Q138.92 330.904 135.228 326.692Q131.536 322.48 129.612 317.228Q127.68799999999999 311.976 127.68799999999999 306.464V304.384Q127.68799999999999 298.664 129.612 293.41200000000003Q131.536 288.16 135.176 284.0Q138.816 279.84000000000003 144.276 277.396Q149.736 274.952 156.70399999999998 274.952Q165.856 274.952 172.148 279.06Q178.44 283.168 181.768 289.77200000000005Q185.096 296.37600000000003 185.096 304.17600000000004V309.79200000000003H143.49599999999998Q143.808 312.288 144.64 314.368Q146.096 318.216 149.216 320.29600000000005Q152.33599999999998 322.37600000000003 157.32799999999997 322.37600000000003Q161.904 322.37600000000003 164.81599999999997 320.60800000000006Q167.72799999999998 318.84000000000003 168.76799999999997 316.24H184.05599999999998Q182.808 321.96000000000004 179.168 326.432Q175.528 330.904 170.016 333.4Q164.504 335.896 157.32799999999997 335.896ZM143.6 300.32800000000003H169.28799999999998Q168.976 297.93600000000004 168.144 295.96000000000004Q166.688 292.32 163.82799999999997 290.396Q160.968 288.47200000000004 156.70399999999998 288.47200000000004Q152.33599999999998 288.47200000000004 149.32 290.44800000000004Q146.304 292.42400000000004 144.744 296.168Q144.016 298.04 143.6 300.32800000000003Z"/><path fill="#FFFFFF" d="M193.12 333.92V276.928H206.328V295.752Q207.26399999999998 287.64 211.21599999999998 282.752Q216.31199999999998 276.20000000000005 226.088 276.20000000000005H228.272V290.552H224.112Q217.248 290.552 213.504 294.244Q209.76 297.93600000000004 209.76 304.904V333.92Z"/><path fill="#FFFFFF" d="M259.696 335.896Q252.416 335.896 246.852 333.4Q241.288 330.904 237.596 326.692Q233.904 322.48 231.98000000000002 317.228Q230.056 311.976 230.056 306.464V304.384Q230.056 298.664 231.98000000000002 293.41200000000003Q233.904 288.16 237.54399999999998 284.0Q241.184 279.84000000000003 246.644 277.396Q252.10399999999998 274.952 259.072 274.952Q268.224 274.952 274.51599999999996 279.06Q280.808 283.168 284.13599999999997 289.77200000000005Q287.464 296.37600000000003 287.464 304.17600000000004V309.79200000000003H245.864Q246.176 312.288 247.008 314.368Q248.464 318.216 251.584 320.29600000000005Q254.704 322.37600000000003 259.696 322.37600000000003Q264.272 322.37600000000003 267.18399999999997 320.60800000000006Q270.096 318.84000000000003 271.13599999999997 316.24H286.424Q285.176 321.96000000000004 281.536 326.432Q277.896 330.904 272.384 333.4Q266.872 335.896 259.696 335.896ZM245.968 300.32800000000003H271.656Q271.344 297.93600000000004 270.512 295.96000000000004Q269.056 292.32 266.196 290.396Q263.336 288.47200000000004 259.072 288.47200000000004Q254.704 288.47200000000004 251.688 290.44800000000004Q248.672 292.42400000000004 247.112 296.168Q246.38400000000001 298.04 245.968 300.32800000000003Z"/><path fill="#FFFFFF" d="M295.488 333.92V276.928H308.696V291.28000000000003Q309.216 288.88800000000003 310.048 286.808Q312.232 280.98400000000004 316.808 278.072Q321.384 275.16 327.93600000000004 275.16H328.664Q338.648 275.16 343.90000000000003 281.66Q349.15200000000004 288.16 349.15200000000004 301.368V333.92H332.512V300.432Q332.512 295.856 329.808 292.944Q327.10400000000004 290.03200000000004 322.528 290.03200000000004Q317.848 290.03200000000004 314.98800000000006 292.99600000000004Q312.12800000000004 295.96000000000004 312.12800000000004 300.744V333.92Z"/><path fill="#FFFFFF" d="M385.88 335.896Q378.496 335.896 373.036 333.452Q367.576 331.00800000000004 363.93600000000004 326.848Q360.296 322.688 358.528 317.43600000000004Q356.76 312.184 356.76 306.56800000000004V304.59200000000004Q356.76 298.76800000000003 358.632 293.41200000000003Q360.504 288.05600000000004 364.144 283.896Q367.784 279.736 373.244 277.344Q378.704 274.952 385.776 274.952Q393.472 274.952 399.4 277.916Q405.328 280.88 408.864 286.18399999999997Q412.4 291.488 412.81600000000003 298.35200000000003H396.488Q396.072 294.504 393.42 291.85200000000003Q390.76800000000003 289.20000000000005 385.776 289.20000000000005Q381.616 289.20000000000005 378.86 291.28000000000003Q376.104 293.36 374.75199999999995 297.0Q373.4 300.64 373.4 305.632Q373.4 310.208 374.648 313.90000000000003Q375.896 317.59200000000004 378.65200000000004 319.62Q381.408 321.648 385.88 321.648Q389.208 321.648 391.548 320.452Q393.88800000000003 319.25600000000003 395.29200000000003 317.124Q396.696 314.992 397.008 312.184H413.232Q412.92 319.25600000000003 409.28 324.612Q405.64 329.968 399.608 332.932Q393.576 335.896 385.88 335.896Z"/><path fill="#7DB3F7" d="M421.984 333.92V258.0H439.03999999999996V333.92Z"/><path fill="#7DB3F7" d="M446.128 333.92 471.192 258.0H498.752L524.752 333.92H507.072L500.93600000000004 315.096H469.216L463.184 333.92ZM496.25600000000003 300.952 486.79200000000003 271.93600000000004H482.944L473.688 300.952Z"/></svg><span class="tag">Rastreabilidade e governança</span><svg class="logo-m" role="img" aria-label="GerencIA" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120.00 120.00"><g transform="translate(0.00 0.00) scale(1.00000)"><line x1="76" y1="76" x2="104" y2="104" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round"/><circle cx="52" cy="52" r="34" fill="none" stroke="#5B8DEF" stroke-width="18"/><rect x="40" y="40" width="24" height="24" rx="4" fill="#9CC5FA"/></g></svg></div>
+    <nav class="nav" id="nav" aria-label="Navegação principal"></nav>
+    <div><div class="side-sec">Fonte dos eventos</div><div class="fontes" id="fontes"></div></div>
+    <div class="disc" id="disc"></div>
+  </aside>
+  <div class="content">
+    
+    <main id="main"></main>
+    <footer id="foot"></footer>
+  </div>
+</div>
+<div id="tip" hidden></div>
+<div id="modal" hidden></div>
+
+<script src="dados.js"></script>
+<script>
+"use strict";
+const E = window.EspIA;
+if (!E) {
+  document.getElementById('main').innerHTML = '<div class="card empty-state">Não encontrei o <b>dados.js</b> ao lado deste arquivo. Mantenha os arquivos do pacote na mesma pasta.</div>';
+  throw new Error('dados.js ausente');
+}
+
+// ---------------- constantes ----------------
+const RISCOS = ['Crítico', 'Alto', 'Médio', 'Baixo', 'REVISAR'];
+const RK = { 'Crítico': 'Critico', 'Alto': 'Alto', 'Médio': 'Medio', 'Baixo': 'Baixo', 'REVISAR': 'Revisar' };
+const RORD = { 'Crítico': 0, 'Alto': 1, 'Médio': 2, 'REVISAR': 3, 'Baixo': 4 };
+const SENS = ['Crítica', 'Confidencial', 'Interna', 'Pública'];
+const SK = { 'Crítica': 'Critica', 'Confidencial': 'Confidencial', 'Interna': 'Interna', 'Pública': 'Publica' };
+const STATUS_ALERTA = ['Aberto', 'Em análise', 'Tratado'];
+// Metas da aba Indicadores_Atuais da planilha oficial
+const META = { naoAprovada: 0.03, critico: 0.01 };
+const PER = E.meta.periodo;
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const COR = Object.fromEntries(RISCOS.map(r => [r, css('--sev-' + RK[r])]));
+
+// ---------------- índices ----------------
+const byId = (arr) => Object.fromEntries(arr.map(x => [x.id, x]));
+const FER = byId(E.ferramentas), TIP = byId(E.tipos), USR = byId(E.usuarios), EVT = byId(E.eventos), ALT = byId(E.alertas);
+E.eventos.forEach(e => {
+  const f = FER[e.ferramenta_id];
+  e.naoAprovada = f ? !f.aprovada : false;
+  // Fonte: tudo que veio da carga da planilha oficial tem ID EVT-; o resto é Coleta (recebido pelo coletor da GerencIA)
+  e.fonte = /^EVT-/.test(e.id) ? 'planilha' : 'coleta';
+  e.aoVivo = e.fonte === 'coleta';
+  e.sensivel = e.sensibilidade === 'Crítica' || e.sensibilidade === 'Confidencial';
+});
+E.alertas.forEach(a => {
+  const m = (a.ts || '').match(/(\d\d)\/(\d\d)\/(\d{4}) (\d\d:\d\d)/);
+  a.data = m ? `${m[3]}-${m[2]}-${m[1]}` : '';
+  a.iso = m ? `${a.data}T${m[4]}` : '';
+  const ev = EVT[a.evento_id];
+  a.ferramenta_id = ev ? ev.ferramenta_id : '';
+  a.fonte = ev ? ev.fonte : 'planilha';
+  a.informacao_id = ev ? ev.informacao_id : '';
+});
+const FONTE = {
+  planilha: { l: 'Planilha', full: 'Planilha oficial do desafio (carga legada)' },
+  coleta: { l: 'Coleta', full: 'Coleta — registrada pelo coletor da GerencIA' },
+};
+const srcTag = (f) => FONTE[f] ? `<span class="src ${f}" title="${esc(FONTE[f].full)}">${FONTE[f].l}</span>` : '';
+const AREAS = [...new Set(E.eventos.map(e => e.area))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+// ---------------- utilidades ----------------
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const num = (n) => Number(n || 0).toLocaleString('pt-BR');
+const pct = (x, d = 1) => (isFinite(x) ? (x * 100).toFixed(d).replace('.', ',') : '0') + '%';
+const norm = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+const dBR = (iso) => iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}` : '';
+const dtBR = (ts) => ts ? `${ts.slice(8, 10)}/${ts.slice(5, 7)}/${ts.slice(0, 4)} ${ts.slice(11, 16)}` : '';
+const riskChip = (r) => r ? `<span class="risk ${RK[r] || ''}">${esc(r)}</span>` : '';
+const clsChip = (s) => s ? `<span class="cls ${SK[s] || ''}">${esc(s)}</span>` : '';
+const ruleChip = (r) => r ? `<span class="rule">${esc(r)}</span>` : '';
+const nomeUsr = (id) => USR[id] ? USR[id].nome : 'não identificado';
+function stTag(fid) {
+  const f = FER[fid]; if (!f) return '';
+  const k = !f.aprovada ? 'nao' : (/condicional|apenas/i.test(f.status) ? 'cond' : 'ok');
+  return `<span class="st ${k}" title="${esc(f.status)}">${{ ok: 'Aprovada', cond: 'Condicional', nao: 'Não aprovada' }[k]}</span>`;
+}
+const tipAttr = (html) => ` data-tip="${esc(html)}"`;
+function addDays(iso, n) { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+function weekStart(iso) { const d = new Date(iso + 'T00:00:00Z'); const wd = (d.getUTCDay() + 6) % 7; d.setUTCDate(d.getUTCDate() - wd); return d.toISOString().slice(0, 10); }
+function niceMax(v) { if (v <= 0) return 1; const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * p >= v) return m * p; return 10 * p; }
+const count = (arr, fn) => arr.reduce((m, x) => { const k = fn(x); m[k] = (m[k] || 0) + 1; return m; }, {});
+
+// ---------------- roteamento (hash) ----------------
+// Cada tela e cada filtro tem endereço próprio: #/alertas?status=Aberto&area=Financeiro
+let route = { path: [], q: {} };
+const GF = ['fonte', 'de', 'ate', 'area', 'ferr', 'risco'];   // filtros globais (valem em todas as telas operacionais)
+function parseHash() {
+  const h = location.hash.replace(/^#/, '') || '/acompanhamento';
+  const [p, qs] = h.split('?');
+  route.path = p.split('/').filter(Boolean).map(decodeURIComponent);
+  if (!route.path.length) route.path = ['acompanhamento'];
+  route.q = Object.fromEntries(new URLSearchParams(qs || ''));
+}
+function href(path, q) {
+  const s = new URLSearchParams(Object.entries(q || {}).filter(([, v]) => v !== '' && v != null)).toString();
+  return '#/' + path.map(encodeURIComponent).join('/') + (s ? '?' + s : '');
+}
+const gq = () => Object.fromEntries(GF.filter(k => route.q[k]).map(k => [k, route.q[k]]));
+const link = (path, extra) => href(path, { ...gq(), ...(extra || {}) });
+function setQ(patch, keepPath = true) {
+  const q = { ...route.q, ...patch };
+  Object.keys(q).forEach(k => { if (q[k] === '' || q[k] == null) delete q[k]; });
+  location.hash = href(keepPath ? route.path : [], q);
+}
+
+// ---------------- filtros ----------------
+function fEventos(q = route.q) {
+  return E.eventos.filter(e =>
+    (!q.fonte || e.fonte === q.fonte) && (!q.de || e.data >= q.de) && (!q.ate || e.data <= q.ate) &&
+    (!q.area || e.area === q.area) && (!q.ferr || e.ferramenta_id === q.ferr) &&
+    (!q.risco || e.risco === q.risco));
+}
+function fAlertas(q = route.q) {
+  return E.alertas.filter(a =>
+    (!q.fonte || a.fonte === q.fonte) && (!q.de || a.data >= q.de) && (!q.ate || a.data <= q.ate) &&
+    (!q.area || a.area === q.area) && (!q.ferr || a.ferramenta_id === q.ferr) &&
+    (!q.risco || a.risco === q.risco));
+}
+// ---------------- filtros no cabeçalho da página ----------------
+let filtrosAbertos = false;
+function mountFilters(main) {
+  if (route.path[0] === 'governanca') return;
+  const head = main.querySelector('.head'); if (!head) return;
+  const q = route.q, fim = PER.fim;
+  const nF = count(E.eventos, e => e.fonte);
+  const presets = [['Tudo', '', ''], ['Últimos 30 dias', addDays(fim, -29), fim], ['Últimas 2 semanas', addDays(fim, -13), fim]];
+  const presetOn = (p) => (q.de || '') === p[1] && (q.ate || '') === p[2];
+  const nAvanc = ['area', 'ferr', 'risco'].filter(k => q[k]).length + ((q.de || q.ate) && !presets.some(presetOn) ? 1 : 0);
+  const opt = (v, l, cur) => `<option value="${esc(v)}" ${v === (cur || '') ? 'selected' : ''}>${esc(l)}</option>`;
+  head.insertAdjacentHTML('beforeend', `<div class="hctl">
+    <div class="seg" role="group" aria-label="Fonte">${[['', 'Todas', E.eventos.length], ['planilha', 'Planilha', nF.planilha || 0], ['coleta', 'Coleta', nF.coleta || 0]].map(([v, l, n]) => `<button type="button" data-fonte="${v}" aria-pressed="${(q.fonte || '') === v}">${l} <span>${n}</span></button>`).join('')}</div>
+    <div class="seg" role="group" aria-label="Período">${presets.map(p => `<button type="button" data-de="${p[1]}" data-ate="${p[2]}" aria-pressed="${presetOn(p)}">${p[0]}</button>`).join('')}</div>
+    <button type="button" class="fbtn" id="f-mais" aria-expanded="${filtrosAbertos}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>Área · Ferramenta · Risco${nAvanc ? `<span class="n">${nAvanc}</span>` : ''}</button>
+  </div>`);
+  const chips = [];
+  if (q.fonte) chips.push([`Fonte: ${FONTE[q.fonte] ? FONTE[q.fonte].l : q.fonte}`, 'fonte']);
+  if (q.de || q.ate) chips.push([`Período: ${q.de ? dBR(q.de) : 'início'} a ${q.ate ? dBR(q.ate) : 'fim'}`, 'de,ate']);
+  if (q.area) chips.push([`Área: ${q.area}`, 'area']);
+  if (q.ferr) chips.push([`Ferramenta: ${FER[q.ferr] ? FER[q.ferr].nome : q.ferr}`, 'ferr']);
+  if (q.risco) chips.push([`Risco: ${q.risco}`, 'risco']);
+  let after = '';
+  if (filtrosAbertos) after += `<div class="fpanel">
+    <label>Área<select id="f-area">${opt('', 'Todas', q.area)}${AREAS.map(a => opt(a, a, q.area)).join('')}</select></label>
+    <label>Ferramenta<select id="f-ferr">${opt('', 'Todas', q.ferr)}${E.ferramentas.map(f => opt(f.id, f.nome, q.ferr)).join('')}</select></label>
+    <label>Risco<select id="f-risco">${opt('', 'Todos', q.risco)}${RISCOS.map(r => opt(r, r, q.risco)).join('')}</select></label>
+    <label>De<input type="date" id="f-de" value="${esc(q.de || '')}" min="${PER.inicio}" max="${fim}"></label>
+    <label>Até<input type="date" id="f-ate" value="${esc(q.ate || '')}" min="${PER.inicio}" max="${fim}"></label>
+  </div>`;
+  if (chips.length) after += `<div class="chips">${chips.map(([l, k]) => `<span class="chip">${esc(l)}<button type="button" data-clear="${k}" aria-label="Remover filtro">×</button></span>`).join('')}<button class="linkbtn" type="button" data-clear="fonte,de,ate,area,ferr,risco">Limpar todos</button></div>`;
+  if (after) head.insertAdjacentHTML('afterend', after);
+  const reset = { page: '', sel: '' };
+  main.querySelectorAll('.hctl [data-fonte]').forEach(b => b.onclick = () => setQ({ fonte: b.dataset.fonte, ...reset }));
+  main.querySelectorAll('.hctl [data-de]').forEach(b => b.onclick = () => setQ({ de: b.dataset.de, ate: b.dataset.ate, ...reset }));
+  main.querySelector('#f-mais').onclick = () => { filtrosAbertos = !filtrosAbertos; render(); };
+  const on = (id, k) => { const el = main.querySelector(id); if (el) el.onchange = () => setQ({ [k]: el.value, ...reset }); };
+  on('#f-area', 'area'); on('#f-ferr', 'ferr'); on('#f-risco', 'risco'); on('#f-de', 'de'); on('#f-ate', 'ate');
+  main.querySelectorAll('[data-clear]').forEach(b => b.onclick = () => setQ({ ...Object.fromEntries(b.dataset.clear.split(',').map(k => [k, ''])), ...reset }));
+}
+
+// ---------------- navegação (menu lateral) ----------------
+const ICON = {
+  acompanhamento: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
+  investigar: '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
+  alertas: '<svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 10v4"/><path d="M12 17v.5"/></svg>',
+  governanca: '<svg viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg>',
+};
+function renderNav() {
+  const pend = fAlertas().filter(a => a.status !== 'Tratado').length;
+  const items = [['acompanhamento', 'Acompanhamento', ''], ['investigar', 'Investigar', ''], ['alertas', 'Alertas', pend ? `<span class="badge">${pend}</span>` : ''], ['governanca', 'Governança', '']];
+  document.getElementById('nav').innerHTML = items.map(([k, l, n]) =>
+    `<a href="${k === 'governanca' ? href([k], {}) : link([k])}" ${route.path[0] === k ? 'aria-current="page"' : ''}>${ICON[k]}<span style="flex:1">${l}</span>${n}</a>`).join('');
+  const nF = count(E.eventos, e => e.fonte);
+  const tot = E.eventos.length || 1;
+  const ultReal = E.eventos.filter(e => e.fonte === 'coleta').reduce((m, e) => e.ts > m ? e.ts : m, '');
+  const alvo = route.path[0] === 'governanca' ? ['acompanhamento'] : route.path;
+  const fa = (k, label) => `<a href="${href(alvo, { ...route.q, fonte: route.q.fonte === k ? '' : k, page: '', sel: '' })}" aria-pressed="${route.q.fonte === k}"><span>${label}</span><b>${num(nF[k] || 0)}</b></a>`;
+  document.getElementById('fontes').innerHTML =
+    fa('planilha', 'Planilha') +
+    `<div class="fbar"><i style="width:${((nF.planilha || 0) / tot * 100).toFixed(1)}%"></i></div>` +
+    fa('coleta', '<span class="dot"></span>Coleta') +
+    `<div class="cap">Planilha: carga legada da base oficial. Coleta: registrada pelo coletor da GerencIA${ultReal ? ` · última captura ${dtBR(ultReal)}` : ''}</div>`;
+  // o status do coletor fica no bloco “Fonte dos eventos” do menu lateral
+}
+
+// ---------------- busca (topo e Investigar) ----------------
+const INDEX = [
+  ...E.tipos.map(t => ({ k: 'informação', label: t.nome, sub: t.classificacao, path: ['investigar', 'info', t.id] })),
+  ...E.usuarios.map(u => ({ k: 'pessoa', label: u.nome, sub: `${u.area} · ${u.cargo}`, path: ['investigar', 'pessoa', u.id] })),
+  ...E.ferramentas.map(f => ({ k: 'ferramenta', label: f.nome, sub: f.status, path: ['investigar', 'ferramenta', f.id] })),
+  ...AREAS.map(a => ({ k: 'área', label: a, sub: '', path: ['investigar', 'area', a] })),
+].map(x => ({ ...x, n: norm(x.label + ' ' + x.sub + ' ' + x.path[2]) }));
+function suggest(q) {
+  const t = norm(q).trim(); if (!t) return [];
+  const id = t.toUpperCase();
+  const out = [];
+  if (/^(EVT|CAP)-/.test(id)) E.eventos.filter(e => e.id.startsWith(id)).slice(0, 6).forEach(e => out.push({ k: 'evento', label: e.id, sub: `${e.informacao} · ${e.ferramenta}`, path: ['investigar', 'evento', e.id] }));
+  if (/^ALT-/.test(id)) E.alertas.filter(a => a.id.startsWith(id)).slice(0, 6).forEach(a => out.push({ k: 'alerta', label: a.id, sub: `${a.informacao} · ${a.status}`, path: ['alertas'], q: { status: 'Todos', sel: a.id } }));
+  const words = t.split(/\s+/);
+  INDEX.filter(x => words.every(w => x.n.includes(w))).slice(0, 12).forEach(x => out.push(x));
+  return out;
+}
+function attachSearch(input, box) {
+  let items = [], on = -1;
+  const draw = () => {
+    items = suggest(input.value);
+    if (!input.value.trim()) { box.hidden = true; return; }
+    box.hidden = false;
+    box.innerHTML = items.length ? items.map((x, i) =>
+      `<a href="${x.q ? href(x.path, x.q) : link(x.path)}" class="${i === on ? 'on' : ''}"><span class="k">${esc(x.k)}</span><span>${esc(x.label)} <span class="muted small">${esc(x.sub)}</span></span></a>`).join('')
+      : '<div class="empty">Nada encontrado. Tente o nome de uma informação (ex.: “contrato”), pessoa, ferramenta, área ou um ID (EVT-00010, ALT-0002).</div>';
+  };
+  input.addEventListener('input', () => { on = -1; draw(); });
+  input.addEventListener('focus', draw);
+  input.addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowDown') { on = Math.min(items.length - 1, on + 1); draw(); ev.preventDefault(); }
+    else if (ev.key === 'ArrowUp') { on = Math.max(0, on - 1); draw(); ev.preventDefault(); }
+    else if (ev.key === 'Enter') { const x = items[on < 0 ? 0 : on]; if (x) { box.hidden = true; input.blur(); if (x.path[0] === 'investigar' && x.path[1]) openModal(x.path[1], x.path[2]); else location.hash = x.q ? href(x.path, x.q) : link(x.path); } }
+    else if (ev.key === 'Escape') { box.hidden = true; input.blur(); }
+  });
+  input.addEventListener('blur', () => setTimeout(() => { box.hidden = true; }, 150));
+}
+
+// ---------------- gráficos ----------------
+function weeksOf(de, ate) {
+  const out = []; let w = weekStart(de);
+  while (w <= ate) { out.push(w); w = addDays(w, 7); }
+  return out;
+}
+function seriesSemanal(evs) {
+  const de = route.q.de || PER.inicio, ate = route.q.ate || PER.fim;
+  const ws = weeksOf(de, ate);
+  const map = Object.fromEntries(ws.map(w => [w, { w, fim: addDays(w, 6), total: 0, nao: 0, sens: 0, ...Object.fromEntries(RISCOS.map(r => [r, 0])) }]));
+  evs.forEach(e => { const s = map[weekStart(e.data)]; if (!s) return; s.total++; s[e.fonte] = (s[e.fonte] || 0) + 1; s[e.risco] = (s[e.risco] || 0) + 1; if (e.naoAprovada) s.nao++; if (e.sensivel) s.sens++; });
+  return ws.map(w => { const s = map[w]; s.parcial = s.fim > PER.fim || w < PER.inicio; return s; });
+}
+function spark(vals, color, o = {}) {
+  if (vals.length < 2) return '';
+  const W = 280, H = 44;
+  const mx = o.max != null ? o.max : Math.max(...vals, 1e-9), mn = o.min != null ? o.min : Math.min(...vals);
+  const y = (v) => (H - 4 - (Math.min(v, mx) - mn) / ((mx - mn) || 1) * (H - 8)).toFixed(1);
+  const pts = vals.map((v, i) => `${(i * W / (vals.length - 1)).toFixed(1)},${y(v)}`).join(' ');
+  const meta = o.meta != null ? `<line x1="0" x2="${W}" y1="${y(o.meta)}" y2="${y(o.meta)}" stroke="${css('--ink-4')}" stroke-width="1.5" stroke-dasharray="4 4"/>` : '';
+  return `<svg class="sp" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">${meta}<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
+}
+function chartLinhaMeta(el, weeks) {
+  // viewBox fixo, como na referência; a escala usa só as semanas completas
+  const W = 560, H = 220, m = { l: 40, r: 10, t: 30, b: 30 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const vals = weeks.map(s => s.total ? s.nao / s.total : 0);
+  const completos = vals.filter((v, i) => !weeks[i].parcial);
+  const mx = Math.min(1, Math.max(0.05, niceMax(Math.max(...(completos.length ? completos : vals), META.naoAprovada) * 1.1)));
+  const step = weeks.length > 1 ? iw / (weeks.length - 1) : 0;
+  const x = (i) => m.l + (weeks.length > 1 ? i * step : iw / 2);
+  const y = (v) => m.t + ih - Math.min(v, mx) / mx * ih;
+  const crit = css('--primary');
+  const nt = Math.round(mx * 100) % 4 === 0 ? 4 : 5;
+  let g = `<rect x="${m.l}" y="${y(META.naoAprovada)}" width="${iw}" height="${y(0) - y(META.naoAprovada)}" fill="${css('--surface-2')}"/>`;
+  for (let i = 0; i <= nt; i++) { const v = mx * i / nt; g += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}" stroke="${i ? css('--line-2') : css('--border')}"/><text x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end">${pct(v, 0)}</text>`; }
+  g += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(META.naoAprovada)}" y2="${y(META.naoAprovada)}" stroke="${css('--ink-4')}" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  g += `<text x="${W - m.r - 4}" y="${y(0) - 6}" text-anchor="end" style="fill:${css('--ink-2')};font-weight:700">meta &lt; 3%</text>`;
+  for (let i = 1; i < weeks.length; i++) {
+    const parc = weeks[i].parcial || weeks[i - 1].parcial;
+    g += `<line x1="${x(i - 1)}" y1="${y(vals[i - 1])}" x2="${x(i)}" y2="${y(vals[i])}" stroke="${crit}" stroke-width="${parc ? 2 : 2.5}" stroke-linecap="round" ${parc ? 'stroke-dasharray="4 4"' : ''}/>`;
+  }
+  const every = Math.max(1, Math.ceil(weeks.length / 5));
+  weeks.forEach((s, i) => {
+    const v = vals[i];
+    const tip = `<b>Semana de ${dBR(s.w)}</b>${s.parcial ? ' (parcial, poucos eventos)' : ''}<br>${pct(v)} em ferramenta não aprovada<br>${s.nao} de ${s.total} eventos<br>${v >= META.naoAprovada ? '▲ acima' : '✓ dentro'} da meta de 3%`;
+    const hw = weeks.length > 1 ? step : iw;
+    g += `<g class="hov"${tipAttr(tip)}><rect class="hit" x="${x(i) - hw / 2}" y="${m.t}" width="${hw}" height="${ih}"/><line class="x" x1="${x(i)}" x2="${x(i)}" y1="${m.t}" y2="${m.t + ih}"/>
+      <circle cx="${x(i)}" cy="${y(v)}" r="${s.parcial ? 4 : 3}" fill="${s.parcial ? '#fff' : crit}" stroke="${crit}" stroke-width="${s.parcial ? 2 : 0}"/></g>`;
+    if (v > mx) g += `<text x="${x(i) - 8}" y="${y(v) - 8}" text-anchor="end" style="fill:${css('--primary')};font-weight:700">↑ ${pct(v, 0)} (${s.total} eventos)</text>`;
+    if (i % every === 0 || i === weeks.length - 1) g += `<text x="${x(i)}" y="${H - 8}" text-anchor="${i === 0 ? 'start' : i === weeks.length - 1 ? 'end' : 'middle'}">${dBR(s.w)}</text>`;
+  });
+  el.innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Percentual semanal de eventos em ferramenta não aprovada, com meta de 3%">${g}</svg>`;
+}
+// barras horizontais em HTML: rows = [{label, sub, total, segs:[{v, color, name}], href}]
+function hbars(rows, opts = {}) {
+  if (!rows.length) return '<div class="empty-state">Sem eventos no recorte.</div>';
+  const mx = Math.max(...rows.map(r => r.total), 1);
+  return `<div class="hb">${rows.map(r => {
+    const segs = (r.segs || [{ v: r.total, color: 'var(--bar)' }]).filter(s => s.v > 0);
+    const tip = `<b>${esc(r.label)}</b><br>` + (r.segs ? r.segs.filter(s => s.v).map(s => `<div class="row"><span><i style="background:${s.color}"></i>${esc(s.name)}</span><b>${s.v}</b></div>`).join('') : '') + `<div class="row"><span>Total</span><b>${r.total}</b></div>`;
+    const bars = segs.map(s => `<i style="width:${(s.v / mx * 100).toFixed(2)}%;background:${s.color}"></i>`).join('');
+    const inner = `<span class="l">${esc(r.label)}${r.sub ? `<small>${r.sub}</small>` : ''}</span><span class="t"${tipAttr(tip)}>${bars}</span><span class="v">${num(r.total)}</span>`;
+    return r.href ? `<a class="row" href="${r.href}">${inner}</a>` : inner;
+  }).join('')}</div>`;
+}
+const legendaRisco = (only) => `<div class="legend">${RISCOS.filter(r => !only || only.includes(r)).map(r => `<span><i style="background:${COR[r]}"></i>${r}</span>`).join('')}</div>`;
+
+// ---------------- evidência (compartilhada) ----------------
+function evidencia(e, a) {
+  if (!e) return '<div class="empty-state">Evento não encontrado.</div>';
+  const u = USR[e.usuario_id], f = FER[e.ferramenta_id];
+  const chain = (e.achados || []).map((x, i) => `<li class="${RK[x.nivel] || ''}"><b>${i === 0 ? 'Decidiu: ' : 'Também se aplica: '}${esc(x.regra)} · ${esc(x.titulo)} ${riskChip(x.nivel)}</b>${esc(x.motivo)}<div class="acao">Ação: ${esc(x.acao)}</div></li>`).join('');
+  return `<div class="ev">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${riskChip(e.risco)} ${ruleChip(e.regra)} ${srcTag(e.fonte)} <span class="muted small mono" style="margin-left:auto">${esc(e.id)}${a ? ' · ' + esc(a.id) : ''}</span></div>
+    <dl>
+      <dt>Fonte</dt><dd>${srcTag(e.fonte)} <span class="muted small">${esc(FONTE[e.fonte].full)}</span></dd>
+      <dt>Quem</dt><dd><a href="${link(['investigar', 'pessoa', e.usuario_id])}">${esc(nomeUsr(e.usuario_id))}</a><span class="muted small"> · ${esc(e.area)}${u ? ' · ' + esc(u.cargo) : ''}</span></dd>
+      <dt>Onde</dt><dd><a href="${link(['investigar', 'ferramenta', e.ferramenta_id])}">${esc(f ? f.nome : e.ferramenta)}</a><br>${stTag(e.ferramenta_id)}</dd>
+      <dt>Quando</dt><dd class="mono">${dtBR(e.ts)}${e.fora_horario ? ' <span class="muted small">(fora do horário)</span>' : ''}</dd>
+      <dt>O quê</dt><dd><a href="${link(['investigar', 'info', e.informacao_id])}">${esc(e.informacao)}</a> ${clsChip(e.sensibilidade)}</dd>
+      <dt>Como</dt><dd>${esc(e.forma_uso)} · ${num(e.qtd)} item(ns)</dd>
+      <dt>Para quê</dt><dd>${esc(e.finalidade)}</dd>
+      <dt>Registro</dt><dd>${esc(e.origem)} <span class="muted small">(origem do registro)</span></dd>
+      ${a ? `<dt>Alerta</dt><dd>${esc(a.status)} · ${esc(a.responsavel)}</dd>` : ''}
+    </dl>
+    <h3 style="font-size:13.5px">Por que isto é risco</h3>
+    <ol class="chain">${chain || '<li>Sem achados registrados.</li>'}</ol>
+    ${e.evidencia_base ? `<p class="note mt">Evidência registrada na origem: ${esc(e.evidencia_base)}</p>` : ''}
+    ${e.divergente && e.risco_base ? `<p class="note">A base trazia <b>${esc(e.risco_base)}</b> (${esc(e.regra_base)}); o motor apurou <b>${esc(e.risco)}</b> (${esc(e.regra)}). Detalhes em Governança → Auditoria.</p>` : ''}
+    <div class="linkrow"><a href="${link(['investigar', 'info', e.informacao_id])}">Onde mais esta informação foi usada →</a><a href="${link(['investigar', 'evento', e.id])}">Abrir evento →</a></div>
+  </div>`;
+}
+
+// =====================================================================
+// ACOMPANHAMENTO — hero de metas, cards e gráficos (layout Grafite)
+// =====================================================================
+let semanaSel = null;   // semana destacada no gráfico (índice)
+const SVGI = {
+  pulso: '<svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>',
+  cadeado: '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  sino: '<svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21h4"/></svg>',
+  pessoas: '<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14.5c2 .6 3.2 2.6 3.5 5.5"/></svg>',
+  alerta: '<svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 10v4"/><path d="M12 17v.5"/></svg>',
+  info: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#697077" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8v.5"/></svg>',
+};
+function vistaAcompanhamento(main) {
+  const evs = fEventos(), als = fAlertas();
+  const total = evs.length;
+  const weeks = seriesSemanal(evs);
+  const fechadas = weeks.filter(s => !s.parcial && s.total);
+  const nCrit = evs.filter(e => e.sensibilidade === 'Crítica').length;
+  const nConf = evs.filter(e => e.sensibilidade === 'Confidencial').length;
+  const sens = nCrit + nConf;
+  const nao = evs.filter(e => e.naoAprovada).length;
+  const crit = evs.filter(e => e.risco === 'Crítico').length;
+  const alto = evs.filter(e => e.risco === 'Alto').length;
+  const pend = als.filter(a => a.status !== 'Tratado');
+  const pessoas = new Set(evs.map(e => e.usuario_id)).size;
+  const areas = new Set(evs.map(e => e.area)).size;
+  const semAlerta = evs.filter(e => !E.alertas.some(a => a.evento_id === e.id) && (e.risco === 'Crítico' || e.risco === 'Alto')).length;
+  const nFonte = count(evs, e => e.fonte);
+  const stAl = count(als, a => a.status), rpAl = count(pend, a => a.responsavel);
+  const pNao = total ? nao / total : 0, pCrit = total ? crit / total : 0;
+
+  // ---- hero: o que está fora da meta ----
+  const ESC = 0.25;   // escala das barras do hero: 0 a 25%
+  const foraNao = pNao >= META.naoAprovada, foraCrit = pCrit >= META.critico, foraSem = semAlerta > 0;
+  const nFora = [foraNao, foraCrit, foraSem].filter(Boolean).length;
+  const motivo = [foraNao && 'uso em ferramenta não aprovada', foraCrit && 'eventos críticos', foraSem && 'eventos de risco alto sem alerta aberto'].filter(Boolean);
+  const metaCard = (l, v, metaTxt, fora, w, mark, foot) => `<div class="m"><div class="l">${l}</div>
+    <div class="v"><b>${v}</b><span class="${fora ? '' : 'ok'}">${metaTxt}</span></div>
+    ${w != null ? `<div class="track"><i class="${fora ? '' : 'ok'}" style="width:${Math.min(100, w * 100).toFixed(1)}%"></i><u style="left:${(mark * 100).toFixed(1)}%"></u></div>` : ''}
+    ${foot}</div>`;
+  const hero = `<section class="hero" aria-label="Metas">
+    <div class="lead">
+      <span class="flag ${nFora ? '' : 'ok'}">${nFora ? SVGI.alerta.replace('<svg', '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"') + 'Atenção' : '✓ Dentro da meta'}</span>
+      <h2>${nFora ? `${nFora} indicador${nFora > 1 ? 'es' : ''} fora do limite no período` : 'Todos os indicadores dentro do limite'}</h2>
+      <p>${nFora ? `Fora da meta: ${motivo.join(', ')}.` : 'Nenhum indicador acompanhado está acima da meta no recorte atual.'}</p>
+    </div>
+    ${metaCard('Em ferramenta não aprovada', pct(pNao), 'meta &lt; 3%', foraNao, pNao / ESC, META.naoAprovada / ESC, `<div class="f">${num(nao)} eventos${foraNao && META.naoAprovada ? ` · ${(pNao / META.naoAprovada).toFixed(1).replace('.', ',')}× a meta` : ''} · escala até 25%</div>`)}
+    ${metaCard('Eventos de risco crítico', pct(pCrit), 'meta &lt; 1%', foraCrit, pCrit / ESC, META.critico / ESC, `<div class="f">${num(crit)} eventos${foraCrit ? ` · ${Math.round(pCrit / META.critico)}× a meta` : ''}</div>`)}
+    ${metaCard('Risco alto/crítico sem alerta', num(semAlerta), 'meta: 0', foraSem, null, 0, `<a class="go" href="${link(['alertas'], { status: 'sem' })}">Abrir eventos sem alerta →</a>`)}
+  </section>`;
+
+  // ---- cards ----
+  const kpi = (lab, right, val, foot, extra, hrefTo) => `<${hrefTo ? `a href="${hrefTo}"` : 'article'} class="kpi">
+      <div class="kpi-top"><span class="lab">${lab}</span>${right}</div>
+      <div class="val">${val}</div>${foot ? `<div class="foot">${foot}</div>` : ''}${extra || ''}</${hrefTo ? 'a' : 'article'}>`;
+  const ico = (k) => `<span class="ico">${SVGI[k]}</span>`;
+  const metaTag = (v, meta) => v >= meta ? `<span class="meta fora">▲ acima da meta &lt; ${pct(meta, 0)}</span>` : `<span class="meta dentro">✓ dentro da meta</span>`;
+  const wv = (fn) => fechadas.map(fn);
+  const cards = `<section class="kpis" aria-label="Indicadores">
+    ${kpi('Eventos de uso de IA', ico('pulso'), num(total), `<span class="pill-n">Planilha ${num(nFonte.planilha || 0)}</span><span class="src coleta">Coleta ${num(nFonte.coleta || 0)}</span>`, spark(wv(s => s.total), css('--spark')), link(['investigar']))}
+    ${kpi('Com informação confidencial ou crítica', ico('cadeado'), pct(total ? sens / total : 0), `${num(sens)} de ${num(total)} eventos`,
+      `<div class="stack"><i style="width:${total ? nCrit / total * 100 : 0}%;background:var(--sens-crit)"></i><i style="width:${total ? nConf / total * 100 : 0}%;background:var(--sens-conf)"></i></div>
+       <div class="legend" style="margin-top:0"><span><i style="background:var(--sens-crit)"></i>Crítica ${num(nCrit)}</span><span><i style="background:var(--sens-conf)"></i>Confidencial ${num(nConf)}</span></div>`)}
+    ${kpi('Em ferramenta não aprovada', metaTag(pNao, META.naoAprovada), pct(pNao), `${num(nao)} eventos · ${fechadas.length} semanas fechadas`, spark(wv(s => s.nao / s.total), css('--primary'), { min: 0, max: ESC, meta: META.naoAprovada }), href(['governanca', 'inventario'], {}))}
+    ${kpi('Eventos de risco crítico', metaTag(pCrit, META.critico), `${num(crit)}<small>${pct(pCrit)}</small>`, `${num(alto)} de risco alto · críticos por semana`, spark(wv(s => s['Crítico']), css('--primary')), link(['investigar'], { risco: 'Crítico' }))}
+    ${kpi('Alertas pendentes', ico('sino'), num(pend.length), `de ${num(als.length)} alertas no recorte`,
+      `<div class="stack">${[['Aberto', 'var(--st-aberto)'], ['Em análise', 'var(--st-analise)'], ['Tratado', 'var(--st-tratado)']].map(([k, c]) => `<i style="width:${als.length ? (stAl[k] || 0) / als.length * 100 : 0}%;background:${c}"></i>`).join('')}</div>
+       <div class="legend" style="margin-top:0">${[['Aberto', 'Abertos', 'var(--st-aberto)'], ['Em análise', 'Em análise', 'var(--st-analise)'], ['Tratado', 'Tratados', 'var(--st-tratado)']].map(([k, l, c]) => `<span><i style="background:${c}"></i>${l} ${num(stAl[k] || 0)}</span>`).join('')}</div>`, link(['alertas'], { status: 'Aberto' }))}
+    ${kpi('Pessoas usando IA', ico('pessoas'), num(pessoas), `em ${areas} áreas · média de ${pessoas ? Math.round(total / pessoas) : 0} eventos por pessoa`, '', '')}
+  </section>`;
+
+  // ---- gráfico semanal (colunas em HTML, como na referência) ----
+  if (semanaSel != null && semanaSel >= weeks.length) semanaSel = null;
+  const mx = niceMax(Math.max(1, ...weeks.map(w => w.total)));
+  const ordem = ['Crítico', 'Alto', 'Médio', 'Baixo', 'REVISAR'];
+  const every = Math.max(1, Math.ceil(weeks.length / 6));
+  const colunas = weeks.map((s, i) => {
+    const tip = `<b>Semana de ${dBR(s.w)}</b>${s.parcial ? ' (parcial)' : ''}<br>` + ordem.filter(r => s[r]).map(r => `<div class="row"><span><i style="background:${COR[r]}"></i>${r}</span><b>${s[r]}</b></div>`).join('') + `<div class="row"><span>Total</span><b>${s.total}</b></div><div class="row"><span>Planilha · Coleta</span><b>${s.planilha || 0} · ${s.coleta || 0}</b></div>`;
+    const cls = semanaSel === i ? 'sel' : (semanaSel != null ? 'dim' : '');
+    return `<button type="button" class="${cls}" data-w="${i}" aria-label="Semana de ${dBR(s.w)}: ${s.total} eventos"${tipAttr(tip)}>${ordem.filter(r => s[r]).map(r => `<i style="height:${(s[r] / mx * 100).toFixed(2)}%;background:${COR[r]}"></i>`).join('')}</button>`;
+  }).join('');
+  const ws = semanaSel != null ? weeks[semanaSel] : null;
+  const detalhe = ws
+    ? `<strong>Semana de ${dBR(ws.w)}${ws.parcial ? ' (parcial)' : ''}</strong><span>${num(ws.total)} eventos</span><span class="c">${ws['Crítico']} críticos · ${ws['Alto']} altos</span><span>${pct(ws.total ? ws.nao / ws.total : 0)} em ferramenta não aprovada</span><a href="${link(['acompanhamento'], { de: ws.w, ate: ws.fim > PER.fim ? PER.fim : ws.fim })}">Filtrar só esta semana →</a>`
+    : `<strong>Todo o período</strong><span>${num(total)} eventos</span><span class="c">${num(crit)} críticos · ${num(alto)} altos</span><span>${pct(pNao)} em ferramenta não aprovada</span>`;
+  const semanal = `<section class="card">
+      <div class="card-h"><h3>Eventos por semana, segundo o risco</h3><span class="hint">Clique numa coluna para ver o detalhe da semana</span>${legendaRisco(RISCOS.filter(r => evs.some(e => e.risco === r)))}</div>
+      <div class="cols"><div class="yax">${[4, 3, 2, 1, 0].map(k => `<span>${Math.round(mx * k / 4)}</span>`).join('')}</div>
+        <div class="plot"><div class="bars">${colunas}</div><div class="xax">${weeks.map((s, i) => `<span>${i % every === 0 || i === weeks.length - 1 ? dBR(s.w) : ''}</span>`).join('')}</div></div></div>
+      <div class="detail">${detalhe}</div>
+    </section>`;
+
+  // ---- precisa de ação ----
+  const acao = pend.filter(a => a.risco === 'Crítico').sort((a, b) => b.iso.localeCompare(a.iso)).slice(0, 7);
+  const acaoCard = `<section class="card">
+      <div class="card-h"><h3>Precisa de ação agora</h3><span class="hint">Alertas críticos não tratados</span><a class="r" href="${link(['alertas'], { status: 'Aberto', risco: 'Crítico' })}">Ver fila →</a></div>
+      <div class="alist">${acao.length ? acao.map(a => `<a href="${link(['alertas'], { status: a.status, sel: a.id })}"><span class="aico">${SVGI.alerta}</span><span class="what"><b>${esc(a.informacao)}</b><small>${esc(nomeUsr(a.usuario_id))} · ${esc(a.ferramenta)}</small></span><span class="when">${dBR(a.data)}</span></a>`).join('') : '<div class="empty-state">Nenhum alerta crítico pendente no recorte.</div>'}</div>
+    </section>`;
+
+  // ---- alertas por situação ----
+  const mxR = Math.max(1, ...Object.values(rpAl));
+  const situacao = `<section class="card">
+      <div class="card-h"><h3>Alertas por situação</h3><a class="r" href="${link(['alertas'])}">Abrir fila →</a></div>
+      <div class="tiles">
+        <a class="tile crit" href="${link(['alertas'], { status: 'Aberto' })}"><span>Aberto</span><b>${num(stAl['Aberto'] || 0)}</b></a>
+        <a class="tile med" href="${link(['alertas'], { status: 'Em análise' })}"><span>Em análise</span><b>${num(stAl['Em análise'] || 0)}</b></a>
+        <a class="tile" href="${link(['alertas'], { status: 'Tratado' })}"><span>Tratado</span><b>${num(stAl['Tratado'] || 0)}</b></a>
+      </div>
+      <div class="sub-h" style="margin-top:18px">Pendentes por responsável</div>
+      <div style="display:flex;flex-direction:column;gap:10px">${Object.entries(rpAl).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="rbar"><span>${esc(k)}</span><div class="tr"><i style="width:${(v / mxR * 100).toFixed(1)}%"></i></div><b>${v}</b></div>`).join('') || '<span class="muted">Nenhum pendente.</span>'}</div>
+      <div class="infonote">${SVGI.info}Nenhum alerta da base registra data de tratamento, então o prazo de 24h não é apurável.</div>
+    </section>`;
+
+  // ---- ferramentas, áreas, informações ----
+  const porFerr = Object.values(evs.filter(e => e.sensivel).reduce((m, e) => {
+    const k = e.ferramenta_id; (m[k] = m[k] || { id: k, Crítica: 0, Confidencial: 0, total: 0 }); m[k][e.sensibilidade]++; m[k].total++; return m;
+  }, {})).sort((a, b) => b.total - a.total);
+  const porArea = AREAS.map(a => { const r = { label: a, total: 0 }; RISCOS.forEach(k => r[k] = 0); evs.filter(e => e.area === a).forEach(e => { r[e.risco]++; r.total++; }); return r; })
+    .filter(r => r.total).sort((a, b) => (b['Crítico'] + b['Alto']) - (a['Crítico'] + a['Alto']) || b.total - a.total);
+  const porInfo = Object.values(evs.filter(e => e.risco === 'Crítico' || e.risco === 'Alto').reduce((m, e) => {
+    const k = e.informacao_id; (m[k] = m[k] || { id: k, nome: e.informacao, sens: e.sensibilidade, 'Crítico': 0, 'Alto': 0, total: 0 }); m[k][e.risco]++; m[k].total++; return m;
+  }, {})).sort((a, b) => b.total - a.total).slice(0, 8);
+  const mxInfo = Math.max(1, ...porInfo.map(r => r.total));
+  const capt = evs.filter(e => e.aoVivo).sort((a, b) => b.ts.localeCompare(a.ts)).slice(0, 6);
+
+  const ferrCard = `<section class="card">
+      <div class="card-h"><h3>Para onde vai a informação sensível</h3><span class="hint">Eventos confidenciais e críticos por ferramenta</span><div class="legend"><span><i style="background:var(--sens-crit)"></i>Crítica</span><span><i style="background:var(--sens-conf)"></i>Confidencial</span></div></div>
+      ${hbars(porFerr.map(r => ({ label: FER[r.id] ? FER[r.id].nome : r.id, sub: stTag(r.id), total: r.total, href: link(['investigar', 'ferramenta', r.id]),
+        segs: [{ v: r['Crítica'], color: 'var(--sens-crit)', name: 'Crítica' }, { v: r['Confidencial'], color: 'var(--sens-conf)', name: 'Confidencial' }] })))}
+    </section>`;
+  const mxArea = Math.max(1, ...porArea.map(r => r.total));
+  const areaCard = `<section class="card">
+      <div class="card-h"><h3>Risco por área</h3><span class="hint">Ordenado por eventos alto + crítico</span>${legendaRisco(['Crítico', 'Alto', 'Médio', 'Baixo'])}</div>
+      <div class="hb" style="grid-template-columns:minmax(110px,140px) minmax(0,1fr) 70px">${porArea.map(r => {
+        const tip = `<b>${esc(r.label)}</b><br>` + RISCOS.filter(k => r[k]).map(k => `<div class="row"><span><i style="background:${COR[k]}"></i>${k}</span><b>${r[k]}</b></div>`).join('');
+        return `<a class="row" href="${link(['investigar', 'area', r.label])}"><span class="l">${esc(r.label)}</span><span class="t"${tipAttr(tip)}>${RISCOS.filter(k => r[k]).map(k => `<i style="width:${(r[k] / mxArea * 100).toFixed(2)}%;background:${COR[k]}"></i>`).join('')}</span><span class="v"><em>${r['Crítico'] + r['Alto']}</em> <small>/ ${r.total}</small></span></a>`;
+      }).join('')}</div>
+      <div class="muted small" style="margin-top:12px">Número em destaque = eventos alto + crítico, do total de eventos da área.</div>
+    </section>`;
+  const infoCard = `<section class="card">
+      <div class="card-h"><h3>Informações mais expostas</h3><span class="hint">Eventos de risco alto ou crítico, por tipo de informação</span>${legendaRisco(['Crítico', 'Alto'])}</div>
+      <div class="thin">${porInfo.map(r => `<a href="${link(['investigar', 'info', r.id])}"><span class="hd"><span><span class="nm">${esc(r.nome)}</span>${clsChip(r.sens)}</span><b>${r.total}</b></span>
+        <span class="bar"><i style="width:${(r['Crítico'] / mxInfo * 100).toFixed(1)}%;background:${COR['Crítico']}"></i><i style="width:${(r['Alto'] / mxInfo * 100).toFixed(1)}%;background:${COR['Alto']}"></i></span></a>`).join('') || '<div class="empty-state">Sem eventos de risco alto ou crítico no recorte.</div>'}</div>
+    </section>`;
+  const ultReal = E.eventos.filter(e => e.fonte === 'coleta').reduce((m, e) => e.ts > m ? e.ts : m, '');
+  const realCard = `<section class="card">
+      <div class="card-h"><h3 style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:var(--primary);box-shadow:0 0 0 4px var(--primary-soft)"></span>Coleta</h3>${route.q.fonte === 'coleta' ? '' : `<a class="r" href="${link(['acompanhamento'], { fonte: 'coleta' })}">Ver só coleta →</a>`}</div>
+      <div class="tiles" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+        <a class="tile line" href="${link(['acompanhamento'], { fonte: 'planilha' })}"><span>Planilha (carga legada)</span><b>${num(nFonte.planilha || 0)}</b></a>
+        <a class="tile coleta" href="${link(['acompanhamento'], { fonte: 'coleta' })}"><span>Coleta (GerencIA)</span><b>${num(nFonte.coleta || 0)}</b></a>
+      </div>
+      <div class="sub-h" style="margin-top:18px">Últimos eventos coletados</div>
+      <div class="alist">${capt.length ? capt.map(e => `<a href="${link(['investigar', 'evento', e.id])}">${riskChip(e.risco)}<span class="what"><b>${esc(e.informacao)} → ${esc(e.ferramenta)}</b><small>${esc(nomeUsr(e.usuario_id))} · ${esc(e.area)} · ${esc(e.forma_uso)}</small></span><span class="when">${dBR(e.data)} ${e.ts.slice(11, 16)}</span></a>`).join('') : '<div class="empty-state">Nenhum evento coletado no recorte.</div>'}</div>
+    </section>`;
+
+  main.innerHTML = `
+    <div class="head"><div><h1>Acompanhamento</h1></div></div>
+    ${hero}
+    ${cards}
+    <div class="grid g-3-1">${semanal}${acaoCard}</div>
+    <div class="grid g-2 mt"><section class="card"><div class="card-h"><h3>Uso em ferramenta não aprovada</h3><span class="hint">% dos eventos por semana · meta &lt; 3% · tracejado = semana parcial</span></div><div id="ch-nao"></div></section>${situacao}</div>
+    <div class="grid g-2 mt">${ferrCard}${areaCard}</div>
+    <div class="grid g-2 mt">${infoCard}${realCard}</div>`;
+  chartLinhaMeta(main.querySelector('#ch-nao'), weeks);
+  main.querySelectorAll('.bars button').forEach(b => b.onclick = () => { const i = +b.dataset.w; semanaSel = semanaSel === i ? null : i; render(); });
+}
+
+// =====================================================================
+// INVESTIGAR — uma busca, uma página por entidade
+// =====================================================================
+const KINDS = {
+  info: { nome: 'Informação', match: (e, id) => e.informacao_id === id, label: (id) => TIP[id] ? TIP[id].nome : id },
+  pessoa: { nome: 'Pessoa', match: (e, id) => e.usuario_id === id, label: (id) => nomeUsr(id) },
+  ferramenta: { nome: 'Ferramenta', match: (e, id) => e.ferramenta_id === id, label: (id) => FER[id] ? FER[id].nome : id },
+  area: { nome: 'Área', match: (e, id) => e.area === id, label: (id) => id },
+};
+function rankList(evs, key, kind, title, n = 6) {  // usada no modal
+  const g = {};
+  evs.forEach(e => { const k = key(e); (g[k] = g[k] || { k, total: 0, ac: 0 }); g[k].total++; if (e.risco === 'Crítico' || e.risco === 'Alto') g[k].ac++; });
+  const rows = Object.values(g).sort((a, b) => b.ac - a.ac || b.total - a.total);
+  return `<section class="card"><div class="card-h"><h3>${title}</h3></div>
+    ${hbars(rows.slice(0, n).map(r => ({ label: KINDS[kind].label(r.k), total: r.total, href: link(['investigar', kind, r.k]),
+      segs: [{ v: r.ac, color: COR['Crítico'], name: 'Alto ou crítico' }, { v: r.total - r.ac, color: 'var(--bar-soft)', name: 'Demais' }] })))}
+    ${rows.length > n ? `<p class="muted small" style="margin:8px 0 0">+ ${rows.length - n} outros</p>` : ''}</section>`;
+}
+function vistaInvestigar(main) {
+  const [, kindR, idR] = route.path;
+  if (kindR && (KINDS[kindR] || kindR === 'evento')) { route.path = ['investigar']; vistaInvestigar(main); setTimeout(() => openModal(kindR, idR), 0); return; }
+  const kind = null, id = null;
+  if (kind === 'evento') {
+    const e = EVT[id];
+    const a = e && e.alerta ? ALT[e.alerta.id || e.alerta] : E.alertas.find(x => x.evento_id === id);
+    main.innerHTML = `<div class="crumb"><a href="${link(['investigar'])}">Investigar</a> / Evento</div>
+      <div class="head"><div><h1>${esc(id)}</h1><p>${e ? `${esc(e.informacao)} em ${esc(e.ferramenta)}` : ''}</p></div></div>
+      <div class="card" style="max-width:760px">${evidencia(e, a)}</div>`;
+    return;
+  }
+  const searchBox = `<div class="bigsearch"><label><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#697077" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="qbig" type="search" placeholder="Que informação, pessoa, ferramenta ou área você quer rastrear?" autocomplete="off" aria-label="Busca"></label><div class="sugg" id="qbig-s" hidden></div></div>`;
+  const evsAll = fEventos();
+  if (!kind || !KINDS[kind]) {
+    const porTipo = E.tipos.map(t => {
+      const ev = evsAll.filter(e => e.informacao_id === t.id);
+      return { t, usos: ev.length, pessoas: new Set(ev.map(e => e.usuario_id)).size, ferr: new Set(ev.map(e => e.ferramenta_id)).size,
+        fora: ev.filter(e => e.naoAprovada).length, ac: ev.filter(e => e.risco === 'Crítico' || e.risco === 'Alto').length,
+        coleta: ev.filter(e => e.fonte === 'coleta').length, ult: ev.reduce((m, e) => e.ts > m ? e.ts : m, '') };
+    }).filter(r => r.usos).sort((a, b) => b.ac - a.ac || b.usos - a.usos);
+    main.innerHTML = `<div class="head"><div><h1>Investigar</h1><p>Comece pela informação e veja quem a usou, em qual ferramenta, quando e com qual risco. Ou parta de uma pessoa, ferramenta ou área.</p></div></div>
+      ${searchBox}
+      <div class="qchips">mais expostos: ${porTipo.slice(0, 5).map(r => `<a href="${link(['investigar', 'info', r.t.id])}">${esc(r.t.nome)}</a>`).join('')}</div>
+      <section class="card mt"><div class="card-h"><h3>Exposição por tipo de informação</h3><span class="hint">Clique numa linha para ver o resumo</span></div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Informação</th><th>Classificação</th><th class="num">Usos</th><th class="num">Pessoas</th><th class="num">Ferramentas</th><th class="num">Em não aprovada</th><th class="num">Alto ou crítico</th><th class="num">Coleta</th><th class="num">Último uso</th></tr></thead>
+      <tbody>${porTipo.map(r => `<tr class="click" data-go="${link(['investigar', 'info', r.t.id])}"><td>${esc(r.t.nome)}<span class="sub mono">${esc(r.t.id)}</span></td><td>${clsChip(r.t.classificacao)}</td><td class="num">${r.usos}</td><td class="num">${r.pessoas}</td><td class="num">${r.ferr}</td><td class="num">${r.fora}</td><td class="num"><b style="color:${r.ac ? COR['Crítico'] : 'inherit'}">${r.ac}</b></td><td class="num">${r.coleta || '—'}</td><td class="num">${dtBR(r.ult).slice(0, 5)}</td></tr>`).join('')}</tbody></table></div></section>`;
+    attachSearch(main.querySelector('#qbig'), main.querySelector('#qbig-s'));
+    bindRowLinks(main);
+    return;
+  }
+  const K = KINDS[kind];
+  const evs = evsAll.filter(e => K.match(e, id)).sort((a, b) => b.ts.localeCompare(a.ts));
+  const ac = evs.filter(e => e.risco === 'Crítico' || e.risco === 'Alto').length;
+  const fora = evs.filter(e => e.naoAprovada).length;
+  const nAl = evs.filter(e => e.alerta || E.alertas.some(a => a.evento_id === e.id)).length;
+  let headSub = '';
+  if (kind === 'info' && TIP[id]) headSub = `${clsChip(TIP[id].classificacao)} <span class="muted">${esc(TIP[id].categoria)} · área típica: ${esc(TIP[id].area_tipica)}</span>`;
+  if (kind === 'pessoa' && USR[id]) headSub = `<span class="muted">${esc(USR[id].area)} · ${esc(USR[id].cargo)} · ${esc(USR[id].modelo)}</span>`;
+  if (kind === 'ferramenta' && FER[id]) headSub = `${stTag(id)} <span class="muted">· ${esc(FER[id].tipo)} · finalidade aprovada: ${esc(FER[id].finalidade)} · controles: ${esc(FER[id].controles)}</span>`;
+  const dims = { info: [['pessoa', e => e.usuario_id, 'Quem usou'], ['ferramenta', e => e.ferramenta_id, 'Em quais ferramentas'], ['area', e => e.area, 'De quais áreas']],
+    pessoa: [['info', e => e.informacao_id, 'Quais informações'], ['ferramenta', e => e.ferramenta_id, 'Em quais ferramentas'], ['area', e => e.area, 'Áreas']],
+    ferramenta: [['info', e => e.informacao_id, 'Quais informações'], ['pessoa', e => e.usuario_id, 'Quem usou'], ['area', e => e.area, 'De quais áreas']],
+    area: [['info', e => e.informacao_id, 'Quais informações'], ['ferramenta', e => e.ferramenta_id, 'Em quais ferramentas'], ['pessoa', e => e.usuario_id, 'Quem usou']] }[kind];
+  // linha do tempo agrupada pela primeira dimensão "de destino"
+  const gKind = kind === 'info' ? 'ferramenta' : 'info';
+  const gKey = gKind === 'ferramenta' ? (e => e.ferramenta_id) : (e => e.informacao_id);
+  const groups = {};
+  evs.forEach(e => { const k = gKey(e); (groups[k] = groups[k] || []).push(e); });
+  const gList = Object.entries(groups).sort((a, b) => {
+    const s = (l) => Math.min(...l.map(e => RORD[e.risco] ?? 9));
+    return s(a[1]) - s(b[1]) || b[1].length - a[1].length;
+  });
+  const who = (e) => kind === 'pessoa' ? esc(e.ferramenta) : `${esc(nomeUsr(e.usuario_id))} <span class="muted">· ${esc(kind === 'ferramenta' ? e.informacao : e.area)}</span>`;
+  main.innerHTML = `<div class="crumb"><a href="${link(['investigar'])}">Investigar</a> / ${K.nome}</div>
+    <div class="head"><div><h1>${esc(K.label(id))}</h1><p>${headSub}</p></div><div class="right">${searchBox.replace('bigsearch"', 'bigsearch" style="width:340px"')}</div></div>
+    <section class="kpis" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
+      <div class="kpi"><span class="lab">Usos em IA</span><span class="val">${num(evs.length)}</span><span class="foot">${srcTag('planilha')} ${evs.filter(e => e.fonte === 'planilha').length} · ${srcTag('coleta')} ${evs.filter(e => e.fonte === 'coleta').length}</span></div>
+      <div class="kpi"><span class="lab">${kind === 'pessoa' ? 'Informações' : 'Pessoas'}</span><span class="val">${new Set(evs.map(e => kind === 'pessoa' ? e.informacao_id : e.usuario_id)).size}</span><span class="foot">distintas</span></div>
+      <div class="kpi"><span class="lab">${kind === 'ferramenta' ? 'Informações' : 'Ferramentas'}</span><span class="val">${new Set(evs.map(e => kind === 'ferramenta' ? e.informacao_id : e.ferramenta_id)).size}</span><span class="foot">distintas</span></div>
+      <div class="kpi"><span class="lab">Alto ou crítico</span><span class="val" style="color:${ac ? COR['Crítico'] : 'inherit'}">${num(ac)}</span><span class="foot">${num(nAl)} com alerta</span></div>
+      <div class="kpi"><span class="lab">Em ferramenta não aprovada</span><span class="val">${num(fora)}</span><span class="foot">${pct(evs.length ? fora / evs.length : 0)} dos usos</span></div>
+    </section>
+    ${evs.length ? `<div class="flows">${dims.map(d => rankList(evs, d[1], d[0], d[2])).join('')}</div>
+    <section class="card mt"><div class="card-h"><h3>Linha do tempo</h3><span class="hint">agrupada por ${gKind === 'ferramenta' ? 'ferramenta' : 'informação'} · mais arriscado primeiro</span></div>
+      ${gList.map(([k, l], i) => {
+        const rc = count(l, e => e.risco);
+        return `<details class="grp" ${i < 3 ? 'open' : ''}><summary><b>${esc(KINDS[gKind].label(k))}</b> ${gKind === 'ferramenta' ? stTag(k) : clsChip(l[0].sensibilidade)}<span class="cnt">${RISCOS.filter(r => rc[r]).map(r => `${riskChip(r)}<span class="mono">${rc[r]}</span>`).join(' ')} <span>· ${l.length} uso(s)</span></span></summary>
+        <ul class="tl">${l.map(e => `<li><span class="d">${dtBR(e.ts)}</span><span>${who(e)}<br><span class="muted small">${esc(e.forma_uso)} · ${esc(e.finalidade)} · registro: ${esc(e.origem)}</span></span><span class="x">${srcTag(e.fonte)} ${riskChip(e.risco)} ${ruleChip(e.regra)} <a href="${link(['investigar', 'evento', e.id])}" class="small">evidência →</a></span></li>`).join('')}</ul></details>`;
+      }).join('')}
+    </section>` : '<div class="card empty-state">Nenhum uso no recorte atual. Remova filtros para ver o histórico completo.</div>'}`;
+  attachSearch(main.querySelector('#qbig'), main.querySelector('#qbig-s'));
+}
+
+// =====================================================================
+// ALERTAS — fila de trabalho
+// =====================================================================
+const PAGE = 20;
+function vistaAlertas(main) {
+  const q = route.q;
+  const tab = q.status || 'Aberto';
+  const base = fAlertas();
+  const semAlerta = fEventos().filter(e => !E.alertas.some(a => a.evento_id === e.id) && (e.risco === 'Crítico' || e.risco === 'Alto'));
+  const cnt = count(base, a => a.status);
+  const tabs = [...STATUS_ALERTA.map(s => [s, s, cnt[s] || 0]), ['Todos', 'Todos', base.length], ['sem', 'Risco sem alerta', semAlerta.length]];
+  const isSem = tab === 'sem';
+  const busca = norm(q.busca || '');
+  let rows;
+  if (isSem) {
+    rows = semAlerta.map(e => ({ id: e.id, fonte: e.fonte, ev: e, a: null, risco: e.risco, iso: e.ts, quem: e.usuario_id, area: e.area, ferramenta: e.ferramenta, info: e.informacao, sens: e.sensibilidade, regra: e.regra, resp: '—', status: '—' }));
+  } else {
+    rows = base.filter(a => tab === 'Todos' || a.status === tab).map(a => ({ id: a.id, fonte: a.fonte, ev: EVT[a.evento_id], a, risco: a.risco, iso: a.iso, quem: a.usuario_id, area: a.area, ferramenta: a.ferramenta, info: a.informacao, sens: a.sensibilidade, regra: a.regra, resp: a.responsavel, status: a.status }));
+  }
+  if (q.resp) rows = rows.filter(r => r.resp === q.resp);
+  if (busca) rows = rows.filter(r => norm([r.id, nomeUsr(r.quem), r.area, r.ferramenta, r.info, r.regra].join(' ')).includes(busca));
+  rows.sort((a, b) => (RORD[a.risco] ?? 9) - (RORD[b.risco] ?? 9) || b.iso.localeCompare(a.iso));
+  const pages = Math.max(1, Math.ceil(rows.length / PAGE));
+  const page = Math.min(pages, Math.max(1, +q.page || 1));
+  const slice = rows.slice((page - 1) * PAGE, page * PAGE);
+  const sel = q.sel ? rows.find(r => r.id === q.sel) || (ALT[q.sel] ? { id: q.sel, a: ALT[q.sel], ev: EVT[ALT[q.sel].evento_id] } : (EVT[q.sel] ? { id: q.sel, a: null, ev: EVT[q.sel] } : null)) : null;
+  const resps = [...new Set(E.alertas.map(a => a.responsavel))].sort();
+
+  main.innerHTML = `<div class="head"><div><h1>Alertas</h1><p>Fila de trabalho do time de governança. Clique num alerta para ver a evidência e registrar o tratamento.</p></div></div>
+  <section class="rotina" aria-label="Como funciona a fila">
+    <div><b><i style="background:var(--st-aberto)"></i>1 · Aberto</b>O motor gerou o alerta e ele foi para um responsável: credencial → Segurança; dado pessoal → Privacidade; ferramenta não aprovada ou financeiro → Compliance; demais casos → gestor da área.</div>
+    <div><b><i style="background:var(--st-analise)"></i>2 · Em análise</b>O responsável clica em <em>Assumir análise</em>, confere a evidência e fala com o colaborador.</div>
+    <div><b><i style="background:var(--st-tratado)"></i>3 · Tratado</b>Fecha com desfecho, ação tomada e comentário. Fica no histórico do alerta, com quem tratou e quando.</div>
+  </section>
+  <nav class="tabs">${tabs.map(([k, l, n]) => `<a href="${href(['alertas'], { ...gq(), status: k, resp: q.resp, busca: q.busca })}" ${tab === k ? 'aria-current="page"' : ''}>${l}<span class="n">${n}</span></a>`).join('')}</nav>
+  <div class="toolbar">
+    <input id="a-busca" type="search" placeholder="Filtrar por pessoa, ferramenta, informação, regra ou ID" value="${esc(q.busca || '')}" style="flex:1;min-width:220px;max-width:420px">
+    ${isSem ? '' : `<select id="a-resp"><option value="">Todos os responsáveis</option>${resps.map(r => `<option ${q.resp === r ? 'selected' : ''}>${esc(r)}</option>`).join('')}</select>`}
+    <span class="muted small">${num(rows.length)} ${isSem ? 'evento(s)' : 'alerta(s)'}</span>
+    <button class="btn" id="a-csv" type="button" style="margin-left:auto">⇩ Exportar CSV</button>
+  </div>
+  ${isSem ? '<p class="note" style="margin-top:0">Eventos que o motor classificou como Alto ou Crítico e que não têm alerta, da planilha e da coleta. São candidatos a abrir alerta.</p>' : ''}
+  <div class="split">
+    <section class="card" style="padding:6px 6px 10px">
+      ${slice.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Risco</th><th>Fonte</th><th>Quando</th><th>Quem</th><th>Ferramenta</th><th>Informação</th><th>Regra</th>${isSem ? '' : '<th>Situação</th><th>Responsável</th>'}</tr></thead>
+      <tbody>${slice.map(r => `<tr class="click ${sel && sel.id === r.id ? 'sel' : ''}" data-sel="${esc(r.id)}"><td>${riskChip(r.risco)}</td><td>${srcTag(r.fonte)}</td><td class="mono small">${dtBR(r.iso)}</td><td>${esc(nomeUsr(r.quem))}<span class="sub">${esc(r.area)}</span></td><td>${esc(r.ferramenta)}${r.ev ? `<span class="sub">${stTag(r.ev.ferramenta_id)}</span>` : ''}</td><td>${esc(r.info)}<span class="sub">${clsChip(r.sens)}</span></td><td>${ruleChip(r.regra)}</td>${isSem ? '' : `<td class="small">${esc(r.status)}</td><td class="small">${esc(r.resp)}</td>`}</tr>`).join('')}</tbody></table></div>
+      <div class="pager">Página ${page} de ${pages}
+        ${page > 1 ? `<a href="${href(['alertas'], { ...q, page: page - 1, sel: '' })}">← anterior</a>` : '<span class="off">← anterior</span>'}
+        ${page < pages ? `<a href="${href(['alertas'], { ...q, page: page + 1, sel: '' })}">próxima →</a>` : '<span class="off">próxima →</span>'}</div>`
+      : '<div class="empty-state">Nada nesta aba com os filtros atuais.</div>'}
+    </section>
+    <aside class="card drawer ${sel ? 'open' : ''}" id="drawer">
+      ${sel ? `<div style="display:flex;align-items:center;margin-bottom:6px"><h3 style="font-size:15px">${sel.a ? 'Alerta ' + esc(sel.a.id) : 'Evento sem alerta'}</h3><button class="btn close" type="button" id="d-close" style="margin-left:auto">Fechar ✕</button></div>${evidencia(sel.ev, sel.a)}${sel.a && sel.a.evidencia ? `<p class="note">Evidência do alerta: ${esc(sel.a.evidencia)}</p>` : ''}${blocoTratamento(sel.a, sel.ev)}`
+      : '<div class="empty-state" style="padding:30px 10px">Selecione um alerta para ver a evidência e registrar o tratamento.</div>'}
+    </aside>
+  </div>`;
+  main.querySelectorAll('tr[data-sel]').forEach(tr => tr.onclick = () => setQ({ sel: tr.dataset.sel }));
+  const b = main.querySelector('#a-busca');
+  let t; b.oninput = () => { clearTimeout(t); t = setTimeout(() => setQ({ busca: b.value, page: '', sel: '' }), 300); };
+  const r = main.querySelector('#a-resp'); if (r) r.onchange = () => setQ({ resp: r.value, page: '', sel: '' });
+  const c = main.querySelector('#d-close'); if (c) c.onclick = () => setQ({ sel: '' });
+  if (sel) bindTratamento(main.querySelector('#drawer'), sel.a, sel.ev);
+  main.querySelector('#a-csv').onclick = () => {
+    const head = ['id', 'fonte', 'risco', 'data_hora', 'usuario', 'area', 'ferramenta', 'informacao', 'sensibilidade', 'regra', 'situacao', 'responsavel'];
+    const lines = [head.join(';'), ...rows.map(x => [x.id, FONTE[x.fonte] ? FONTE[x.fonte].l : '', x.risco, dtBR(x.iso), nomeUsr(x.quem), x.area, x.ferramenta, x.info, x.sens, x.regra, x.status, x.resp].map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(';'))];
+    const blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `gerencia-alertas-${tab}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  // mantém o foco na busca após re-render
+  if (q.busca && document.activeElement === document.body) { b.focus(); b.setSelectionRange(b.value.length, b.value.length); }
+}
+
+// =====================================================================
+// GOVERNANÇA — Política, Inventário, Auditoria, Validação
+// =====================================================================
+function vistaGovernanca(main) {
+  const sub = route.path[1] || 'auditoria';
+  const nDiv = E.indicadores.filter(i => i.divergente).length;
+  const nOk = E.validacao.filter(v => v.passou).length;
+  const tabs = [['auditoria', 'Auditoria', `${E.auditoria.length} achados`], ['validacao', 'Validação', `${nOk}/${E.validacao.length}`], ['politica', 'Política', `${E.politica.regras.length} regras`], ['inventario', 'Inventário', `${E.ferramentas.length} ferramentas`]];
+  let body = '';
+  if (sub === 'auditoria') {
+    const c = E.meta.concordancia;
+    body = `<section class="kpis" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+      <div class="kpi"><span class="lab">Mesmo nível de risco que a base</span><span class="val">${pct(c.nivel / c.total)}</span><span class="foot">${c.nivel} de ${c.total} eventos</span></div>
+      <div class="kpi"><span class="lab">Mesma regra citada</span><span class="val">${pct(c.regra / c.total)}</span><span class="foot">${c.regra} de ${c.total}</span></div>
+      <div class="kpi"><span class="lab">Indicadores declarados que divergem</span><span class="val" style="color:${COR['Crítico']}">${nDiv}/${E.indicadores.length}</span><span class="foot">recalculados da base</span></div>
+      <div class="kpi"><span class="lab">Achados de rotulagem</span><span class="val">${E.auditoria.length}</span><span class="foot">${E.auditoria.filter(a => a.gravidade === 'alta').length} de gravidade alta</span></div>
+    </section>
+    <section class="card"><div class="card-h"><h3>O que a empresa declara × o que a base mostra</h3><span class="hint">aba Indicadores_Atuais, recalculada</span></div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Indicador</th><th class="num">Declarado</th><th class="num">Apurado</th><th>Situação</th><th>Observação</th></tr></thead>
+      <tbody>${E.indicadores.map(i => `<tr><td>${esc(i.nome)}</td><td class="num">${esc(i.declarado)}</td><td class="num"><b>${esc(i.apurado)}</b></td><td>${i.divergente ? '<span class="meta fora">≠ diverge</span>' : '<span class="meta dentro">✓ confere</span>'}</td><td class="small">${esc(i.observacao)}</td></tr>`).join('')}</tbody></table></div></section>
+    <section class="card mt"><div class="card-h"><h3>Achados de auditoria</h3><span class="hint">cada um com os eventos afetados</span></div>
+      ${E.auditoria.map((a, i) => `<details class="grp" ${i === 0 ? 'open' : ''}><summary><span class="rule">${esc(a.id)}</span> <b>${esc(a.titulo)}</b><span class="cnt"><span class="meta ${a.gravidade === 'alta' ? 'fora' : 'dentro'}" style="${a.gravidade === 'alta' ? '' : 'background:var(--surface-2);color:var(--ink-2)'}">gravidade ${esc(a.gravidade)}</span> ${(a.eventos || []).length} evento(s)</span></summary>
+        <div style="padding:0 14px 12px"><p style="margin:0 0 6px">${esc(a.resumo)}</p><p class="muted small" style="margin:0 0 6px">${esc(a.consequencia)}</p><p class="small" style="margin:0 0 8px"><b>Evidência:</b> ${esc(a.evidencia)}</p>
+        <div class="qchips" style="margin:0">${(a.eventos || []).slice(0, 40).map(id => `<a class="mono" href="${link(['investigar', 'evento', id])}">${esc(id)}</a>`).join('')}${(a.eventos || []).length > 40 ? `<span>+ ${(a.eventos.length - 40)}</span>` : ''}</div></div></details>`).join('')}
+    </section>`;
+  } else if (sub === 'validacao') {
+    body = `<section class="card"><div class="card-h"><h3>Casos do gabarito oficial</h3><span class="hint">Aba Casos_Validacao da planilha oficial, sem ajuste por caso</span></div>
+      ${E.validacao.map(v => `<details class="grp"><summary><span class="rule">${esc(v.caso)}</span> <b>${esc(v.informacao)}</b> <span class="muted small">${esc(v.ferramenta)} · ${esc(v.area)}</span><span class="cnt">esperado <b>${esc(v.esperado)}</b> · obtido ${riskChip(v.obtido)} ${ruleChip(v.regra)} ${v.passou ? '<span class="meta dentro">✓ passou</span>' : '<span class="meta fora">✕ falhou</span>'}</span></summary>
+        <div style="padding:0 14px 12px"><p class="small" style="margin:0 0 6px"><b>Justificativa do gabarito:</b> ${esc(v.justificativa)}</p><ol class="chain">${(v.achados || []).map(x => `<li class="${RK[x.nivel] || ''}"><b>${esc(x.regra)} · ${esc(x.titulo)}</b>${esc(x.motivo)}</li>`).join('')}</ol></div></details>`).join('')}
+    </section>`;
+  } else if (sub === 'politica') {
+    const P = E.politica;
+    body = `<div class="grid g-2">
+      <section class="card"><div class="card-h"><h3>Ordem de precedência</h3><span class="hint">da primeira à última avaliada</span></div>
+        <ol style="margin:0;padding-left:22px;line-height:1.9">${P.precedencia.map(p => `<li>${esc(p)}</li>`).join('')}</ol></section>
+      <section class="card"><div class="card-h"><h3>Níveis de classificação</h3><span class="hint">definidos pela empresa</span></div>
+        <table class="tbl"><tbody>${P.classificacoes.map(c => `<tr><td>${clsChip(c.classificacao)}</td><td>${esc(c.definicao)}<span class="sub">${esc(c.regra_geral)}</span></td><td class="small">risco base<br><b>${esc(c.risco_base)}</b></td></tr>`).join('')}</tbody></table></section>
+    </div>
+    <section class="card mt"><div class="card-h"><h3>Regras da política</h3><span class="hint">usos na base × usos no motor</span></div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Regra</th><th>Tema</th><th>Texto da política</th><th>Nível</th><th>Ação</th><th class="num">Base</th><th class="num">Motor</th></tr></thead>
+      <tbody>${P.regras.map(r => `<tr><td>${ruleChip(r.id)}</td><td>${esc(r.tema)}</td><td>${esc(r.texto)}</td><td>${riskChip(r.nivel === 'REVISAR' ? 'REVISAR' : r.nivel)}</td><td class="small">${esc(r.acao)}</td><td class="num">${r.usos_base}</td><td class="num">${r.usos_total}</td></tr>`).join('')}</tbody></table></div></section>
+    ${(P.propostas || []).length ? `<section class="card mt"><div class="card-h"><h3>Regras propostas pela auditoria</h3><span class="hint">lacunas que nenhuma regra cobre hoje</span></div>
+      ${P.propostas.map(p => `<details class="grp"><summary>${ruleChip(p.id)} <b>${esc(p.regra)}</b><span class="cnt">${riskChip(p.nivel)}</span></summary><div style="padding:0 14px 12px"><p class="small" style="margin:0 0 6px"><b>Ação:</b> ${esc(p.acao)}</p><p class="muted small" style="margin:0">${esc(p.porque)}</p></div></details>`).join('')}</section>` : ''}`;
+  } else {
+    const st = (fid) => { const ev = E.eventos.filter(e => e.ferramenta_id === fid); return { n: ev.length, p: new Set(ev.map(e => e.usuario_id)).size, s: ev.filter(e => e.sensivel).length, ac: ev.filter(e => e.risco === 'Crítico' || e.risco === 'Alto').length }; };
+    body = `<section class="card"><div class="card-h"><h3>Ferramentas de IA</h3><span class="hint">Cadastradas na planilha e detectadas na coleta</span></div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Ferramenta</th><th>Status</th><th>Finalidade aprovada</th><th>Controles</th><th>Logs</th><th class="num">Eventos</th><th class="num">Pessoas</th><th class="num">Sensíveis</th><th class="num">Alto/crítico</th></tr></thead>
+      <tbody>${E.ferramentas.map(f => { const s = st(f.id); return `<tr class="click" data-go="${href(['investigar', 'ferramenta', f.id], {})}"><td>${esc(f.nome)} ${/^IA-EXT/.test(f.id) ? srcTag('coleta') : srcTag('planilha')}<span class="sub mono">${esc(f.id)} · ${esc(f.tipo)}</span></td><td>${stTag(f.id)}</td><td class="small">${esc(f.finalidade)}</td><td class="small">${esc(f.controles)}</td><td class="small">${esc(f.logs)}</td><td class="num">${s.n}</td><td class="num">${s.p}</td><td class="num">${s.s}</td><td class="num">${s.ac}</td></tr>`; }).join('')}</tbody></table></div></section>
+    <div class="grid g-2 mt">
+      <section class="card"><div class="card-h"><h3>Tipos de informação</h3><span class="hint">A classificação acontece aqui, uma vez</span></div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Tipo</th><th>Classificação</th><th class="num">Eventos</th></tr></thead>
+        <tbody>${E.tipos.slice().sort((a, b) => SENS.indexOf(a.classificacao) - SENS.indexOf(b.classificacao)).map(t => `<tr class="click" data-go="${href(['investigar', 'info', t.id], {})}"><td>${esc(t.nome)}<span class="sub">${esc(t.categoria)}</span></td><td>${clsChip(t.classificacao)}</td><td class="num">${E.eventos.filter(e => e.informacao_id === t.id).length}</td></tr>`).join('')}</tbody></table></div></section>
+      <section class="card"><div class="card-h"><h3>Fontes de log</h3><span class="hint">o que alimenta a rastreabilidade</span></div>
+        <table class="tbl"><tbody>${E.fontes.map(f => `<tr><td>${esc(f.nome)}<span class="sub">${esc(f.dados)}</span></td><td class="small">${esc(f.confiabilidade)}<span class="sub">${esc(f.atualizacao)}</span></td></tr>`).join('')}</tbody></table></section>
+    </div>`;
+  }
+  main.innerHTML = `<div class="head"><div><h1>Governança</h1><p>Como a GerencIA decide, e a prova de que decide certo. Auditoria e Validação conferem a <b>planilha</b> oficial; o Inventário soma o que a <b>coleta</b> detectou. Sem os filtros do topo.</p></div></div>
+    <nav class="tabs">${tabs.map(([k, l, n]) => `<a href="${href(['governanca', k], {})}" ${sub === k ? 'aria-current="page"' : ''}>${l}<span class="n">${n}</span></a>`).join('')}</nav>${body}`;
+  bindRowLinks(main);
+}
+
+function bindRowLinks(root) { root.querySelectorAll('tr[data-go]').forEach(tr => tr.onclick = () => { const m = tr.dataset.go.match(RX_ENT); if (m) openModal(m[1], decodeURIComponent(m[2])); else location.hash = tr.dataset.go; }); }
+
+// =====================================================================
+// MODAL — resumo de informação, pessoa, ferramenta, área ou evento sem sair da página
+// =====================================================================
+const MODAL = { stack: [] };
+const KIND_NOME = { info: 'Informação', pessoa: 'Pessoa', ferramenta: 'Ferramenta', area: 'Área', evento: 'Evento' };
+function entidadeHTML(kind, id) {
+  if (kind === 'evento') {
+    const e = EVT[id];
+    const a = e ? E.alertas.find(x => x.evento_id === id) : null;
+    return `<div class="mtitle"><h2>${e ? esc(e.informacao) + ' → ' + esc(e.ferramenta) : esc(id)}</h2></div>
+      <div class="card">${evidencia(e, a)}</div>
+      ${a ? `<div class="mfoot"><a href="${href(['alertas'], { ...gq(), status: a.status, sel: a.id })}">Tratar na fila de alertas →</a></div>` : ''}`;
+  }
+  const K = KINDS[kind];
+  const evs = fEventos().filter(e => K.match(e, id)).sort((a, b) => b.ts.localeCompare(a.ts));
+  const ac = evs.filter(e => e.risco === 'Crítico' || e.risco === 'Alto').length;
+  const fora = evs.filter(e => e.naoAprovada).length;
+  const nAl = evs.filter(e => E.alertas.some(a => a.evento_id === e.id)).length;
+  let sub = '';
+  if (kind === 'info' && TIP[id]) sub = `${clsChip(TIP[id].classificacao)} <span>${esc(TIP[id].categoria)} · área típica: ${esc(TIP[id].area_tipica)}</span>`;
+  if (kind === 'pessoa' && USR[id]) sub = `<span>${esc(USR[id].area)} · ${esc(USR[id].cargo)}</span>`;
+  if (kind === 'ferramenta' && FER[id]) sub = `${stTag(id)} <span>${esc(FER[id].tipo)} · finalidade aprovada: ${esc(FER[id].finalidade)}</span>`;
+  const dims = { info: [['pessoa', e => e.usuario_id, 'Quem usou'], ['ferramenta', e => e.ferramenta_id, 'Em quais ferramentas'], ['area', e => e.area, 'De quais áreas']],
+    pessoa: [['info', e => e.informacao_id, 'Quais informações'], ['ferramenta', e => e.ferramenta_id, 'Em quais ferramentas']],
+    ferramenta: [['info', e => e.informacao_id, 'Quais informações'], ['pessoa', e => e.usuario_id, 'Quem usou'], ['area', e => e.area, 'De quais áreas']],
+    area: [['info', e => e.informacao_id, 'Quais informações'], ['ferramenta', e => e.ferramenta_id, 'Em quais ferramentas'], ['pessoa', e => e.usuario_id, 'Quem usou']] }[kind];
+  const gKind = kind === 'info' ? 'ferramenta' : 'info';
+  const gKey = gKind === 'ferramenta' ? (e => e.ferramenta_id) : (e => e.informacao_id);
+  const groups = {};
+  evs.forEach(e => { const k = gKey(e); (groups[k] = groups[k] || []).push(e); });
+  const gList = Object.entries(groups).sort((a, b) => {
+    const s = (l) => Math.min(...l.map(e => RORD[e.risco] ?? 9));
+    return s(a[1]) - s(b[1]) || b[1].length - a[1].length;
+  });
+  const who = (e) => kind === 'pessoa' ? esc(e.ferramenta) : `${esc(nomeUsr(e.usuario_id))} <span class="muted">· ${esc(kind === 'ferramenta' ? e.informacao : e.area)}</span>`;
+  const kpi = (l, v, f) => `<div class="kpi"><span class="lab">${l}</span><span class="val">${v}</span>${f ? `<span class="foot">${f}</span>` : ''}</div>`;
+  return `<div class="mtitle"><h2>${esc(K.label(id))}</h2>${sub ? `<p>${sub}</p>` : '<p></p>'}</div>
+    <section class="kpis">
+      ${kpi('Usos em IA', num(evs.length), `${srcTag('planilha')} ${evs.filter(e => e.fonte === 'planilha').length} ${srcTag('coleta')} ${evs.filter(e => e.fonte === 'coleta').length}`)}
+      ${kind === 'pessoa' ? kpi('Informações', new Set(evs.map(e => e.informacao_id)).size, 'distintas') : kpi('Pessoas', new Set(evs.map(e => e.usuario_id)).size, 'distintas')}
+      ${kind === 'ferramenta' ? kpi('Informações', new Set(evs.map(e => e.informacao_id)).size, 'distintas') : kpi('Ferramentas', new Set(evs.map(e => e.ferramenta_id)).size, 'distintas')}
+      ${kpi('Alto ou crítico', num(ac), `${num(nAl)} com alerta`)}
+      ${kpi('Em ferramenta não aprovada', num(fora), pct(evs.length ? fora / evs.length : 0) + ' dos usos')}
+    </section>
+    ${evs.length ? `<div class="flows">${dims.map(d => rankList(evs, d[1], d[0], d[2], 5)).join('')}</div>
+    <section class="card mt"><div class="card-h"><h3>Linha do tempo</h3><span class="hint">Agrupada por ${gKind === 'ferramenta' ? 'ferramenta' : 'informação'}, mais arriscado primeiro</span></div>
+      ${gList.map(([k, l], i) => {
+        const rc = count(l, e => e.risco);
+        return `<details class="grp" ${i < 2 ? 'open' : ''}><summary><b>${esc(KINDS[gKind].label(k))}</b> ${gKind === 'ferramenta' ? stTag(k) : clsChip(l[0].sensibilidade)}<span class="cnt">${RISCOS.filter(r => rc[r]).map(r => `${riskChip(r)} ${rc[r]}`).join(' ')}</span></summary>
+        <ul class="tl">${l.map(e => `<li><span class="d">${dtBR(e.ts)}</span><span>${who(e)}<br><span class="muted small">${esc(e.forma_uso)} · ${esc(e.finalidade)}</span></span><span class="x">${srcTag(e.fonte)} ${riskChip(e.risco)} <a href="${link(['investigar', 'evento', e.id])}" class="small">evidência →</a></span></li>`).join('')}</ul></details>`;
+      }).join('')}
+    </section>
+    <div class="mfoot"><a href="${href(['alertas'], { ...gq(), status: 'Todos', busca: K.label(id) })}">Ver alertas relacionados →</a></div>` : '<div class="card empty-state">Nenhum uso no recorte atual. Remova filtros para ver o histórico completo.</div>'}`;
+}
+function openModal(kind, id) {
+  const el = document.getElementById('modal');
+  if (el.hidden) MODAL.stack = [];
+  const top = MODAL.stack[MODAL.stack.length - 1];
+  if (!top || top[0] !== kind || top[1] !== id) MODAL.stack.push([kind, id]);
+  drawModal();
+}
+function drawModal() {
+  const el = document.getElementById('modal');
+  const [kind, id] = MODAL.stack[MODAL.stack.length - 1];
+  el.hidden = false; document.body.style.overflow = 'hidden';
+  el.innerHTML = `<div class="mback" data-mclose></div>
+    <div class="mbox" role="dialog" aria-modal="true" aria-label="${esc(KIND_NOME[kind])}">
+      <div class="mhead">${MODAL.stack.length > 1 ? '<button class="btn" type="button" data-mvoltar>← Voltar</button>' : ''}<span class="mkind">${KIND_NOME[kind]}</span><button class="mx" type="button" data-mclose aria-label="Fechar">×</button></div>
+      <div class="mbody">${entidadeHTML(kind, id)}</div>
+    </div>`;
+  el.querySelectorAll('[data-mclose]').forEach(b => b.onclick = closeModal);
+  const v = el.querySelector('[data-mvoltar]'); if (v) v.onclick = () => { MODAL.stack.pop(); drawModal(); };
+  el.querySelector('.mx').focus();
+  el.scrollTop = 0;
+}
+function closeModal() {
+  const el = document.getElementById('modal');
+  if (el.hidden) return;
+  el.hidden = true; el.innerHTML = ''; MODAL.stack = []; document.body.style.overflow = '';
+}
+// links para informação/pessoa/ferramenta/área/evento abrem o modal em vez de trocar de página
+const RX_ENT = /^#\/investigar\/(info|pessoa|ferramenta|area|evento)\/([^?]+)/;
+document.addEventListener('click', (ev) => {
+  const a = ev.target.closest && ev.target.closest('a[href^="#/investigar/"]');
+  if (!a) return;
+  const m = a.getAttribute('href').match(RX_ENT);
+  if (!m) return;
+  ev.preventDefault();
+  openModal(m[1], decodeURIComponent(m[2]));
+});
+document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') closeModal(); });
+
+// =====================================================================
+// TRATAMENTO DOS ALERTAS — rotina Aberto → Em análise → Tratado
+// Demonstração: o que se faz aqui fica salvo só neste navegador (localStorage).
+// Na operação, essas ações vão para o coletor (API) e entram no histórico de auditoria.
+// =====================================================================
+const TKEY = 'gerencia-tratamento-v1';
+let TRAT = {};
+try { TRAT = JSON.parse(localStorage.getItem(TKEY) || '{}') || {}; } catch (e) { TRAT = {}; }
+const salvarTrat = () => { try { localStorage.setItem(TKEY, JSON.stringify(TRAT)); } catch (e) { /* navegador sem armazenamento: vale só nesta sessão */ } };
+const RESPONSAVEIS = ['Segurança', 'Compliance', 'Privacidade', 'Gestor da área'];
+// responsável sugerido pela regra que decidiu o risco (proposta; a base traz o responsável já atribuído)
+const RESP_POR_REGRA = { R03: 'Segurança', R06: 'Segurança', R04: 'Privacidade', R01: 'Compliance', R02: 'Compliance', R05: 'Compliance' };
+const DESFECHOS = ['Risco confirmado, ação aplicada', 'Uso autorizado, exceção registrada', 'Falso positivo', 'Escalado para Jurídico/Privacidade'];
+const ACOES = ['Colaborador orientado', 'Credencial revogada e rotacionada', 'Acesso à ferramenta bloqueado', 'Conteúdo removido da ferramenta', 'Comunicado à Privacidade (LGPD)', 'Nenhuma ação necessária'];
+const agora = () => { const d = new Date(); const p = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}:00`; };
+function aplicarTrat() {
+  Object.values(TRAT).filter(t => t.novo && !ALT[t.id]).forEach(t => {
+    const ev = EVT[t.evento_id]; if (!ev) return;
+    const a = { id: t.id, evento_id: ev.id, ts: dtBR(ev.ts), data: ev.data, iso: ev.ts.slice(0, 16), usuario_id: ev.usuario_id, area: ev.area, ferramenta: ev.ferramenta,
+      informacao: ev.informacao, sensibilidade: ev.sensibilidade, risco: ev.risco, regra: ev.regra, evidencia: '', status: 'Aberto', responsavel: t.resp,
+      ferramenta_id: ev.ferramenta_id, informacao_id: ev.informacao_id, fonte: ev.fonte };
+    E.alertas.push(a); ALT[a.id] = a;
+  });
+  E.alertas.forEach(a => { const t = TRAT[a.id]; if (t) { a.status = t.status; a.responsavel = t.resp || a.responsavel; a.trat = t; } });
+}
+function registrar(id, para, extra = {}) {
+  const a = ALT[id]; if (!a) return;
+  const t = TRAT[id] || (TRAT[id] = { id, hist: [] });
+  t.hist = t.hist || [];
+  t.hist.push({ ts: agora(), de: a.status, para, por: 'Você (demonstração)', nota: extra.nota || '' });
+  Object.assign(t, { status: para, resp: extra.resp || t.resp || a.responsavel }, extra.campos || {});
+  salvarTrat(); aplicarTrat(); render();
+}
+function abrirAlertaDe(evId) {
+  const ev = EVT[evId]; if (!ev) return;
+  const n = Object.values(TRAT).filter(t => t.novo).length + 1;
+  const id = 'ALT-D' + String(n).padStart(3, '0');
+  TRAT[id] = { id, novo: true, evento_id: evId, status: 'Aberto', resp: RESP_POR_REGRA[ev.regra] || 'Gestor da área',
+    hist: [{ ts: agora(), de: '—', para: 'Aberto', por: 'Você (demonstração)', nota: 'Alerta aberto a partir de evento sem alerta' }] };
+  salvarTrat(); aplicarTrat();
+  setQ({ status: 'Aberto', sel: id, page: '' });
+}
+function blocoTratamento(a, ev) {
+  if (!a) {
+    return `<div class="trat"><h3>Tratamento</h3>
+      <p class="muted small" style="margin:0 0 10px">Este evento ainda não tem alerta. Abrir o alerta coloca o caso na fila do responsável.</p>
+      <dl class="res"><dt>Responsável</dt><dd><b>${esc(RESP_POR_REGRA[ev && ev.regra] || 'Gestor da área')}</b> <span class="muted small">(sugerido pela regra ${esc(ev ? ev.regra : '')})</span></dd></dl>
+      <div class="acts"><button class="btn primary" type="button" id="t-abrir">Abrir alerta</button></div>
+      <p class="demo">Demonstração: fica salvo só neste navegador.</p></div>`;
+  }
+  const t = a.trat || {};
+  const passos = ['Aberto', 'Em análise', 'Tratado'];
+  const idx = passos.indexOf(a.status);
+  const steps = `<div class="steps">${passos.map((p, i) => `<span class="${i < idx ? 'done' : i === idx ? 'cur' + (p === 'Aberto' ? ' aberto' : '') : ''}">${p}</span>`).join('')}</div>`;
+  const respSel = `<label>Responsável<select id="t-resp">${RESPONSAVEIS.map(r => `<option ${r === a.responsavel ? 'selected' : ''}>${esc(r)}</option>`).join('')}</select></label>`;
+  let corpo = '';
+  if (a.status === 'Aberto') {
+    corpo = `${respSel}<div class="acts"><button class="btn primary" type="button" id="t-assumir">Assumir análise</button></div>`;
+  } else if (a.status === 'Em análise') {
+    corpo = `${respSel}
+      <label>Desfecho<select id="t-desf"><option value="">Escolha…</option>${DESFECHOS.map(d => `<option>${esc(d)}</option>`).join('')}</select></label>
+      <label>Ação tomada<select id="t-acao"><option value="">Escolha…</option>${ACOES.map(d => `<option>${esc(d)}</option>`).join('')}</select></label>
+      <label>Comentário<textarea id="t-com" placeholder="O que foi verificado e com quem se falou"></textarea></label>
+      <div class="acts"><button class="btn primary" type="button" id="t-tratar" disabled>Marcar como tratado</button><button class="btn" type="button" id="t-voltar">Devolver para aberto</button></div>`;
+  } else {
+    corpo = t.desfecho
+      ? `<dl class="res"><dt>Desfecho</dt><dd>${esc(t.desfecho)}</dd><dt>Ação</dt><dd>${esc(t.acao)}</dd><dt>Comentário</dt><dd>${esc(t.comentario)}</dd><dt>Tratado em</dt><dd>${dtBR(t.tratadoEm)}</dd></dl>`
+      : `<p class="note" style="margin:0 0 12px">Marcado como tratado na base de origem, sem desfecho nem data registrados.</p>`;
+    corpo += `<div class="acts"><button class="btn" type="button" id="t-reabrir">Reabrir</button></div>`;
+  }
+  const hist = (t.hist || []).slice().reverse();
+  return `<div class="trat"><h3>Tratamento</h3>${steps}${corpo}
+    ${hist.length ? `<ul class="hist2">${hist.map(h => `<li><b>${esc(h.de)} → ${esc(h.para)}</b> · ${dtBR(h.ts)} · ${esc(h.por)}${h.nota ? `<br>${esc(h.nota)}` : ''}</li>`).join('')}</ul>` : ''}
+    <p class="demo">Demonstração: o tratamento fica salvo só neste navegador.</p></div>`;
+}
+function bindTratamento(root, a, ev) {
+  const q = (s) => root.querySelector(s);
+  if (q('#t-abrir')) q('#t-abrir').onclick = () => abrirAlertaDe(ev.id);
+  if (!a) return;
+  const resp = () => (q('#t-resp') ? q('#t-resp').value : a.responsavel);
+  if (q('#t-resp')) q('#t-resp').onchange = () => registrar(a.id, a.status, { resp: resp(), nota: `Responsável alterado para ${resp()}` });
+  if (q('#t-assumir')) q('#t-assumir').onclick = () => registrar(a.id, 'Em análise', { resp: resp(), nota: 'Análise assumida' });
+  if (q('#t-voltar')) q('#t-voltar').onclick = () => registrar(a.id, 'Aberto', { nota: 'Devolvido para a fila' });
+  if (q('#t-reabrir')) q('#t-reabrir').onclick = () => registrar(a.id, 'Aberto', { nota: 'Reaberto' });
+  const ok = q('#t-tratar');
+  if (ok) {
+    const check = () => { ok.disabled = !(q('#t-desf').value && q('#t-acao').value && q('#t-com').value.trim()); };
+    ['#t-desf', '#t-acao', '#t-com'].forEach(s => { q(s).oninput = check; q(s).onchange = check; });
+    ok.onclick = () => registrar(a.id, 'Tratado', { resp: resp(), nota: q('#t-com').value.trim(),
+      campos: { desfecho: q('#t-desf').value, acao: q('#t-acao').value, comentario: q('#t-com').value.trim(), tratadoEm: agora() } });
+  }
+}
+
+// ---------------- render ----------------
+const VISTAS = { acompanhamento: vistaAcompanhamento, investigar: vistaInvestigar, alertas: vistaAlertas, governanca: vistaGovernanca };
+let lastPath = '';
+function render() {
+  parseHash();
+  const v = VISTAS[route.path[0]] || vistaAcompanhamento;
+  renderNav();
+  const main = document.getElementById('main');
+  const keepScroll = route.path.join('/') === lastPath;
+  const y = window.scrollY;
+  v(main);
+  mountFilters(main);
+  window.scrollTo(0, keepScroll ? y : 0);
+  lastPath = route.path.join('/');
+  document.getElementById('tip').hidden = true;
+}
+document.getElementById('disc').textContent = E.meta.aviso;
+document.getElementById('foot').textContent = `${E.meta.aviso} Fonte: ${E.meta.fonte}. Gerado em ${dtBR(E.meta.gerado_em)}.`;
+window.addEventListener('hashchange', () => { closeModal(); render(); });
+
+
+// tooltip único
+const tip = document.getElementById('tip');
+document.addEventListener('mousemove', (ev) => {
+  const t = ev.target.closest && ev.target.closest('[data-tip]');
+  if (!t) { tip.hidden = true; return; }
+  tip.innerHTML = t.getAttribute('data-tip'); tip.hidden = false;
+  const r = tip.getBoundingClientRect();
+  let x = ev.clientX + 14, y = ev.clientY + 14;
+  if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - 14;
+  if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 14;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+});
+aplicarTrat();
+render();
+</script>
+</body>
+</html>

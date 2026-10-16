@@ -151,6 +151,16 @@ Write-Host "Instalando o servico $Nome ..." -ForegroundColor Cyan
 $sddl = "D:(A;;CCLCSWRPWPDTLOCRRC;;;SY)(A;;CCLCSWRPWPDTLOCRRC;;;BA)(A;;CCLCSWLOCRRC;;;IU)(A;;CCLCSWLOCRRC;;;SU)(A;;CCLCSWLOCRRC;;;AU)"
 & sc.exe sdset $Nome $sddl | Out-Null
 
+# --- Exclusao no Defender: evita que o antivirus bloqueie o agente, SEM desligar
+#     a protecao. Best-effort: se o Defender nao estiver presente, so avisa. ---
+try {
+  Add-MpPreference -ExclusionPath $Aqui -ErrorAction Stop
+  Add-MpPreference -ExclusionProcess "python.exe" -ErrorAction SilentlyContinue
+  Write-Host "  Defender: exclusao adicionada para '$Aqui' (protecao segue ativa)." -ForegroundColor DarkGray
+} catch {
+  Write-Warning "Nao consegui adicionar a exclusao no Defender ($($_.Exception.Message)). Veja a secao 'Antivirus' no LEIA-ME.md."
+}
+
 Start-Service $Nome
 Write-Host ""
 Write-Host "OK. Servico '$Nome' instalado e rodando." -ForegroundColor Green

@@ -68,7 +68,18 @@ CREATE TABLE IF NOT EXISTS inventario_dominios (
   nome    TEXT NOT NULL,
   status  TEXT NOT NULL
 );
+-- Cadastros centrais feitos na tela de Governança do painel 2.0 (status,
+-- finalidade, controles, identificador das ferramentas, etc.). Guardamos o
+-- bloco inteiro de CAD como um JSON só — a autoridade passa a ser o servidor,
+-- não o localStorage de cada navegador.
+CREATE TABLE IF NOT EXISTS cadastros (
+  chave TEXT PRIMARY KEY,
+  valor TEXT NOT NULL
+);
 """
+
+CADASTROS_CHAVE = "gerencia-cadastros-v1"
+CADASTROS_SECOES = ("classificacoes", "ferramentas", "usuarios", "tipos", "regras", "fontes")
 
 STATUS_VALIDOS = ("Aprovada", "Aprovada condicional",
                   "Aprovada apenas para conteúdo público", "Não aprovada")
@@ -121,6 +132,61 @@ def gravar_inventario(con: sqlite3.Connection, inv: dict) -> dict:
         con.executemany("INSERT INTO inventario_dominios VALUES (?,?,?)",
                         [(d, m["nome"], m["status"]) for d, m in limpo.items()])
     return limpo
+
+
+def ler_cadastros(con: sqlite3.Connection) -> dict:
+    """Devolve o bloco de cadastros centrais {secao: [itens]} (vazio na 1ª vez)."""
+    base = {k: [] for k in CADASTROS_SECOES}
+    row = con.execute("SELECT valor FROM cadastros WHERE chave=?", (CADASTROS_CHAVE,)).fetchone()
+    if row:
+        try:
+            g = json.loads(row[0]) or {}
+            for k in CADASTROS_SECOES:
+                if isinstance(g.get(k), list):
+                    base[k] = g[k]
+        except (ValueError, TypeError):
+            pass
+    return base
+
+
+def gravar_cadastros(con: sqlite3.Connection, cad: dict) -> dict:
+    """Substitui os cadastros centrais pelo que o painel enviou (só as seções válidas).
+
+    Além de guardar o bloco, espelha as ferramentas que têm domínio + status no
+    `inventario_dominios`, para que a mudança de status RECLASSIFIQUE as capturas
+    daquela ferramenta no próximo pipeline (ponte cadastro → motor)."""
+    limpo = {k: [] for k in CADASTROS_SECOES}
+    for k in CADASTROS_SECOES:
+        v = (cad or {}).get(k)
+        if isinstance(v, list):
+            limpo[k] = v[:500]   # teto defensivo
+    with con:
+        con.execute("INSERT OR REPLACE INTO cadastros (chave, valor) VALUES (?,?)",
+                    (CADASTROS_CHAVE, json.dumps(limpo, ensure_ascii=False)))
+    _espelhar_ferramentas_no_inventario(con, limpo.get("ferramentas", []))
+    return limpo
+
+
+def _espelhar_ferramentas_no_inventario(con: sqlite3.Connection, ferramentas: list) -> None:
+    """Ferramenta com domínio + status vira (ou atualiza) uma entrada do inventário,
+    para o motor reclassificar as capturas desse domínio. Sem domínio, só fica no
+    cadastro (ex.: ferramentas da planilha que não têm site)."""
+    inv = inventario(con)
+    mudou = False
+    for f in ferramentas or []:
+        if not isinstance(f, dict):
+            continue
+        dom = str(f.get("dominio") or "").strip().lower()
+        dom = dom.replace("https://", "").replace("http://", "").split("/")[0][:120]
+        status = f.get("status")
+        if not dom or status not in STATUS_VALIDOS:
+            continue
+        nome = str(f.get("nome") or dom)[:80]
+        if inv.get(dom) != {"nome": nome, "status": status}:
+            inv[dom] = {"nome": nome, "status": status}
+            mudou = True
+    if mudou:
+        gravar_inventario(con, inv)
 
 
 def garantir_esquema(con: sqlite3.Connection) -> None:

@@ -643,8 +643,37 @@ if (!E) {
 // Para levar ao pipeline, use "Exportar cadastros" (JSON) na aba Governança → Cadastros.
 const CKEY = 'gerencia-cadastros-v1';
 const CAD = { classificacoes: [], ferramentas: [], usuarios: [], tipos: [], regras: [], fontes: [] };
-try { const g = JSON.parse(localStorage.getItem(CKEY) || '{}') || {}; Object.keys(CAD).forEach(k => { if (Array.isArray(g[k])) CAD[k] = g[k]; }); } catch (e) { /* sem armazenamento: só os da planilha */ }
-const salvarCad = () => { try { localStorage.setItem(CKEY, JSON.stringify(CAD)); return true; } catch (e) { return false; } };
+// Origem dos cadastros: se este painel foi servido pelo COLETOR, os cadastros são
+// CENTRAIS — um só conjunto para todos os navegadores, e mudar o status de uma
+// ferramenta reclassifica as capturas no motor. Fora do coletor (arquivo local ou
+// GitHub Pages), caem no localStorage deste navegador (modo demonstração).
+let CAD_SERVER = false, CAD_EDITAVEL = true;
+try {
+  const x = new XMLHttpRequest();
+  x.open('GET', '/api/cadastros', false);   // síncrono: o boot do painel é síncrono
+  x.send();
+  if (x.status === 200) {
+    const g = JSON.parse(x.responseText) || {};
+    Object.keys(CAD).forEach(k => { if (Array.isArray(g[k])) CAD[k] = g[k]; });
+    CAD_SERVER = true; CAD_EDITAVEL = g.editavel !== false;
+  }
+} catch (e) { /* não é o coletor: segue para o localStorage */ }
+if (!CAD_SERVER) {
+  try { const g = JSON.parse(localStorage.getItem(CKEY) || '{}') || {}; Object.keys(CAD).forEach(k => { if (Array.isArray(g[k])) CAD[k] = g[k]; }); } catch (e) { /* sem armazenamento: só os da planilha */ }
+}
+const salvarCad = () => {
+  let ok = true;
+  try { localStorage.setItem(CKEY, JSON.stringify(CAD)); } catch (e) { ok = false; }
+  if (CAD_SERVER && CAD_EDITAVEL) {
+    try {
+      const x = new XMLHttpRequest();
+      x.open('POST', '/api/cadastros', true);   // central: o coletor grava e regenera (~1s)
+      x.setRequestHeader('Content-Type', 'application/json');
+      x.send(JSON.stringify(CAD));
+    } catch (e) { /* mantém ao menos o espelho local */ }
+  }
+  return ok;
+};
 // Mescla os cadastros salvos: se o item casar com um da base (planilha/coleta) por id
 // ou nome, ele SOBRESCREVE aquele item (editado); senão entra como cadastro novo.
 const _normCad = s => String(s == null ? '' : s).trim().toLowerCase();
