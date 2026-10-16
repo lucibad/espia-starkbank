@@ -985,7 +985,6 @@ function evidencia(e, a) {
     </dl>
     <h3 style="font-size:13.5px">Por que isto é risco</h3>
     <ol class="chain">${chain || '<li>Sem achados registrados.</li>'}</ol>
-    ${e.evidencia_base ? `<p class="note mt">Evidência registrada na origem: ${esc(e.evidencia_base)}</p>` : ''}
     ${e.divergente && e.risco_base ? `<p class="note">A base trazia <b>${esc(e.risco_base)}</b> (${esc(e.regra_base)}); o motor apurou <b>${esc(e.risco)}</b> (${esc(e.regra)}). Detalhes em Governança → Regras de risco → Auditoria da base.</p>` : ''}
     <div class="linkrow"><a href="${link(['investigar', 'info', e.informacao_id])}">Onde mais esta informação foi usada →</a><button class="linkbtn" type="button" data-abrir-evento="${esc(e.id)}">${MODAL.ficha === e.id ? 'Ocultar evento' : 'Abrir evento →'}</button></div>
   </div>`;
@@ -994,21 +993,11 @@ function evidencia(e, a) {
 // Ficha técnica do evento — abre no card da direita ao clicar em "Abrir evento".
 function fichaEvento(e) {
   if (!e) return '';
-  const f = FER[e.ferramenta_id];
   return `<div class="trat" style="margin-top:14px">
     <h3>Ficha do evento</h3>
     <dl class="ev">
       <dt>Código</dt><dd class="mono">${esc(e.id)}</dd>
-      <dt>Registrado</dt><dd class="mono">${dtBR(e.ts)}${e.fora_horario ? ' <span class="muted small">(fora do horário)</span>' : ''}</dd>
-      <dt>Origem</dt><dd>${srcTag(e.fonte)} <span class="muted small">${esc(origemFonte(e))}</span></dd>
-      <dt>Ferramenta</dt><dd>${esc(f ? f.nome : e.ferramenta)} ${stTag(e.ferramenta_id)}</dd>
-      <dt>Como</dt><dd>${esc(e.forma_uso)} · ${num(e.qtd)} item(ns)</dd>
-      <dt>Para quê</dt><dd>${esc(e.finalidade)}</dd>
-      <dt>Classificação</dt><dd>${esc(e.informacao)} ${clsChip(e.sensibilidade)}</dd>
-      <dt>Risco apurado</dt><dd>${riskChip(e.risco)}${e.regra ? ` <span class="muted small">${esc(e.regra)}</span>` : ''}</dd>
-      <dt>Registro</dt><dd>${esc(e.origem)} <span class="muted small">(origem do registro)</span></dd>
     </dl>
-    ${e.evidencia_base ? `<p class="note">Evidência na origem: ${esc(e.evidencia_base)}</p>` : ''}
     ${e.fonte === 'coleta' ? `<div class="card" style="margin-top:12px;background:var(--wash)" id="ficha-conteudo" data-cap="${esc(e.id)}"><p class="muted small">Carregando o conteúdo capturado…</p></div>` : ''}
     <div class="linkrow"><a href="${link(['investigar', 'info', e.informacao_id])}">Onde mais esta informação foi usada →</a></div>
   </div>`;
