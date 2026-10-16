@@ -987,7 +987,29 @@ function evidencia(e, a) {
     <ol class="chain">${chain || '<li>Sem achados registrados.</li>'}</ol>
     ${e.evidencia_base ? `<p class="note mt">Evidência registrada na origem: ${esc(e.evidencia_base)}</p>` : ''}
     ${e.divergente && e.risco_base ? `<p class="note">A base trazia <b>${esc(e.risco_base)}</b> (${esc(e.regra_base)}); o motor apurou <b>${esc(e.risco)}</b> (${esc(e.regra)}). Detalhes em Governança → Regras de risco → Auditoria da base.</p>` : ''}
-    <div class="linkrow"><a href="${link(['investigar', 'info', e.informacao_id])}">Onde mais esta informação foi usada →</a><a href="${link(['investigar', 'evento', e.id])}">Abrir evento →</a></div>
+    <div class="linkrow"><a href="${link(['investigar', 'info', e.informacao_id])}">Onde mais esta informação foi usada →</a><button class="linkbtn" type="button" data-abrir-evento="${esc(e.id)}">${MODAL.ficha === e.id ? 'Ocultar evento' : 'Abrir evento →'}</button></div>
+  </div>`;
+}
+
+// Ficha técnica do evento — abre no card da direita ao clicar em "Abrir evento".
+function fichaEvento(e) {
+  if (!e) return '';
+  const f = FER[e.ferramenta_id];
+  return `<div class="trat" style="margin-top:14px">
+    <h3>Ficha do evento</h3>
+    <dl class="ev">
+      <dt>Código</dt><dd class="mono">${esc(e.id)}</dd>
+      <dt>Registrado</dt><dd class="mono">${dtBR(e.ts)}${e.fora_horario ? ' <span class="muted small">(fora do horário)</span>' : ''}</dd>
+      <dt>Origem</dt><dd>${srcTag(e.fonte)} <span class="muted small">${esc(origemFonte(e))}</span></dd>
+      <dt>Ferramenta</dt><dd>${esc(f ? f.nome : e.ferramenta)} ${stTag(e.ferramenta_id)}</dd>
+      <dt>Como</dt><dd>${esc(e.forma_uso)} · ${num(e.qtd)} item(ns)</dd>
+      <dt>Para quê</dt><dd>${esc(e.finalidade)}</dd>
+      <dt>Classificação</dt><dd>${esc(e.informacao)} ${clsChip(e.sensibilidade)}</dd>
+      <dt>Risco apurado</dt><dd>${riskChip(e.risco)}${e.regra ? ` <span class="muted small">${esc(e.regra)}</span>` : ''}</dd>
+      <dt>Registro</dt><dd>${esc(e.origem)} <span class="muted small">(origem do registro)</span></dd>
+    </dl>
+    ${e.evidencia_base ? `<p class="note">Evidência na origem: ${esc(e.evidencia_base)}</p>` : ''}
+    <div class="linkrow"><a href="${link(['investigar', 'info', e.informacao_id])}">Onde mais esta informação foi usada →</a></div>
   </div>`;
 }
 
@@ -1556,7 +1578,7 @@ function bindRowLinks(root) { root.querySelectorAll('tr[data-go]').forEach(tr =>
 // =====================================================================
 // MODAL — resumo de informação, pessoa, ferramenta, área ou evento sem sair da página
 // =====================================================================
-const MODAL = { stack: [] };
+const MODAL = { stack: [], ficha: null };
 const KIND_NOME = { info: 'Informação', pessoa: 'Pessoa', ferramenta: 'Ferramenta', area: 'Área', evento: 'Evento', alerta: 'Alerta' };
 function entidadeHTML(kind, id) {
   if (kind === 'alerta') {
@@ -1564,13 +1586,13 @@ function entidadeHTML(kind, id) {
     if (!a) return '<div class="card empty-state">Alerta não encontrado.</div>';
     return `<div class="mtitle"><h2>${esc(a.informacao)} → ${esc(a.ferramenta)}</h2><p>${riskChip(a.risco)} <span>${esc(a.status)} · ${esc(a.responsavel)}</span></p></div>
       ${MODAL.aviso ? `<p class="note" style="margin:0 0 14px">${MODAL.aviso}</p>` : ''}
-      <div class="grid g-2 malerta"><div class="card">${evidencia(ev, a)}${a.evidencia ? `<p class="note">Evidência do alerta: ${esc(a.evidencia)}</p>` : ''}</div><div class="card">${blocoTratamento(a, ev)}</div></div>`;
+      <div class="grid g-2 malerta"><div class="card">${evidencia(ev, a)}${a.evidencia ? `<p class="note">Evidência do alerta: ${esc(a.evidencia)}</p>` : ''}</div><div class="card">${blocoTratamento(a, ev)}${ev && MODAL.ficha === ev.id ? fichaEvento(ev) : ''}</div></div>`;
   }
   if (kind === 'evento') {
     const e = EVT[id];
     const a = e ? E.alertas.find(x => x.evento_id === id) : null;
     return `<div class="mtitle"><h2>${e ? esc(e.informacao) + ' → ' + esc(e.ferramenta) : esc(id)}</h2></div>
-      <div class="grid g-2 malerta"><div class="card">${evidencia(e, a)}</div><div class="card">${a ? `<div class="trat"><h3>Alerta ${esc(a.id)}</h3><p class="muted small" style="margin:0 0 12px">${esc(a.status)} · ${esc(a.responsavel)}</p><button class="btn primary" type="button" data-ver-alerta="${esc(a.id)}">Ver tratamento do alerta</button></div>` : blocoTratamento(null, e)}</div></div>`;
+      <div class="grid g-2 malerta"><div class="card">${evidencia(e, a)}</div><div class="card">${a ? `<div class="trat"><h3>Alerta ${esc(a.id)}</h3><p class="muted small" style="margin:0 0 12px">${esc(a.status)} · ${esc(a.responsavel)}</p><button class="btn primary" type="button" data-ver-alerta="${esc(a.id)}">Ver tratamento do alerta</button></div>` : blocoTratamento(null, e)}${MODAL.ficha === id ? fichaEvento(e) : ''}</div></div>`;
   }
   const K = KINDS[kind];
   const evs = fEventos().filter(e => K.match(e, id)).sort((a, b) => b.ts.localeCompare(a.ts));
@@ -1616,6 +1638,7 @@ function entidadeHTML(kind, id) {
 function openModal(kind, id) {
   const el = document.getElementById('modal');
   if (el.hidden) MODAL.stack = [];
+  MODAL.ficha = null;   // nova entrada começa com a ficha fechada
   const top = MODAL.stack[MODAL.stack.length - 1];
   if (!top || top[0] !== kind || top[1] !== id) MODAL.stack.push([kind, id]);
   drawModal();
@@ -1634,6 +1657,7 @@ function drawModal() {
   if (kind === 'alerta' && ALT[id]) bindTratamento(body, ALT[id], EVT[ALT[id].evento_id]);
   if (kind === 'evento' && EVT[id] && !E.alertas.some(x => x.evento_id === id)) bindTratamento(body, null, EVT[id]);
   body.querySelectorAll('[data-ver-alerta]').forEach(x => x.onclick = () => openModal('alerta', x.dataset.verAlerta));
+  body.querySelectorAll('[data-abrir-evento]').forEach(x => x.onclick = () => { MODAL.ficha = (MODAL.ficha === x.dataset.abrirEvento ? null : x.dataset.abrirEvento); drawModal(); });
   const v = el.querySelector('[data-mvoltar]'); if (v) v.onclick = () => { MODAL.stack.pop(); drawModal(); };
   el.querySelector('.mx').focus();
   el.scrollTop = 0;
@@ -1641,7 +1665,7 @@ function drawModal() {
 function closeModal() {
   const el = document.getElementById('modal');
   if (el.hidden) return;
-  el.hidden = true; el.innerHTML = ''; MODAL.stack = []; MODAL.aviso = ''; document.body.style.overflow = '';
+  el.hidden = true; el.innerHTML = ''; MODAL.stack = []; MODAL.aviso = ''; MODAL.ficha = null; document.body.style.overflow = '';
 }
 // links para informação/pessoa/ferramenta/área/evento abrem o modal em vez de trocar de página
 const RX_ENT = /^#\/investigar\/(info|pessoa|ferramenta|area|evento)\/([^?]+)/;
