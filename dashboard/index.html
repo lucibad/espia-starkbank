@@ -1431,6 +1431,7 @@ const CAD_DEF = {
     abrir: (x) => ['ferramenta', x.id],
     cols: [['Ferramenta', x => `${esc(x.nome)}<span class="sub">${esc(x.id)} · ${esc(x.tipo)}</span>`], ['Status', x => stTag(x.id)], ['Finalidade aprovada', x => `<span class="small">${esc(x.finalidade)}</span>`], ['Controles', x => `<span class="small">${esc(x.controles)}</span>`], ['Logs', x => esc(x.logs)], ['Eventos', x => n0(usoFerr(x.id).n), 'num'], ['Pessoas', x => n0(usoFerr(x.id).p), 'num'], ['Sensíveis', x => n0(usoFerr(x.id).s), 'num'], ['Alto/crítico', x => n0(usoFerr(x.id).ac), 'num']],
     campos: () => [{ k: 'nome', l: 'Nome', req: 1, ph: 'Ex.: Assistente de Atendimento' }, { k: 'tipo', l: 'Tipo', tipo: 'select', ops: ['Corporativa', 'Pública'], req: 1 },
+      { k: 'dominio', l: 'Domínio (site)', ph: 'Ex.: gamma.app — liga o status às capturas desse site' },
       { k: 'status', l: 'Status', tipo: 'select', ops: ['Aprovada', 'Aprovada condicional', 'Aprovada apenas para conteúdo público', 'Não aprovada'], req: 1 },
       { k: 'uso_principal', l: 'Uso principal', ph: 'Ex.: Texto/documentos' }, { k: 'finalidade', l: 'Finalidade aprovada', req: 1 },
       { k: 'controles', l: 'Controles', ph: 'Ex.: SSO; logs; DLP' }, { k: 'logs', l: 'Logs corporativos', tipo: 'select', ops: ['Sim', 'Parcial', 'Não'], req: 1 }],
