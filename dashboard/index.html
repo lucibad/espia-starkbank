@@ -200,15 +200,15 @@ a.kpi:hover { text-decoration: none; box-shadow: inset 0 0 0 1px var(--border), 
 .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 
 /* ===== Barras horizontais ===== */
-.hb { display: grid; grid-template-columns: minmax(120px, 38%) minmax(0, 1fr) 52px; gap: 12px; align-items: center; }
-.hb .l { font-size: 14px; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+.hb { display: flex; flex-direction: column; gap: 14px; }
+.hb .row { display: grid; grid-template-columns: minmax(0,1fr) auto; grid-template-areas: "l v" "t t"; column-gap: 10px; row-gap: 5px; align-items: baseline; color: inherit; font-weight: inherit; text-decoration: none; }
+.hb .l { grid-area: l; font-size: 13.5px; font-weight: 600; color: var(--ink); white-space: normal; overflow-wrap: anywhere; line-height: 1.3; display: flex; flex-direction: column; gap: 2px; }
 .hb .l > small { font-weight: 400; }
-.hb .t { height: 12px; display: flex; gap: 2px; }
+.hb .t { grid-area: t; height: 10px; display: flex; gap: 2px; }
 .hb .t > i { display: block; height: 100%; min-width: 2px; border-radius: 3px; }
-.hb .v { font-size: 14px; font-weight: 700; text-align: right; color: var(--ink-h); }
+.hb .v { grid-area: v; font-size: 14px; font-weight: 700; text-align: right; color: var(--ink-h); white-space: nowrap; }
 .hb .v em { font-style: normal; font-weight: 700; color: var(--sev-Critico-ink); }
 .hb .v small { font-weight: 500; color: var(--ink-2); font-size: 13px; }
-.hb a.row { display: contents; color: inherit; font-weight: inherit; }
 .hb a.row:hover .l { text-decoration: underline; }
 .thin { display: flex; flex-direction: column; gap: 14px; }
 .thin a { display: flex; flex-direction: column; gap: 6px; color: var(--ink); font-weight: 600; }
@@ -962,8 +962,8 @@ function hbars(rows, opts = {}) {
     const segs = (r.segs || [{ v: r.total, color: 'var(--bar)' }]).filter(s => s.v > 0);
     const tip = `<b>${esc(r.label)}</b><br>` + (r.segs ? r.segs.filter(s => s.v).map(s => `<div class="row"><span><i style="background:${s.color}"></i>${esc(s.name)}</span><b>${s.v}</b></div>`).join('') : '') + `<div class="row"><span>Total</span><b>${r.total}</b></div>`;
     const bars = segs.map(s => `<i style="width:${(s.v / mx * 100).toFixed(2)}%;background:${s.color}"></i>`).join('');
-    const inner = `<span class="l">${esc(r.label)}${r.sub ? `<small>${r.sub}</small>` : ''}</span><span class="t"${tipAttr(tip)}>${bars}</span><span class="v">${num(r.total)}</span>`;
-    return r.href ? `<a class="row" href="${r.href}">${inner}</a>` : inner;
+    const inner = `<span class="l">${esc(r.label)}${r.sub ? `<small>${r.sub}</small>` : ''}</span><span class="v">${num(r.total)}</span><span class="t"${tipAttr(tip)}>${bars}</span>`;
+    return r.href ? `<a class="row" href="${r.href}">${inner}</a>` : `<div class="row">${inner}</div>`;
   }).join('')}</div>`;
 }
 const legendaRisco = (only) => `<div class="legend">${RISCOS.filter(r => !only || only.includes(r)).map(r => `<span><i style="background:${COR[r]}"></i>${r}</span>`).join('')}</div>`;
