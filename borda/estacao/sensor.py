@@ -103,8 +103,16 @@ def _publico(ip: str) -> bool:
 
 
 def _reindexar(forcar: bool = False) -> None:
-    """Resolve cada domínio de IA para seus IPs atuais e monta o índice."""
+    """Resolve cada domínio de IA para seus IPs atuais e monta o índice.
+
+    NO WINDOWS NÃO FAZEMOS ISSO: resolver os domínios aqui popularia o cache de
+    DNS da máquina — justamente o cache que usamos como AUTORIDADE em varrer().
+    Isso criaria falso-positivo (o agente reportaria todas as IAs como usadas só
+    porque ele mesmo as resolveu). No Windows a autoridade é a navegação real do
+    usuário (cache de DNS); o índice de IPs só vale fora do Windows."""
     global _ip_index, _ip_index_em
+    if WIN:
+        return
     if not forcar and time.time() - _ip_index_em < 600 and _ip_index:
         return
     novo: dict[str, str] = {}
@@ -353,10 +361,13 @@ def varrer(imprimir: bool = False) -> int:
 def rodar() -> None:
     print(f"GerencIA · sensor de rede — máquina {MAQUINA}, usuário {_usuario_logado()}")
     print(f"  coletor: {COLETOR or '(nenhum — modo impressão)'} · intervalo {INTERVALO}s · janela {JANELA}s")
-    print(f"  sinais: índice de IPs + {'cache de DNS do Windows' if WIN else 'cache de DNS (só Windows)'} + processo dono")
+    print(f"  autoridade: {'cache de DNS do Windows (navegação real)' if WIN else 'índice de IPs (best-effort)'} + processo dono")
     print("  registra METADADO de uso de IA — nunca o conteúdo\n")
     _reindexar(forcar=True)
-    print(f"  índice inicial: {len(_ip_index)} IP(s) de IA mapeado(s)\n")
+    if not WIN:
+        print(f"  índice inicial: {len(_ip_index)} IP(s) de IA mapeado(s)\n")
+    else:
+        print("  Windows: sem pré-resolução (evita falso-positivo no cache de DNS)\n")
     try:
         while True:
             n = varrer(imprimir=False)
