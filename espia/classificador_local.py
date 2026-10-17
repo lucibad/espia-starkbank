@@ -131,6 +131,39 @@ def classificar(texto: str, tipos: list[str] | None = None) -> dict | None:
     }
 
 
+def resumir(texto: str, limite: int = 400) -> str | None:
+    """Resumo curto (on-premise, Qwen3) do conteúdo de um anexo — para avaliar o
+    que o arquivo contém sem guardar o arquivo inteiro. Devolve o resumo ou None."""
+    texto = (texto or "").strip()
+    if len(texto) < 2:
+        return None
+    corpo = {
+        "model": "local",
+        "messages": [
+            {"role": "system", "content": "Você resume, em português, o conteúdo de um "
+             "documento para governança de informação. Produza um resumo objetivo de 2 a 4 "
+             "frases, dizendo do que trata e se há indícios de dado sensível (pessoal, "
+             "financeiro, segredo). Não invente. Responda só o resumo, sem título."},
+            {"role": "user", "content": "DOCUMENTO:\n" + texto[:6000] + "\n\n/no_think"},
+        ],
+        "temperature": 0,
+        "max_tokens": 220,
+        "stream": False,
+    }
+    try:
+        req = urllib.request.Request(
+            URL + "/v1/chat/completions",
+            data=json.dumps(corpo).encode("utf-8"),
+            headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+            resp = json.load(r)
+        out = resp["choices"][0]["message"]["content"]
+    except Exception:
+        return None
+    out = re.sub(r"<think>.*?</think>", "", out, flags=re.DOTALL).strip()
+    return out[:limite] or None
+
+
 def disponivel() -> bool:
     """Checa rápido se o llamafile responde (para logs/health)."""
     try:

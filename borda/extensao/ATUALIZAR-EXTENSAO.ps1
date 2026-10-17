@@ -11,7 +11,7 @@
 param(
   [string]$Zip = "",
   [string]$Dest = "C:\GerencIA\extensao",
-  [string]$Url  = "https://raw.githubusercontent.com/lucibad/espia-starkbank/main/borda/pacotes/gerencia-extensao-chrome-edge-0.3.1.zip"
+  [string]$Url  = "https://raw.githubusercontent.com/lucibad/espia-starkbank/main/borda/pacotes/gerencia-extensao-chrome-edge-0.3.2.zip"
 )
 $ErrorActionPreference = "Stop"
 $Base = Split-Path -Parent $Dest    # ex.: C:\GerencIA
@@ -66,7 +66,7 @@ Write-Host ("  versao          : {0}" -f $versao)
 Write-Host ("  captura conteudo: {0}" -f ($(if($temConteudo){"SIM"}else{"NAO"})))
 Write-Host ("  captura resposta: {0}" -f ($(if($temResposta){"SIM"}else{"NAO"})))
 if (-not ($temConteudo -and $temResposta)) {
-  Write-Host "AVISO: esta build NAO captura conteudo. Baixe a 0.3.1 e rode de novo." -ForegroundColor Yellow
+  Write-Host "AVISO: esta build NAO captura conteudo. Baixe a 0.3.2 e rode de novo." -ForegroundColor Yellow
 } else {
   Write-Host "OK - build com captura de conteudo (prompt + resposta)." -ForegroundColor Green
 }

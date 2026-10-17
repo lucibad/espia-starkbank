@@ -167,11 +167,16 @@ class Coletor(BaseHTTPRequestHandler):
                 return self._json({"code": "faltou_cap"}, 400)
             con = _conectar()
             try:
-                row = con.execute("SELECT par_id,prompt,resposta FROM capturas WHERE cap_id=?",
-                                  (cap,)).fetchone()
+                row = con.execute(
+                    """SELECT par_id,prompt,resposta,anexo_nome,anexo_tipo,anexo_resumo,
+                              anexo_class,anexo_sens FROM capturas WHERE cap_id=?""", (cap,)).fetchone()
                 par = (row[0] if row else "") or ""
                 prompt = (row[1] if row else "") or ""
                 resposta = (row[2] if row else "") or ""
+                anexo = {}
+                if row and (row[3] or row[5]):
+                    anexo = {"nome": row[3] or "", "tipo": row[4] or "", "resumo": row[5] or "",
+                             "classe": row[6] or "", "sens": row[7] or ""}
                 if par:  # junta o par (prompt + resposta da mesma busca)
                     for _p, pr, rp in con.execute(
                             "SELECT par_id,prompt,resposta FROM capturas WHERE par_id=?", (par,)):
@@ -182,7 +187,7 @@ class Coletor(BaseHTTPRequestHandler):
             finally:
                 con.close()
             return self._json({"cap": cap, "prompt": prompt, "resposta": resposta,
-                               "tem": bool(prompt or resposta)})
+                               "anexo": anexo, "tem": bool(prompt or resposta or anexo)})
         if rota == "/api/inventario":
             con = _conectar()
             inv = cp.inventario(con)

@@ -58,7 +58,12 @@ CREATE TABLE IF NOT EXISTS capturas (
   prompt           TEXT,            -- CONTEUDO da pesquisa (guarda de conteúdo)
   resposta         TEXT,            -- CONTEUDO do retorno da IA
   fonte_captura    TEXT,            -- extensao | agente | mitm (quem capturou)
-  classificado_por TEXT             -- borda | llm-local | llm-local-baixa-confianca
+  classificado_por TEXT,            -- borda | llm-local | llm-local-baixa-confianca
+  anexo_nome       TEXT,            -- nome do arquivo anexado (se houver)
+  anexo_tipo       TEXT,            -- mime/extensão do anexo
+  anexo_resumo     TEXT,            -- resumo do conteúdo do anexo (Qwen3)
+  anexo_class      TEXT,            -- classificação do anexo: "Tipo · Sensibilidade"
+  anexo_sens       TEXT             -- sensibilidade do anexo
 );
 -- Inventário das IAs externas monitoradas: o admin cadastra e decide o status.
 -- É a autoridade sobre nome e aprovação das ferramentas que a planilha não
@@ -374,22 +379,30 @@ def conteudos_map(con: sqlite3.Connection) -> dict:
     Junta o par prompt/resposta da mesma busca."""
     out: dict = {}
     try:
-        rows = con.execute("SELECT cap_id, par_id, prompt, resposta FROM capturas").fetchall()
+        rows = con.execute("""SELECT cap_id, par_id, prompt, resposta,
+                                     anexo_nome, anexo_tipo, anexo_resumo, anexo_class
+                              FROM capturas""").fetchall()
     except sqlite3.OperationalError:
         return out
     por_par: dict = {}
-    for _cap, par, pr, rp in rows:
+    for _cap, par, pr, rp, *_ in rows:
         if par:
             d = por_par.setdefault(par, {"prompt": "", "resposta": ""})
             if pr and not d["prompt"]:
                 d["prompt"] = pr
             if rp and not d["resposta"]:
                 d["resposta"] = rp
-    for cap, par, pr, rp in rows:
+    for cap, par, pr, rp, an_nome, an_tipo, an_resumo, an_class in rows:
         prompt = (pr or (por_par.get(par, {}).get("prompt") if par else "") or "")[:16000]
         resposta = (rp or (por_par.get(par, {}).get("resposta") if par else "") or "")[:16000]
+        item = {}
         if prompt or resposta:
-            out[cap] = {"prompt": _mascarar(prompt), "resposta": _mascarar(resposta)}
+            item = {"prompt": _mascarar(prompt), "resposta": _mascarar(resposta)}
+        if an_nome or an_resumo:
+            item["anexo"] = {"nome": an_nome or "", "tipo": an_tipo or "",
+                             "resumo": _mascarar(an_resumo or ""), "classe": an_class or ""}
+        if item:
+            out[cap] = item
     return out
 
 
@@ -397,7 +410,8 @@ def garantir_esquema(con: sqlite3.Connection) -> None:
     con.executescript(ESQUEMA_CAPTURAS)
     # Migração: bancos antigos não têm as colunas de conteúdo — adiciona se faltarem.
     cols = {r[1] for r in con.execute("PRAGMA table_info(capturas)")}
-    for c in ("par_id", "papel", "prompt", "resposta", "fonte_captura", "classificado_por"):
+    for c in ("par_id", "papel", "prompt", "resposta", "fonte_captura", "classificado_por",
+              "anexo_nome", "anexo_tipo", "anexo_resumo", "anexo_class", "anexo_sens"):
         if c not in cols:
             con.execute(f"ALTER TABLE capturas ADD COLUMN {c} TEXT")
     con.commit()
@@ -414,6 +428,41 @@ def _slug(s: str) -> str:
 
 def _texto(v, n: int) -> str:
     return str(v if v is not None else "")[:n]
+
+
+def _extrair_pdf(b64: str) -> str:
+    """Texto de um PDF em base64 (best-effort, on-premise, até 30 páginas)."""
+    try:
+        import base64 as _b64, io, pypdf
+        leitor = pypdf.PdfReader(io.BytesIO(_b64.b64decode(b64)))
+        return "\n".join((p.extract_text() or "") for p in leitor.pages[:30]).strip()
+    except Exception:
+        return ""
+
+
+def _processar_anexo(corpo: dict) -> dict:
+    """Resume (Qwen3) e classifica o conteúdo de um anexo, se houver. O arquivo
+    NÃO é guardado — só o resumo e a classificação. Devolve {nome,tipo,resumo,classe,sens}."""
+    a = corpo.get("anexo")
+    if not isinstance(a, dict) or not (a.get("nome") or a.get("texto") or a.get("base64")):
+        return {}
+    nome = _texto(a.get("nome"), 160)
+    tipo = _texto(a.get("tipo"), 60)
+    texto = (a.get("texto") or "").strip()
+    if not texto and a.get("base64") and ("pdf" in tipo.lower() or nome.lower().endswith(".pdf")):
+        texto = _extrair_pdf(a["base64"])
+    resumo = classe = sens_a = ""
+    if texto:
+        from . import classificador_local as cl
+        resumo = cl.resumir(texto) or ""
+        r = cl.classificar(resumo or texto)
+        if r:
+            classe = f"{r['tipo']} · {r['sensibilidade']}"
+            sens_a = r["sensibilidade"]
+    elif nome:
+        resumo = "(sem texto extraível — arquivo binário/imagem; registrados nome e tipo)"
+    return {"nome": nome, "tipo": tipo, "resumo": _texto(resumo, 1200),
+            "classe": _texto(classe, 80), "sens": _texto(sens_a, 20)}
 
 
 # ---------------------------------------------------------------------
@@ -463,6 +512,9 @@ def ingerir(con: sqlite3.Connection, corpo: dict, usuario: str, identidade_fonte
             else:
                 classificado_por = "llm-local-baixa-confianca"   # pendente (candidato ao Nível 2)
 
+    # Anexo (se houver): resume com Qwen3 e submete o resumo à classificação.
+    anexo = _processar_anexo(corpo)
+
     # Normaliza a ferramenta: extensão e agente usam nomes/domínios diferentes
     # para a mesma IA; aqui unificamos para o canônico (a fonte segue separada).
     nome_fer, dom_canon = canonizar_ferramenta(
@@ -471,8 +523,9 @@ def ingerir(con: sqlite3.Connection, corpo: dict, usuario: str, identidade_fonte
     cur = con.execute(
         """INSERT INTO capturas (ts,recebido_em,usuario,identidade_fonte,maquina,dominio,
              ferramenta,status_fer,forma,qtd,tipo,sens,finalidade,deteccoes,fingerprint,
-             previa,titulo,modo,par_id,papel,prompt,resposta,fonte_captura,classificado_por)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+             previa,titulo,modo,par_id,papel,prompt,resposta,fonte_captura,classificado_por,
+             anexo_nome,anexo_tipo,anexo_resumo,anexo_class,anexo_sens)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (
             ts, agora, _texto(usuario, 64) or "não identificado", _texto(identidade_fonte, 20),
             _texto(corpo.get("maquina"), 64),
@@ -493,6 +546,8 @@ def ingerir(con: sqlite3.Connection, corpo: dict, usuario: str, identidade_fonte
             _texto(corpo.get("resposta"), 16000),    # CONTEUDO do retorno da IA
             fonte_captura,
             classificado_por,                        # borda | llm-local | ...
+            anexo.get("nome", ""), anexo.get("tipo", ""), anexo.get("resumo", ""),
+            anexo.get("classe", ""), anexo.get("sens", ""),
         ),
     )
     cap_id = f"CAP-{cur.lastrowid:06d}"

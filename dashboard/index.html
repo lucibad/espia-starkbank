@@ -1009,12 +1009,18 @@ function fichaEvento(e) {
 function carregarConteudoFicha(box) {
   const cap = box.dataset.cap;
   const pinta = (d) => {
-    if (!d || (!d.prompt && !d.resposta)) { box.innerHTML = '<p class="muted small">Sem conteúdo registrado para este evento.</p>'; return; }
+    const anx = d && d.anexo && (d.anexo.nome || d.anexo.resumo) ? d.anexo : null;
+    if (!d || (!d.prompt && !d.resposta && !anx)) { box.innerHTML = '<p class="muted small">Sem conteúdo registrado para este evento.</p>'; return; }
     const mesma = d.prompt && d.resposta && d.prompt.trim() === d.resposta.trim();
     box.innerHTML = `<div class="card-h"><h3 style="font-size:12.5px">Conteúdo capturado</h3></div>
       ${d.prompt ? `<p class="muted small" style="margin:6px 0 2px">Digitado pelo usuário</p><p class="mono small" style="white-space:pre-wrap;margin:0">${esc(d.prompt)}</p>` : ''}
       ${(d.resposta && !mesma) ? `<p class="muted small" style="margin:10px 0 2px">Resposta da IA</p><p class="mono small" style="white-space:pre-wrap;margin:0">${esc(d.resposta)}</p>` : ''}
-      ${(!d.prompt && d.resposta) ? `<p class="muted small" style="margin:6px 0 2px">Resposta da IA</p><p class="mono small" style="white-space:pre-wrap;margin:0">${esc(d.resposta)}</p>` : ''}`;
+      ${(!d.prompt && d.resposta) ? `<p class="muted small" style="margin:6px 0 2px">Resposta da IA</p><p class="mono small" style="white-space:pre-wrap;margin:0">${esc(d.resposta)}</p>` : ''}
+      ${(!d.prompt && !d.resposta && anx) ? '' : ''}
+      ${anx ? `<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line)">
+        <p class="muted small" style="margin:0 0 2px"><b>Conteúdo do anexo (resumo)</b></p>
+        <p class="muted small" style="margin:2px 0">📎 ${esc(anx.nome || 'anexo')}${anx.classe ? ` · <b>${esc(anx.classe)}</b>` : ''}</p>
+        <p class="small" style="white-space:pre-wrap;margin:4px 0 0">${esc(anx.resumo || '(sem resumo)')}</p></div>` : ''}`;
   };
   // No coletor: conteúdo completo do banco. Sem coletor (Pages/arquivo): usa o que
   // foi publicado com o painel (E.conteudos), já mascarado na origem.

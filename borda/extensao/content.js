@@ -12,6 +12,36 @@
   var dominio = location.hostname.replace(/^www\./, "");
   var ultimoEnvio = 0;
   var LIMITE = 16000;   // teto de caracteres guardados por prompt/resposta
+  var anexoPendente = null;   // último arquivo anexado (vai junto com o próximo prompt)
+  var EXT_TEXTO = /\.(txt|csv|tsv|md|markdown|json|log|xml|ya?ml|html?|js|ts|py|java|c|cpp|cs|rb|go|rs|php|sql|ini|conf)$/i;
+
+  function lerAnexo(file) {
+    try {
+      var nome = file.name || "anexo", tipo = file.type || "";
+      var ehTexto = EXT_TEXTO.test(nome) || /^text\//.test(tipo) || /json|xml|csv/.test(tipo);
+      var ehPdf = /\.pdf$/i.test(nome) || tipo === "application/pdf";
+      if (ehTexto && file.size <= 2 * 1024 * 1024) {
+        var r = new FileReader();
+        r.onload = function () { anexoPendente = { nome: nome, tipo: tipo || "text", texto: String(r.result || "").slice(0, 20000) }; };
+        r.readAsText(file);
+      } else if (ehPdf && file.size <= 4 * 1024 * 1024) {
+        var r2 = new FileReader();
+        r2.onload = function () {
+          var b = new Uint8Array(r2.result), s = "";
+          for (var i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
+          anexoPendente = { nome: nome, tipo: "application/pdf", base64: btoa(s) };
+        };
+        r2.readAsArrayBuffer(file);
+      } else {
+        anexoPendente = { nome: nome, tipo: tipo || "binário" };   // só nome/tipo
+      }
+    } catch (e) { /* best-effort */ }
+  }
+
+  document.addEventListener("change", function (e) {
+    var el = e.target;
+    if (el && el.tagName === "INPUT" && el.type === "file" && el.files && el.files.length) lerAnexo(el.files[0]);
+  }, true);
 
   // Onde fica a resposta da IA, por site (o último nó é a resposta mais recente).
   var SELETOR_RESPOSTA = {
@@ -77,6 +107,8 @@
     // O conteúdo completo vai no campo do papel correspondente.
     if (papel === "resposta") ev.resposta = t.slice(0, LIMITE);
     else ev.prompt = t.slice(0, LIMITE);
+    // Anexo lido pouco antes do envio entra junto com o prompt (uma vez).
+    if (papel !== "resposta" && anexoPendente) { ev.anexo = anexoPendente; anexoPendente = null; }
     return ev;
   }
 
