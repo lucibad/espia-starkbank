@@ -77,6 +77,8 @@ DOMINIOS_IA = {
     "grok.com": "Grok (xAI)",
     "cursor.sh": "Cursor",
     "cursor.com": "Cursor",
+    "gamma.app": "Gamma",
+    "gamma.design": "Gamma",
 }
 
 _ip_index: dict[str, str] = {}       # ip → nome da ferramenta

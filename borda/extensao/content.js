@@ -24,6 +24,8 @@
     "www.perplexity.ai": '.prose, [class*="answer"]',
     "chat.deepseek.com": '.ds-markdown, [class*="message"]',
     "grok.com": '[class*="response"], .prose',
+    "gamma.app": '[class*="message"], [class*="markdown"], .prose',
+    "gamma.design": '[class*="message"], [class*="markdown"], .prose',
   };
 
   function campoAtivo() {

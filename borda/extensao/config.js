@@ -28,6 +28,8 @@ const RASTRO = {
     "meta.ai": "Meta AI",
     "www.meta.ai": "Meta AI",
     "grok.com": "Grok",
+    "gamma.app": "Gamma",
+    "gamma.design": "Gamma",
   },
 
   // Nome do host de mensagens nativas que informa o usuário do Windows.

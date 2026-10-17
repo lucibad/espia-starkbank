@@ -71,8 +71,8 @@
   <p>Base: <code>https://raw.githubusercontent.com/lucibad/espia-starkbank/main/</code></p>
   <table>
     <tr><td>Agente da estação</td><td><code>borda/pacotes/GerencIA-Agente-Estacao.zip</code></td></tr>
-    <tr><td>Extensão Chrome/Edge</td><td><code>borda/pacotes/gerencia-extensao-chrome-edge-0.3.0.zip</code></td></tr>
-    <tr><td>Extensão Firefox (.xpi)</td><td><code>borda/pacotes/gerencia-extensao-firefox-0.3.0.xpi</code></td></tr>
+    <tr><td>Extensão Chrome/Edge</td><td><code>borda/pacotes/gerencia-extensao-chrome-edge-0.3.1.zip</code></td></tr>
+    <tr><td>Extensão Firefox (.xpi)</td><td><code>borda/pacotes/gerencia-extensao-firefox-0.3.1.xpi</code></td></tr>
     <tr><td>Atualizador da extensão</td><td><code>borda/extensao/ATUALIZAR-EXTENSAO.ps1</code></td></tr>
   </table>
   <div class="foot"><span>GerencIA · governança de IA</span><span>Manual de instalação · pág. 1</span></div>
@@ -132,16 +132,16 @@ powershell -ExecutionPolicy Bypass -File .\instalar-servico.ps1 -Coletor "http:/
     <div class="cmd">cd $env:USERPROFILE\Downloads
 Invoke-WebRequest "https://raw.githubusercontent.com/lucibad/espia-starkbank/main/borda/extensao/ATUALIZAR-EXTENSAO.ps1" -OutFile ATUALIZAR-EXTENSAO.ps1
 powershell -ExecutionPolicy Bypass -File .\ATUALIZAR-EXTENSAO.ps1</div>
-    <p>Deve imprimir <code>versao: 0.3.0</code>, <code>captura conteudo: SIM</code>.</p>
+    <p>Deve imprimir <code>versao: 0.3.1</code>, <code>captura conteudo: SIM</code>.</p>
     <p><b>Alternativa (PowerShell direto, como administrador)</b> — a 1ª linha evita o falso-positivo do Defender:</p>
     <div class="cmd">New-Item -ItemType Directory -Force -Path C:\GerencIA | Out-Null
 Add-MpPreference -ExclusionPath "C:\GerencIA"   <span class="c"># 1x, mantém o antivírus ligado</span>
-Invoke-WebRequest "https://raw.githubusercontent.com/lucibad/espia-starkbank/main/borda/pacotes/gerencia-extensao-chrome-edge-0.3.0.zip" -OutFile C:\GerencIA\ext.zip
+Invoke-WebRequest "https://raw.githubusercontent.com/lucibad/espia-starkbank/main/borda/pacotes/gerencia-extensao-chrome-edge-0.3.1.zip" -OutFile C:\GerencIA\ext.zip
 Expand-Archive C:\GerencIA\ext.zip -DestinationPath C:\GerencIA\extensao -Force</div>
   </div></div>
   <div class="step"><div class="n">2</div><div>
     <h3>Carregar no navegador</h3>
-    <p><b>Edge/Chrome:</b> <code>edge://extensions</code> → Modo do desenvolvedor → Remover o antigo → <b>Carregar sem pacote</b> → <code>C:\GerencIA\extensao</code> (deve aparecer <b>0.3.0</b>).</p>
+    <p><b>Edge/Chrome:</b> <code>edge://extensions</code> → Modo do desenvolvedor → Remover o antigo → <b>Carregar sem pacote</b> → <code>C:\GerencIA\extensao</code> (deve aparecer <b>0.3.1</b>).</p>
     <p><b>Firefox:</b> <code>about:debugging</code> → Este Firefox → <b>Carregar extensão temporária</b> → selecione <code>C:\GerencIA\extensao\manifest.json</code>. Depois, em <code>about:addons</code> → Permissões → <b>ligue</b> o acesso aos sites (no Firefox a permissão de rede é manual).</p>
   </div></div>
   <div class="step"><div class="n">3</div><div>
@@ -175,7 +175,7 @@ Expand-Archive C:\GerencIA\ext.zip -DestinationPath C:\GerencIA\extensao -Force<
     <tr><td>Firefox: “Agente sem conexão”</td><td>Permissão de rede do Firefox é manual: <code>about:addons</code> → Permissões → ligar acesso aos sites.</td></tr>
     <tr><td>Agente gerando centenas de capturas/dia</td><td>Versão antiga. Reinstale: dedup por uso (8h) + cache de DNS como autoridade (sem falso-positivo de CDN).</td></tr>
     <tr><td>Esqueci a senha do serviço</td><td><code>.\resetar-senha.ps1</code> (como admin, sem a antiga) ou <code>sc delete GerenciaSensor</code> e reinstale.</td></tr>
-    <tr><td>Estações: farol “Sem sinal” com tudo instalado</td><td>Versões antigas não enviam heartbeat. Atualize o agente e a extensão para a build atual (<b>0.3.0</b>) — o farol acende em ~1 min.</td></tr>
+    <tr><td>Estações: farol “Sem sinal” com tudo instalado</td><td>Versões antigas não enviam heartbeat. Atualize o agente e a extensão para a build atual (<b>0.3.1</b>) — o farol acende em ~1 min.</td></tr>
     <tr><td>Defender apaga a extensão (“vírus detectado”)</td><td>Falso-positivo (host nativo + script). Como <b>admin</b>, uma vez: <code>Add-MpPreference -ExclusionPath 'C:\GerencIA'</code>; restaure em <i>Segurança do Windows → Histórico de proteção</i> e rode o atualizador de novo (ele já tenta a exclusão).</td></tr>
   </table>
 

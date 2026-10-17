@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "GerencIA · borda",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6TK99i5hzISwpMkFGeHyqrkKcHdYHCJhoxU10Sdivy/TquQchTzIZLujuftMWZmbUtwtxhspTagqd7MYzHSkQY0mwzln1xNmU6vLPww2nLYCQ3/6/ue4NRyUZhnUhzB2+Rgwu0JpAv3RTJOyQ/vm/LHd8R2K4taslrozN2zCltHjxvDHZ9+teuEsaUv6SmGoQCAFifbT1b5h9u2ikK6DLYkZ8dlinE5kA8CfLBXO/4JieowikfgRStCOtH8zc9koIy4n3tCtpBRSDmT0UOeH2Cg6/jJZbgJMw6cKMPXOhEKUvZlZNdP37VvheRA46c1uIMEurInBzomR0iIfhgnrkwIDAQAB",
   "description": "Coletor de borda do GerencIA: registra, para governança, quando o usuário interage com ferramentas de IA. Detectores e fingerprint rodam localmente; o conteúdo não sai da máquina.",
   "icons": {
@@ -40,7 +40,9 @@
         "https://huggingface.co/chat/*",
         "https://www.meta.ai/*",
         "https://meta.ai/*",
-        "https://grok.com/*"
+        "https://grok.com/*",
+        "https://gamma.app/*",
+        "https://gamma.design/*"
       ],
       "js": [
         "config.js",

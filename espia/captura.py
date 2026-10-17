@@ -113,6 +113,7 @@ INVENTARIO_SEMENTE = {
     "www.meta.ai": ("Meta AI", "Não aprovada"),
     "grok.com": ("Grok (xAI)", "Não aprovada"),
     "x.com": ("Grok (xAI)", "Não aprovada"),
+    "gamma.app": ("Gamma", "Não aprovada"),
 }
 
 # --- Normalização de ferramenta -------------------------------------------
@@ -140,6 +141,8 @@ CANON_DOMINIOS = {
     "x.com": ("Grok (xAI)", "grok.com"),
     "cursor.com": ("Cursor", "cursor.com"),
     "cursor.sh": ("Cursor", "cursor.com"),
+    "gamma.app": ("Gamma", "gamma.app"),
+    "gamma.design": ("Gamma", "gamma.app"),
 }
 # Nomes curtos que a extensão às vezes manda sem domínio utilizável.
 CANON_NOMES = {
@@ -154,6 +157,7 @@ CANON_NOMES = {
     "meta ai": ("Meta AI", "meta.ai"),
     "grok": ("Grok (xAI)", "grok.com"),
     "cursor": ("Cursor", "cursor.com"),
+    "gamma": ("Gamma", "gamma.app"),
 }
 
 
