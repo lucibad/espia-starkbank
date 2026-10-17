@@ -1647,7 +1647,7 @@ function entidadeHTML(kind, id) {
     <section class="card mt"><div class="card-h"><h3>Linha do tempo</h3><span class="hint">Agrupada por ${gKind === 'ferramenta' ? 'ferramenta' : 'informação'}, mais arriscado primeiro</span></div>
       ${gList.map(([k, l], i) => {
         const rc = count(l, e => e.risco);
-        return `<details class="grp" ${i < 2 ? 'open' : ''}><summary><b>${esc(KINDS[gKind].label(k))}</b> ${gKind === 'ferramenta' ? stTag(k) : clsChip(l[0].sensibilidade)}<span class="cnt">${RISCOS.filter(r => rc[r]).map(r => `${riskChip(r)} ${rc[r]}`).join(' ')}</span></summary>
+        return `<details class="grp"><summary><b>${esc(KINDS[gKind].label(k))}</b> ${gKind === 'ferramenta' ? stTag(k) : clsChip(l[0].sensibilidade)}<span class="cnt">${RISCOS.filter(r => rc[r]).map(r => `${riskChip(r)} ${rc[r]}`).join(' ')}</span></summary>
         <ul class="tl">${l.map(e => `<li><span class="d">${dtBR(e.ts)}</span><span>${who(e)}<br><span class="muted small">${esc(e.forma_uso)} · ${esc(e.finalidade)}</span></span><span class="x">${srcTag(e.fonte)} ${riskChip(e.risco)} <a href="${link(['investigar', 'evento', e.id])}" class="small">evidência →</a></span></li>`).join('')}</ul></details>`;
       }).join('')}
     </section>
