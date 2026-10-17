@@ -986,7 +986,7 @@ function evidencia(e, a) {
     <h3 style="font-size:13.5px">Por que isto é risco</h3>
     <ol class="chain">${chain || '<li>Sem achados registrados.</li>'}</ol>
     ${e.divergente && e.risco_base ? `<p class="note">A base trazia <b>${esc(e.risco_base)}</b> (${esc(e.regra_base)}); o motor apurou <b>${esc(e.risco)}</b> (${esc(e.regra)}). Detalhes em Governança → Regras de risco → Auditoria da base.</p>` : ''}
-    <div class="linkrow"><a href="${link(['investigar', 'info', e.informacao_id])}">Onde mais esta informação foi usada →</a><button class="linkbtn" type="button" data-abrir-evento="${esc(e.id)}">${MODAL.ficha === e.id ? 'Ocultar evento' : 'Abrir evento →'}</button></div>
+    <div class="linkrow"><button class="linkbtn" type="button" data-abrir-evento="${esc(e.id)}">${MODAL.ficha === e.id ? 'Ocultar evento' : 'Abrir evento →'}</button></div>
   </div>`;
 }
 
