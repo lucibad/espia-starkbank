@@ -811,7 +811,7 @@ function mountFilters(main) {
   head.insertAdjacentHTML('beforeend', `<div class="hctl">
     <div class="seg" role="group" aria-label="Fonte">${[['', 'Todas', E.eventos.length], ['planilha', 'Planilha', nF.planilha || 0], ['coleta', 'Coleta', nF.coleta || 0]].map(([v, l, n]) => `<button type="button" data-fonte="${v}" aria-pressed="${(q.fonte || '') === v}">${l} <span>${n}</span></button>`).join('')}</div>
     <div class="seg" role="group" aria-label="Período">${presets.map(p => `<button type="button" data-de="${p[1]}" data-ate="${p[2]}" aria-pressed="${presetOn(p)}">${p[0]}</button>`).join('')}</div>
-    <button type="button" class="fbtn" id="f-mais" aria-expanded="${filtrosAbertos}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>Área · Ferramenta · Risco${nAvanc ? `<span class="n">${nAvanc}</span>` : ''}</button>
+    <button type="button" class="fbtn" id="f-mais" aria-expanded="${filtrosAbertos}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>Filtros${nAvanc ? `<span class="n">${nAvanc}</span>` : ''}</button>
   </div>`);
   const chips = [];
   if (q.fonte) chips.push([`Fonte: ${FONTE[q.fonte] ? FONTE[q.fonte].l : q.fonte}`, 'fonte']);
