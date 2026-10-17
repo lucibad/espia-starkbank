@@ -1008,17 +1008,20 @@ function fichaEvento(e) {
 // (arquivo/Pages) o conteúdo não existe — por privacidade, não é publicado.
 function carregarConteudoFicha(box) {
   const cap = box.dataset.cap;
+  const pinta = (d) => {
+    if (!d || (!d.prompt && !d.resposta)) { box.innerHTML = '<p class="muted small">Sem conteúdo registrado para este evento.</p>'; return; }
+    const mesma = d.prompt && d.resposta && d.prompt.trim() === d.resposta.trim();
+    box.innerHTML = `<div class="card-h"><h3 style="font-size:12.5px">Conteúdo capturado</h3></div>
+      ${d.prompt ? `<p class="muted small" style="margin:6px 0 2px">Digitado pelo usuário</p><p class="mono small" style="white-space:pre-wrap;margin:0">${esc(d.prompt)}</p>` : ''}
+      ${(d.resposta && !mesma) ? `<p class="muted small" style="margin:10px 0 2px">Resposta da IA</p><p class="mono small" style="white-space:pre-wrap;margin:0">${esc(d.resposta)}</p>` : ''}
+      ${(!d.prompt && d.resposta) ? `<p class="muted small" style="margin:6px 0 2px">Resposta da IA</p><p class="mono small" style="white-space:pre-wrap;margin:0">${esc(d.resposta)}</p>` : ''}`;
+  };
+  // No coletor: conteúdo completo do banco. Sem coletor (Pages/arquivo): usa o que
+  // foi publicado com o painel (E.conteudos), já mascarado na origem.
   fetch('/api/conteudo?cap=' + encodeURIComponent(cap))
     .then(r => r.ok ? r.json() : Promise.reject())
-    .then(d => {
-      if (!d.prompt && !d.resposta) { box.innerHTML = '<p class="muted small">Sem conteúdo registrado para este evento.</p>'; return; }
-      const mesma = d.prompt && d.resposta && d.prompt.trim() === d.resposta.trim();
-      box.innerHTML = `<div class="card-h"><h3 style="font-size:12.5px">Conteúdo capturado</h3></div>
-        ${d.prompt ? `<p class="muted small" style="margin:6px 0 2px">Digitado pelo usuário</p><p class="mono small" style="white-space:pre-wrap;margin:0">${esc(d.prompt)}</p>` : ''}
-        ${(d.resposta && !mesma) ? `<p class="muted small" style="margin:10px 0 2px">Resposta da IA</p><p class="mono small" style="white-space:pre-wrap;margin:0">${esc(d.resposta)}</p>` : ''}
-        ${(!d.prompt && d.resposta) ? `<p class="muted small" style="margin:6px 0 2px">Resposta da IA</p><p class="mono small" style="white-space:pre-wrap;margin:0">${esc(d.resposta)}</p>` : ''}`;
-    })
-    .catch(() => { box.innerHTML = '<p class="muted small">O conteúdo completo (o que foi digitado e a resposta) aparece quando o painel é servido pelo <b>coletor</b> (on-premise). Fora dele, por privacidade, só a prévia mascarada acima.</p>'; });
+    .then(pinta)
+    .catch(() => pinta((E.conteudos || {})[cap]));
 }
 
 // =====================================================================

@@ -350,6 +350,45 @@ def estacoes_status(con: sqlite3.Connection) -> list[dict]:
     return saida
 
 
+def _mascarar(txt: str) -> str:
+    """Esconde tokens sensíveis (CPF/CNPJ/cartão/sequências longas) antes de
+    PUBLICAR o conteúdo — o texto da interação fica legível, o dado sensível não.
+    O conteúdo completo, sem máscara, continua só no coletor (/api/conteudo)."""
+    if not txt:
+        return txt
+    txt = re.sub(r"\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b", "[CPF]", txt)                       # CPF
+    txt = re.sub(r"\b\d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2}\b", "[CNPJ]", txt)               # CNPJ
+    txt = re.sub(r"\b(?:\d[ -]?){13,16}\b", "[cartão]", txt)                              # cartão
+    txt = re.sub(r"\b\d{6,}\b", "[número]", txt)                                          # sequência longa
+    return txt
+
+
+def conteudos_map(con: sqlite3.Connection) -> dict:
+    """{cap_id: {prompt, resposta}} das capturas com conteúdo — para a ficha do
+    evento mostrar o que foi digitado (inclusive no Pages, sem o coletor). O texto
+    é MASCARADO aqui (dado sensível escondido); o original só sai pelo coletor.
+    Junta o par prompt/resposta da mesma busca."""
+    out: dict = {}
+    try:
+        rows = con.execute("SELECT cap_id, par_id, prompt, resposta FROM capturas").fetchall()
+    except sqlite3.OperationalError:
+        return out
+    por_par: dict = {}
+    for _cap, par, pr, rp in rows:
+        if par:
+            d = por_par.setdefault(par, {"prompt": "", "resposta": ""})
+            if pr and not d["prompt"]:
+                d["prompt"] = pr
+            if rp and not d["resposta"]:
+                d["resposta"] = rp
+    for cap, par, pr, rp in rows:
+        prompt = (pr or (por_par.get(par, {}).get("prompt") if par else "") or "")[:16000]
+        resposta = (rp or (por_par.get(par, {}).get("resposta") if par else "") or "")[:16000]
+        if prompt or resposta:
+            out[cap] = {"prompt": _mascarar(prompt), "resposta": _mascarar(resposta)}
+    return out
+
+
 def garantir_esquema(con: sqlite3.Connection) -> None:
     con.executescript(ESQUEMA_CAPTURAS)
     # Migração: bancos antigos não têm as colunas de conteúdo — adiciona se faltarem.

@@ -170,6 +170,7 @@ def executar(caminho_base: Path | None = None, verboso: bool = True) -> dict:
         print("→ exportando painel…")
     payload = _payload(base, avaliacoes, resumo_val, indicadores, achados,
                        concord_nivel, concord_regra)
+    payload["conteudos"] = cp.conteudos_map(con)   # conteúdo capturado p/ a ficha
     (DIR_DADOS / "dashboard.json").write_text(
         json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     con.close()
